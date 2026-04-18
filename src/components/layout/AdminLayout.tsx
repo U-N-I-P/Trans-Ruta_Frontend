@@ -21,7 +21,11 @@ import {
   Vehiculo
 } from "../../types/domain";
 
-export function AdminLayout() {
+interface AdminLayoutProps {
+  onCerrarSesion: () => void;
+}
+
+export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [colapsado, setColapsado] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
   const [vistaActiva, setVistaActiva] = useState<VistaPrincipal>("panel");
@@ -113,7 +117,11 @@ export function AdminLayout() {
       />
 
       <main className={`transition-all duration-300 ${margenContenido}`}>
-        <Topbar notificaciones={notificaciones} onAbrirMovil={() => setMovilAbierto(true)} />
+        <Topbar
+          notificaciones={notificaciones}
+          onAbrirMovil={() => setMovilAbierto(true)}
+          onCerrarSesion={onCerrarSesion}
+        />
         <div className="p-4 lg:p-8">
           {cargando ? (
             <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500 shadow-panel">
