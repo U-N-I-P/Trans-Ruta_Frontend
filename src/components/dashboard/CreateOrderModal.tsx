@@ -3,39 +3,57 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MapPin } from "lucide-react";
-import { Conductor, Coordenada, NuevaOrdenInput, Vehiculo } from "../../types/domain";
+import { Cliente, ConductorConDisponibilidad, Coordenada, NuevaOrdenInput, Vehiculo } from "../../types/domain";
 import { Modal } from "../ui/Modal";
 
 interface CreateOrderModalProps {
   abierto: boolean;
   vehiculos: Vehiculo[];
-  conductores: Conductor[];
+  conductores: ConductorConDisponibilidad[];
+  clientes: Cliente[];
   onCerrar: () => void;
-  onCrearOrden: (payload: NuevaOrdenInput) => void;
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
 }
 
 type ModoMapa = "origen" | "destino";
+
+const formatearTipoVehiculo = (tipo: Vehiculo["tipo"]) => {
+  switch (tipo) {
+    case "CAMION_CARGA_PESADA":
+      return "Camion";
+    case "TURBO":
+      return "Turbo";
+    case "CAMIONETA":
+      return "Camioneta";
+    default:
+      return tipo;
+  }
+};
 
 const crearEsquema = (vehiculos: Vehiculo[]) =>
   z
     .object({
       vehiculoId: z.string().min(1, "Seleccione un vehiculo"),
       conductorId: z.string().min(1, "Seleccione un conductor"),
+      clienteId: z.string().min(1, "Seleccione un cliente"),
       origen: z.string().min(3, "Ingrese un origen valido"),
       destino: z.string().min(3, "Ingrese un destino valido"),
-      pesoCargaKg: z.coerce.number().positive("El peso debe ser mayor a 0")
+      pesoCarga: z.coerce.number().positive("El peso debe ser mayor a 0"),
+      descripcionCarga: z.string().optional(),
+      fechaSalida: z.string().optional(),
+      fechaEntregaEstimada: z.string().optional()
     })
     .superRefine((data, ctx) => {
-      const vehiculo = vehiculos.find((item) => item.id === data.vehiculoId);
+      const vehiculo = vehiculos.find((item) => String(item.id) === data.vehiculoId);
       if (!vehiculo) {
         return;
       }
 
-      if (data.pesoCargaKg >= vehiculo.capacidadKg) {
+      if (data.pesoCarga >= vehiculo.capacidadCarga) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `El peso debe ser menor a ${vehiculo.capacidadKg} kg para ${vehiculo.placa}`,
-          path: ["pesoCargaKg"]
+          message: `El peso debe ser menor a ${vehiculo.capacidadCarga} kg para ${vehiculo.placa}`,
+          path: ["pesoCarga"]
         });
       }
     });
@@ -44,12 +62,15 @@ export function CreateOrderModal({
   abierto,
   vehiculos,
   conductores,
+  clientes,
   onCerrar,
   onCrearOrden
 }: CreateOrderModalProps) {
   const [modoMapa, setModoMapa] = useState<ModoMapa>("origen");
   const [coordenadaOrigen, setCoordenadaOrigen] = useState<Coordenada | undefined>();
   const [coordenadaDestino, setCoordenadaDestino] = useState<Coordenada | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorSubmit, setErrorSubmit] = useState<string | null>(null);
 
   const esquema = useMemo(() => crearEsquema(vehiculos), [vehiculos]);
 
@@ -64,13 +85,17 @@ export function CreateOrderModal({
     defaultValues: {
       vehiculoId: "",
       conductorId: "",
+      clienteId: "",
       origen: "",
       destino: "",
-      pesoCargaKg: 0
+      pesoCarga: 0,
+      descripcionCarga: "",
+      fechaSalida: "",
+      fechaEntregaEstimada: ""
     }
   });
 
-  const vehiculoSeleccionado = vehiculos.find((item) => item.id === watch("vehiculoId"));
+  const vehiculoSeleccionado = vehiculos.find((item) => String(item.id) === watch("vehiculoId"));
 
   const manejarClickMapa = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -89,17 +114,33 @@ export function CreateOrderModal({
     }
   };
 
-  const onSubmit = (values: z.infer<typeof esquema>) => {
-    onCrearOrden({
-      ...values,
-      coordenadasOrigen: coordenadaOrigen,
-      coordenadasDestino: coordenadaDestino
-    });
+  const onSubmit = async (values: z.infer<typeof esquema>) => {
+    setErrorSubmit(null);
+    setIsSubmitting(true);
 
-    reset();
-    setCoordenadaOrigen(undefined);
-    setCoordenadaDestino(undefined);
-    onCerrar();
+    try {
+      await onCrearOrden({
+        vehiculoId: Number(values.vehiculoId),
+        conductorId: Number(values.conductorId),
+        clienteId: Number(values.clienteId),
+        origen: values.origen,
+        destino: values.destino,
+        pesoCarga: values.pesoCarga,
+        descripcionCarga: values.descripcionCarga?.trim() || null,
+        fechaSalida: values.fechaSalida || null,
+        fechaEntregaEstimada: values.fechaEntregaEstimada || null
+      });
+
+      reset();
+      setCoordenadaOrigen(undefined);
+      setCoordenadaDestino(undefined);
+      onCerrar();
+    } catch (err) {
+      console.error(err);
+      setErrorSubmit("No se pudo crear la orden. Verifica la conexión con el backend.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,10 +152,10 @@ export function CreateOrderModal({
             <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("vehiculoId")}>
               <option value="">Seleccione...</option>
               {vehiculos
-                .filter((v) => v.estado === "Disponible")
+                .filter((v) => v.estado === "DISPONIBLE")
                 .map((vehiculo) => (
-                  <option key={vehiculo.id} value={vehiculo.id}>
-                    {vehiculo.placa} - {vehiculo.tipo} ({vehiculo.capacidadKg} kg)
+                  <option key={vehiculo.id} value={String(vehiculo.id)}>
+                    {vehiculo.placa} - {formatearTipoVehiculo(vehiculo.tipo)} ({vehiculo.capacidadCarga} kg)
                   </option>
                 ))}
             </select>
@@ -128,12 +169,25 @@ export function CreateOrderModal({
               {conductores
                 .filter((c) => c.disponible)
                 .map((conductor) => (
-                  <option key={conductor.id} value={conductor.id}>
-                    {conductor.nombre} - Lic. {conductor.licencia}
+                  <option key={conductor.id} value={String(conductor.id)}>
+                    {conductor.nombre} {conductor.apellido} - Lic. {conductor.numeroLicencia}
                   </option>
                 ))}
             </select>
             {errors.conductorId && <p className="text-xs text-red-600">{errors.conductorId.message}</p>}
+          </label>
+
+          <label className="space-y-1 text-sm text-slate-700">
+            <span className="font-semibold">Cliente</span>
+            <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("clienteId")}>
+              <option value="">Seleccione...</option>
+              {clientes.map((cliente) => (
+                <option key={cliente.id} value={String(cliente.id)}>
+                  {cliente.nombre}
+                </option>
+              ))}
+            </select>
+            {errors.clienteId && <p className="text-xs text-red-600">{errors.clienteId.message}</p>}
           </label>
 
           <label className="space-y-1 text-sm text-slate-700">
@@ -155,6 +209,30 @@ export function CreateOrderModal({
             />
             {errors.destino && <p className="text-xs text-red-600">{errors.destino.message}</p>}
           </label>
+
+          <label className="space-y-1 text-sm text-slate-700 md:col-span-2">
+            <span className="font-semibold">Descripcion de la carga</span>
+            <textarea
+              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              rows={3}
+              placeholder="Descripcion opcional de la carga"
+              {...register("descripcionCarga")}
+            />
+          </label>
+
+          <label className="space-y-1 text-sm text-slate-700">
+            <span className="font-semibold">Fecha de salida</span>
+            <input className="w-full rounded-xl border border-slate-300 px-3 py-2" type="date" {...register("fechaSalida")} />
+          </label>
+
+          <label className="space-y-1 text-sm text-slate-700">
+            <span className="font-semibold">Fecha estimada de entrega</span>
+            <input
+              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              type="date"
+              {...register("fechaEntregaEstimada")}
+            />
+          </label>
         </div>
 
         <label className="space-y-1 text-sm text-slate-700">
@@ -162,12 +240,14 @@ export function CreateOrderModal({
           <input
             type="number"
             className="w-full rounded-xl border border-slate-300 px-3 py-2"
-            {...register("pesoCargaKg")}
+            {...register("pesoCarga")}
           />
           {vehiculoSeleccionado && (
-            <p className="text-xs text-slate-500">Capacidad maxima del vehiculo: {vehiculoSeleccionado.capacidadKg} kg</p>
+            <p className="text-xs text-slate-500">
+              Capacidad maxima del vehiculo: {vehiculoSeleccionado.capacidadCarga} kg
+            </p>
           )}
-          {errors.pesoCargaKg && <p className="text-xs text-red-600">{errors.pesoCargaKg.message}</p>}
+          {errors.pesoCarga && <p className="text-xs text-red-600">{errors.pesoCarga.message}</p>}
         </label>
 
         <section className="rounded-xl border border-slate-200 p-4">
@@ -217,19 +297,23 @@ export function CreateOrderModal({
           </div>
         </section>
 
+        {errorSubmit && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{errorSubmit}</p>}
+
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
             className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600"
             onClick={onCerrar}
+            disabled={isSubmitting}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="rounded-xl bg-logistics-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-logistics-900"
+            disabled={isSubmitting}
+            className="rounded-xl bg-logistics-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-logistics-900 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Guardar orden
+            {isSubmitting ? "Guardando..." : "Guardar orden"}
           </button>
         </div>
       </form>

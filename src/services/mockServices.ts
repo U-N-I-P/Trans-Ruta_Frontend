@@ -1,19 +1,11 @@
 import {
   conductoresMock,
   notificacionesIncidentesMock,
-  ordenesDespachoMock,
   repuestosMock,
   solicitudesCompraMock,
   vehiculosMock
 } from "../data/mockData";
-import {
-  Conductor,
-  NotificacionIncidente,
-  OrdenDespacho,
-  Repuesto,
-  SolicitudCompra,
-  Vehiculo
-} from "../types/domain";
+import { ConductorConDisponibilidad, NotificacionIncidente, Repuesto, SolicitudCompra, Vehiculo } from "../types/domain";
 
 const LATENCIA = 500;
 
@@ -24,9 +16,10 @@ const simularPeticion = <T>(data: T): Promise<T> =>
 
 export const obtenerVehiculos = (): Promise<Vehiculo[]> => simularPeticion(vehiculosMock);
 
-export const obtenerConductores = (): Promise<Conductor[]> => simularPeticion(conductoresMock);
+export const obtenerConductores = (): Promise<ConductorConDisponibilidad[]> =>
+  simularPeticion(conductoresMock);
 
-export const obtenerOrdenesDespacho = (): Promise<OrdenDespacho[]> => simularPeticion(ordenesDespachoMock);
+
 
 export const obtenerNotificacionesIncidentes = (): Promise<NotificacionIncidente[]> =>
   simularPeticion(notificacionesIncidentesMock);

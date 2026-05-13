@@ -1,6 +1,13 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, ClipboardCheck, Truck, Wrench } from "lucide-react";
-import { Conductor, NuevaOrdenInput, OrdenDespacho, SolicitudCompra, Vehiculo } from "../../types/domain";
+import {
+  Cliente,
+  ConductorConDisponibilidad,
+  NuevaOrdenInput,
+  OrdenDespacho,
+  SolicitudCompra,
+  Vehiculo
+} from "../../types/domain";
 import { Badge } from "../ui/Badge";
 import { ColumnaTabla, Table } from "../ui/Table";
 import { KpiCard } from "./KpiCard";
@@ -9,22 +16,38 @@ import { CreateOrderModal } from "./CreateOrderModal";
 interface DashboardViewProps {
   ordenes: OrdenDespacho[];
   vehiculos: Vehiculo[];
-  conductores: Conductor[];
+  conductores: ConductorConDisponibilidad[];
+  clientes: Cliente[];
   solicitudesCompra: SolicitudCompra[];
-  onCrearOrden: (payload: NuevaOrdenInput) => void;
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
 }
 
-const progresoEstado = {
-  Despachado: 25,
-  "En Ruta": 60,
-  Entregado: 100,
-  Incidente: 40
+const progresoEstado: Record<OrdenDespacho["estado"], number> = {
+  DESPACHADO: 25,
+  EN_RUTA: 60,
+  CERCA_DEL_DESTINO: 80,
+  ENTREGADO: 100,
+  CANCELADO: 0
+};
+
+const formatearTipoVehiculo = (tipo: Vehiculo["tipo"]) => {
+  switch (tipo) {
+    case "CAMION_CARGA_PESADA":
+      return "Camion";
+    case "TURBO":
+      return "Turbo";
+    case "CAMIONETA":
+      return "Camioneta";
+    default:
+      return tipo;
+  }
 };
 
 export function DashboardView({
   ordenes,
   vehiculos,
   conductores,
+  clientes,
   solicitudesCompra,
   onCrearOrden
 }: DashboardViewProps) {
@@ -32,12 +55,13 @@ export function DashboardView({
   const [busqueda, setBusqueda] = useState("");
   const [modalAbierto, setModalAbierto] = useState(false);
 
-  const mapaVehiculos = useMemo(() => new Map(vehiculos.map((v) => [v.id, v])), [vehiculos]);
-  const mapaConductores = useMemo(() => new Map(conductores.map((c) => [c.id, c])), [conductores]);
+  const mapaVehiculos = useMemo(() => new Map(vehiculos.map((v) => [String(v.id), v])), [vehiculos]);
+  const mapaConductores = useMemo(() => new Map(conductores.map((c) => [String(c.id), c])), [conductores]);
+  const mapaClientes = useMemo(() => new Map(clientes.map((cliente) => [String(cliente.id), cliente])), [clientes]);
 
   const kpis = useMemo(() => {
-    const viajesActivos = ordenes.filter((o) => o.estado === "Despachado" || o.estado === "En Ruta").length;
-    const enMantenimiento = vehiculos.filter((v) => v.estado === "Mantenimiento").length;
+    const viajesActivos = ordenes.filter((o) => o.estado === "DESPACHADO" || o.estado === "EN_RUTA").length;
+    const enMantenimiento = vehiculos.filter((v) => v.estado === "EN_MANTENIMIENTO").length;
     const conductoresDisponibles = conductores.filter((c) => c.disponible).length;
     const solicitudesPendientes = solicitudesCompra.filter((s) => s.estado === "Pendiente").length;
 
@@ -53,16 +77,19 @@ export function DashboardView({
     const termino = busqueda.trim().toLowerCase();
 
     return ordenes.filter((orden) => {
-      const conductor = mapaConductores.get(orden.conductorId);
-      const vehiculo = mapaVehiculos.get(orden.vehiculoId);
+      const conductor = orden.conductor ?? mapaConductores.get(String(orden.conductorId));
+      const vehiculo = orden.vehiculo ?? mapaVehiculos.get(String(orden.vehiculoId));
+      const cliente = orden.cliente ?? mapaClientes.get(String(orden.clienteId));
 
       const coincideEstado = filtroEstado === "Todos" || orden.estado === filtroEstado;
       const coincideBusqueda =
         termino.length === 0 ||
         orden.codigo.toLowerCase().includes(termino) ||
         orden.destino.toLowerCase().includes(termino) ||
+        String(orden.vehiculoId).toLowerCase().includes(termino) ||
         conductor?.nombre.toLowerCase().includes(termino) ||
-        vehiculo?.placa.toLowerCase().includes(termino);
+        vehiculo?.placa.toLowerCase().includes(termino) ||
+        cliente?.nombre.toLowerCase().includes(termino);
 
       return coincideEstado && coincideBusqueda;
     });
@@ -79,15 +106,18 @@ export function DashboardView({
       id: "conductor",
       encabezado: "Conductor",
       anchoMinimo: "190px",
-      celda: (orden) => mapaConductores.get(orden.conductorId)?.nombre ?? "Sin asignar"
+      celda: (orden) => {
+        const conductor = orden.conductor ?? mapaConductores.get(String(orden.conductorId));
+        return conductor ? `${conductor.nombre} ${conductor.apellido}`.trim() : "Sin asignar";
+      }
     },
     {
       id: "vehiculo",
       encabezado: "Vehiculo",
       anchoMinimo: "180px",
       celda: (orden) => {
-        const vehiculo = mapaVehiculos.get(orden.vehiculoId);
-        return vehiculo ? `${vehiculo.placa} (${vehiculo.tipo})` : "No definido";
+        const vehiculo = orden.vehiculo ?? mapaVehiculos.get(String(orden.vehiculoId));
+        return vehiculo ? `${vehiculo.placa} (${formatearTipoVehiculo(vehiculo.tipo)})` : `Vehiculo ${orden.vehiculoId}`;
       }
     },
     {
@@ -161,11 +191,12 @@ export function DashboardView({
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value)}
             >
-              <option>Todos</option>
-              <option>Despachado</option>
-              <option>En Ruta</option>
-              <option>Entregado</option>
-              <option>Incidente</option>
+              <option value="Todos">Todos</option>
+              <option value="DESPACHADO">Despachado</option>
+              <option value="EN_RUTA">En ruta</option>
+              <option value="CERCA_DEL_DESTINO">Cerca del destino</option>
+              <option value="ENTREGADO">Entregado</option>
+              <option value="CANCELADO">Cancelado</option>
             </select>
             <button
               type="button"
@@ -180,7 +211,7 @@ export function DashboardView({
         <Table
           columnas={columnas}
           datos={ordenesFiltradas}
-          claveFila={(orden) => orden.id}
+          claveFila={(orden) => String(orden.id)}
           estadoVacio="No hay resultados con los filtros aplicados."
         />
       </section>
@@ -189,6 +220,7 @@ export function DashboardView({
         abierto={modalAbierto}
         vehiculos={vehiculos}
         conductores={conductores}
+        clientes={clientes}
         onCerrar={() => setModalAbierto(false)}
         onCrearOrden={onCrearOrden}
       />

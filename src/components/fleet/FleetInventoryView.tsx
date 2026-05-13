@@ -7,6 +7,34 @@ interface FleetInventoryViewProps {
   repuestos: Repuesto[];
 }
 
+const formatearTipoVehiculo = (tipo: Vehiculo["tipo"]) => {
+  switch (tipo) {
+    case "CAMION_CARGA_PESADA":
+      return "Camion";
+    case "TURBO":
+      return "Turbo";
+    case "CAMIONETA":
+      return "Camioneta";
+    default:
+      return tipo;
+  }
+};
+
+const formatearEstadoVehiculo = (estado: Vehiculo["estado"]) => {
+  switch (estado) {
+    case "DISPONIBLE":
+      return "Disponible";
+    case "EN_RUTA":
+      return "En ruta";
+    case "EN_MANTENIMIENTO":
+      return "Mantenimiento";
+    case "FUERA_DE_SERVICIO":
+      return "Fuera de servicio";
+    default:
+      return estado;
+  }
+};
+
 export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewProps) {
   const columnasVehiculos: ColumnaTabla<Vehiculo>[] = [
     {
@@ -17,25 +45,29 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
     {
       id: "tipo",
       encabezado: "Tipo",
-      celda: (vehiculo) => vehiculo.tipo
+      celda: (vehiculo) => formatearTipoVehiculo(vehiculo.tipo)
     },
     {
       id: "capacidad",
       encabezado: "Capacidad (kg)",
-      celda: (vehiculo) => vehiculo.capacidadKg
+      celda: (vehiculo) => vehiculo.capacidadCarga
     },
     {
       id: "estado",
       encabezado: "Estado Mantenimiento",
       celda: (vehiculo) => {
         const estiloEstado =
-          vehiculo.estado === "Mantenimiento"
+          vehiculo.estado === "EN_MANTENIMIENTO"
             ? "bg-amber-100 text-amber-700"
-            : vehiculo.estado === "Disponible"
+            : vehiculo.estado === "DISPONIBLE"
               ? "bg-emerald-100 text-emerald-700"
               : "bg-blue-100 text-blue-700";
 
-        return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${estiloEstado}`}>{vehiculo.estado}</span>;
+        return (
+          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${estiloEstado}`}>
+            {formatearEstadoVehiculo(vehiculo.estado)}
+          </span>
+        );
       }
     }
   ];
@@ -57,9 +89,14 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
       celda: (repuesto) => repuesto.stockMinimo
     },
     {
-      id: "ubicacion",
-      encabezado: "Ubicacion",
-      celda: (repuesto) => repuesto.ubicacion
+      id: "referencia",
+      encabezado: "Referencia",
+      celda: (repuesto) => repuesto.referencia || "N/A"
+    },
+    {
+      id: "precio",
+      encabezado: "Precio",
+      celda: (repuesto) => `$${repuesto.precio.toFixed(2)}`
     },
     {
       id: "alerta",
@@ -86,7 +123,7 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
         <Table
           columnas={columnasVehiculos}
           datos={vehiculos}
-          claveFila={(vehiculo) => vehiculo.id}
+          claveFila={(vehiculo) => String(vehiculo.id)}
           estadoVacio="No hay vehiculos registrados."
         />
       </article>
@@ -99,7 +136,7 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
         <Table
           columnas={columnasRepuestos}
           datos={repuestos}
-          claveFila={(repuesto) => repuesto.id}
+          claveFila={(repuesto) => String(repuesto.id)}
           estadoVacio="No hay repuestos cargados."
         />
       </article>
