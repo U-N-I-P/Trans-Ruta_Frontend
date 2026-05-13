@@ -1,6 +1,6 @@
-export type EstadoVehiculo = "Disponible" | "Mantenimiento" | "En Ruta";
+export type EstadoVehiculo = "DISPONIBLE" | "EN_RUTA" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
 
-export type EstadoOrden = "Despachado" | "En Ruta" | "Entregado" | "Incidente";
+export type EstadoOrden = "DESPACHADO" | "EN_RUTA" | "CERCA_DEL_DESTINO" | "ENTREGADO" | "CANCELADO";
 
 export interface Coordenada {
   lat: number;
@@ -8,35 +8,108 @@ export interface Coordenada {
 }
 
 export interface Vehiculo {
-  id: string;
+  id: number;
   placa: string;
-  tipo: "Camion" | "Turbo" | "Furgon" | "Tractomula" | "Van";
-  capacidadKg: number;
+  tipo: "CAMION_CARGA_PESADA" | "TURBO" | "CAMIONETA";
+  capacidadCarga: number;
+  restricciones: string | null;
   estado: EstadoVehiculo;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Cliente {
+  id: number;
+  nombre: string;
+  correo: string;
+  telefono: string | null;
+  direccion: string | null;
+  tipoDocumento: "CC" | "NIT" | "CE" | "PASAPORTE";
+  numeroDocumento: string;
+  usuarioId: number | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Conductor {
-  id: string;
+  id: number;
   nombre: string;
-  licencia: string;
-  telefono: string;
+  apellido: string;
+  cedula: string;
+  telefono: string | null;
+  numeroLicencia: string;
+  categoriaLicencia: string;
+  fechaVencimientoLicencia: string;
+  horasConducidas: number;
+  usuarioId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  diasParaVencimiento: number;
+  licenciaVencida: boolean;
+  usuario?: {
+    id: number;
+    nombre: string;
+    correo: string;
+  };
+}
+
+export interface ConductorConDisponibilidad extends Conductor {
   disponible: boolean;
 }
 
 export interface OrdenDespacho {
-  id: string;
+  id: number;
   codigo: string;
-  vehiculoId: string;
-  conductorId: string;
+  fechaCreacion: string;
+  fechaSalida: string | null;
+  fechaEntregaEstimada: string | null;
+  estado: EstadoOrden;
   origen: string;
   destino: string;
-  pesoCargaKg: number;
-  estado: EstadoOrden;
-  fechaProgramada: string;
-  coordenadasOrigen?: Coordenada;
-  coordenadasDestino?: Coordenada;
+  pesoCarga: number;
+  descripcionCarga: string | null;
+  conductorId: number;
+  vehiculoId: number;
+  clienteId: number;
+  createdAt: string;
+  updatedAt: string;
+  conductor?: {
+    id: number;
+    nombre: string;
+    apellido: string;
+  };
+  vehiculo?: {
+    id: number;
+    placa: string;
+    tipo: Vehiculo["tipo"];
+  };
+  cliente?: {
+    id: number;
+    nombre: string;
+  };
+  entrega?: {
+    id: number;
+  } | null;
 }
 
+export type TipoNotificacion = "ESTADO_ENVIO" | "INCIDENTE" | "STOCK_BAJO" | "MANTENIMIENTO" | "SISTEMA";
+
+export interface Notificacion {
+  id: number;
+  mensaje: string;
+  fecha: string;
+  tipo: TipoNotificacion;
+  leida: boolean;
+  destinatario: string;
+  clienteId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Tipo legacy para compatibilidad con componentes existentes
+ * Se mapea desde Notificacion en el componente
+ */
 export interface NotificacionIncidente {
   id: string;
   titulo: string;
@@ -46,11 +119,15 @@ export interface NotificacionIncidente {
 }
 
 export interface Repuesto {
-  id: string;
+  id: number;
   nombre: string;
+  referencia: string | null;
   stockActual: number;
   stockMinimo: number;
-  ubicacion: string;
+  unidadMedida: string;
+  precio: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SolicitudCompra {
@@ -61,11 +138,13 @@ export interface SolicitudCompra {
 }
 
 export interface NuevaOrdenInput {
-  vehiculoId: string;
-  conductorId: string;
+  vehiculoId: number;
+  conductorId: number;
+  clienteId: number;
   origen: string;
   destino: string;
-  pesoCargaKg: number;
-  coordenadasOrigen?: Coordenada;
-  coordenadasDestino?: Coordenada;
+  pesoCarga: number;
+  fechaSalida?: string | null;
+  fechaEntregaEstimada?: string | null;
+  descripcionCarga?: string | null;
 }

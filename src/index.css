@@ -7,7 +7,7 @@
 :root {
   font-family: "Manrope", sans-serif;
   color: #0f172a;
-  background-color: #f1f5f9;
+  background-color: #ffffff;
 }
 
 body {
@@ -16,7 +16,7 @@ body {
   background:
     radial-gradient(circle at top left, rgba(30, 58, 138, 0.15), transparent 36%),
     radial-gradient(circle at 90% 10%, rgba(14, 116, 144, 0.12), transparent 25%),
-    #f1f5f9;
+    #c5ddf6;
 }
 
 #root {
