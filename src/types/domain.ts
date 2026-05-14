@@ -18,6 +18,14 @@ export interface Vehiculo {
   updatedAt: string;
 }
 
+export interface VehiculoInput {
+  placa: string;
+  tipo: "CAMION_CARGA_PESADA" | "TURBO" | "CAMIONETA";
+  capacidadCarga: number;
+  restricciones?: string | null;
+  estado: "DISPONIBLE" | "EN_RUTA" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
+}
+
 export interface Cliente {
   id: number;
   nombre: string;
@@ -51,6 +59,18 @@ export interface Conductor {
     nombre: string;
     correo: string;
   };
+}
+
+export interface ConductorInput {
+  nombre: string;
+  apellido: string;
+  cedula: string;
+  telefono?: string | null;
+  numeroLicencia: string;
+  categoriaLicencia: string;
+  fechaVencimientoLicencia: string;
+  horasConducidas?: number;
+  usuarioId?: number | null;
 }
 
 export interface ConductorConDisponibilidad extends Conductor {
@@ -135,6 +155,41 @@ export interface SolicitudCompra {
   repuesto: string;
   cantidad: number;
   estado: "Pendiente" | "Aprobada" | "Rechazada";
+}
+
+export interface DocumentoVehicular {
+  id: number;
+  vehiculoId: number;
+  tipo: "SOAT" | "TECNOMECANICA" | "REVISION_GASES" | "POLIZA" | "TARJETA_OPERACION";
+  numero: string;
+  fechaExpedicion: string;
+  fechaVencimiento: string;
+  archivoAdjunto: string | null;
+  vehiculo?: {
+    id: number;
+    placa: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DocumentoVehicularInput {
+  vehiculoId: number;
+  tipo: "SOAT" | "TECNOMECANICA" | "REVISION_GASES" | "POLIZA" | "TARJETA_OPERACION";
+  numero: string;
+  fechaExpedicion: string;
+  fechaVencimiento: string;
+  archivoAdjunto?: string | null;
+}
+
+export interface DocumentoVehicularAlerta {
+  id: number;
+  vehiculoId: number;
+  placa: string;
+  tipo: "SOAT" | "TECNOMECANICA" | "REVISION_GASES" | "POLIZA" | "TARJETA_OPERACION";
+  fechaVencimiento: string;
+  diasFaltantes: number;
+  nivelAlerta: "INFO" | "ALERTA" | "CRITICO";
 }
 
 export interface NuevaOrdenInput {

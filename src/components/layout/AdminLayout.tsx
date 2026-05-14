@@ -1,6 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { DashboardView } from "../dashboard/DashboardView";
 import { FleetInventoryView } from "../fleet/FleetInventoryView";
+import { VehicleListView } from "../fleet/VehicleListView";
+import { ConductorListView } from "../fleet/ConductorListView";
+import { DocumentVehicularListView } from "../fleet/DocumentVehicularListView";
+import { CombustibleListView } from "../fleet/CombustibleListView";
+import { ViaticosListView } from "../fleet/ViaticosListView";
+import { IncidentesListView } from "../fleet/IncidentesListView";
+import { ReportesListView } from "../fleet/ReportesListView";
+import { AuditoriaListView } from "../fleet/AuditoriaListView";
+import { MantenimientoListView } from "../fleet/MantenimientoListView";
+import { EntregasListView } from "../fleet/EntregasListView";
+import { AsignacionInteligenteView } from "../fleet/AsignacionInteligenteView";
+import { EvaluacionConductoresView } from "../fleet/EvaluacionConductoresView";
+import { OrdenesListView } from "../fleet/OrdenesListView";
+import { ComprasListView } from "../fleet/ComprasListView";
+import { GPSTrackingView } from "../fleet/GPSTrackingView";
+import { ManifiestosListView } from "../fleet/ManifiestosListView";
+import { ControlOperativoView } from "../fleet/ControlOperativoView";
+import { InventarioRepuestosView } from "../fleet/InventarioRepuestosView";
+import { PortalClienteView } from "../fleet/PortalClienteView";
 import { Sidebar, VistaPrincipal } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { obtenerConductores } from "../../services/conductor.service";
@@ -187,8 +206,64 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
             />
-          ) : (
+          ) : vistaActiva === "vehiculos" ? (
+            <VehicleListView onActualizar={cargarDatos} />
+          ) : vistaActiva === "conductores" ? (
+            <ConductorListView onActualizar={cargarDatos} />
+          ) : vistaActiva === "documentos" ? (
+            <DocumentVehicularListView />
+          ) : vistaActiva === "ordenes" ? (
+            <OrdenesListView ordenes={ordenes} />
+          ) : vistaActiva === "mantenimiento" ? (
+            <MantenimientoListView vehiculos={vehiculos} />
+          ) : vistaActiva === "entregas" ? (
+            <EntregasListView ordenes={ordenes} />
+          ) : vistaActiva === "combustible" ? (
+            <CombustibleListView vehiculos={vehiculos} />
+          ) : vistaActiva === "viaticos" ? (
+            <ViaticosListView conductores={conductores} ordenes={ordenes} />
+          ) : vistaActiva === "asignacion" ? (
+            <AsignacionInteligenteView ordenes={ordenes} vehiculos={vehiculos} conductores={conductores} />
+          ) : vistaActiva === "evaluacion" ? (
+            <EvaluacionConductoresView conductores={conductores} />
+          ) : vistaActiva === "compras" ? (
+            <ComprasListView />
+          ) : vistaActiva === "gps" ? (
+            <GPSTrackingView vehiculos={vehiculos} />
+          ) : vistaActiva === "manifiestos" ? (
+            <ManifiestosListView ordenes={ordenes} />
+          ) : vistaActiva === "operativo" ? (
+            <ControlOperativoView conductores={conductores} />
+          ) : vistaActiva === "inventario" ? (
+            <InventarioRepuestosView />
+          ) : vistaActiva === "clientes" ? (
+            <PortalClienteView />
+          ) : vistaActiva === "incidentes" ? (
+            <IncidentesListView ordenes={ordenes} />
+          ) : vistaActiva === "reportes" ? (
+            <ReportesListView />
+          ) : vistaActiva === "auditoria" ? (
+            <AuditoriaListView />
+          ) : vistaActiva === "flota" ? (
             <FleetInventoryView vehiculos={vehiculos} repuestos={repuestos} />
+          ) : vistaActiva === "panel" ? (
+            <DashboardView
+              ordenes={ordenes}
+              vehiculos={vehiculos}
+              conductores={conductoresConDisponibilidad}
+              clientes={clientes}
+              solicitudesCompra={solicitudesCompra}
+              onCrearOrden={crearOrden}
+            />
+          ) : (
+            <DashboardView
+              ordenes={ordenes}
+              vehiculos={vehiculos}
+              conductores={conductoresConDisponibilidad}
+              clientes={clientes}
+              solicitudesCompra={solicitudesCompra}
+              onCrearOrden={crearOrden}
+            />
           )}
         </div>
       </main>
