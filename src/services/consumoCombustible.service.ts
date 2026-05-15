@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -34,13 +34,6 @@ export interface ConsumoCombustibleInput {
   costoTotal: number;
   ordenDeDespachoId?: number;
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerConsumosCombustible() {
   const response = await api.get<ApiResponse<ConsumoCombustible[]>>("/consumos-combustible");

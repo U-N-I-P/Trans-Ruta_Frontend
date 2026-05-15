@@ -45,6 +45,17 @@ interface AdminLayoutProps {
   onCerrarSesion: () => void;
 }
 
+const REQUEST_TIMEOUT_MS = 10000;
+
+function withTimeout<T>(promise: Promise<T>, label: string, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_resolve, reject) => {
+      setTimeout(() => reject(new Error(`Tiempo de espera agotado para ${label}`)), timeoutMs);
+    })
+  ]);
+}
+
 /**
  * Adaptador: Convierte Notificacion (backend) a NotificacionIncidente (formato legacy para Topbar)
  */
@@ -100,24 +111,72 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
     setError(null);
 
     try {
-      const [vehiculosData, conductoresData, clientesData, ordenesData, notificacionesData, repuestosData, solicitudesData] =
-        await Promise.all([
-          obtenerVehiculos(),
-          obtenerConductores(),
-          obtenerClientes(),
-          obtenerOrdenesDespacho(),
-          obtenerNotificaciones(),
-          obtenerRepuestos(),
-          obtenerSolicitudesCompra()
-        ]);
+      const results = await Promise.allSettled([
+        withTimeout(obtenerVehiculos(), "vehiculos"),
+        withTimeout(obtenerConductores(), "conductores"),
+        withTimeout(obtenerClientes(), "clientes"),
+        withTimeout(obtenerOrdenesDespacho(), "ordenes-despacho"),
+        withTimeout(obtenerNotificaciones(), "notificaciones"),
+        withTimeout(obtenerRepuestos(), "repuestos"),
+        withTimeout(obtenerSolicitudesCompra(), "solicitudes-compra")
+      ]);
 
-      setVehiculos(vehiculosData);
-      setConductores(conductoresData);
-      setClientes(clientesData);
-      setOrdenes(ordenesData);
-      setNotificacionesBackend(notificacionesData);
-      setRepuestos(repuestosData);
-      setSolicitudesCompra(solicitudesData);
+      const fallos: string[] = [];
+
+      if (results[0].status === "fulfilled") {
+        setVehiculos(results[0].value);
+      } else {
+        setVehiculos([]);
+        fallos.push("vehiculos");
+      }
+
+      if (results[1].status === "fulfilled") {
+        setConductores(results[1].value);
+      } else {
+        setConductores([]);
+        fallos.push("conductores");
+      }
+
+      if (results[2].status === "fulfilled") {
+        setClientes(results[2].value);
+      } else {
+        setClientes([]);
+        fallos.push("clientes");
+      }
+
+      if (results[3].status === "fulfilled") {
+        setOrdenes(results[3].value);
+      } else {
+        setOrdenes([]);
+        fallos.push("ordenes-despacho");
+      }
+
+      if (results[4].status === "fulfilled") {
+        setNotificacionesBackend(results[4].value);
+      } else {
+        setNotificacionesBackend([]);
+        fallos.push("notificaciones");
+      }
+
+      if (results[5].status === "fulfilled") {
+        setRepuestos(results[5].value);
+      } else {
+        setRepuestos([]);
+        fallos.push("repuestos");
+      }
+
+      if (results[6].status === "fulfilled") {
+        setSolicitudesCompra(results[6].value);
+      } else {
+        setSolicitudesCompra([]);
+        fallos.push("solicitudes-compra");
+      }
+
+      if (fallos.length > 0) {
+        setError(
+          `Algunos datos no cargaron (${fallos.join(", ")}). Verifica VITE_API_URL, backend y token de autenticación.`
+        );
+      }
     } catch (err) {
       console.error(err);
       setError("No se pudieron cargar los datos del panel. Verifica que el backend esté disponible.");
@@ -148,11 +207,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   );
 
   const margenContenido = useMemo(() => {
-    if (colapsado) {
-      return "lg:ml-[88px]";
-    }
-
-    return "lg:ml-72";
+    return "lg:ml-[112px]"; // 16px margin + 80px width + 16px padding
   }, [colapsado]);
 
   const crearOrden = async (payload: NuevaOrdenInput) => {
@@ -161,7 +216,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-tr from-slate-50 via-white to-blue-50/30">
       <Sidebar
         colapsado={colapsado}
         movilAbierto={movilAbierto}
@@ -213,13 +268,20 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "documentos" ? (
             <DocumentVehicularListView />
           ) : vistaActiva === "ordenes" ? (
-            <OrdenesListView ordenes={ordenes} />
+            <OrdenesListView
+              ordenes={ordenes}
+              vehiculos={vehiculos}
+              conductores={conductoresConDisponibilidad}
+              clientes={clientes}
+              onCrearOrden={crearOrden}
+              onActualizar={cargarDatos}
+            />
           ) : vistaActiva === "mantenimiento" ? (
             <MantenimientoListView vehiculos={vehiculos} />
           ) : vistaActiva === "entregas" ? (
-            <EntregasListView ordenes={ordenes} />
+            <EntregasListView ordenes={ordenes} onActualizar={cargarDatos} />
           ) : vistaActiva === "combustible" ? (
-            <CombustibleListView vehiculos={vehiculos} />
+            <CombustibleListView vehiculos={vehiculos} ordenes={ordenes} />
           ) : vistaActiva === "viaticos" ? (
             <ViaticosListView conductores={conductores} ordenes={ordenes} />
           ) : vistaActiva === "asignacion" ? (
@@ -233,11 +295,11 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "manifiestos" ? (
             <ManifiestosListView ordenes={ordenes} />
           ) : vistaActiva === "operativo" ? (
-            <ControlOperativoView conductores={conductores} />
+            <ControlOperativoView conductores={conductoresConDisponibilidad} />
           ) : vistaActiva === "inventario" ? (
             <InventarioRepuestosView />
           ) : vistaActiva === "clientes" ? (
-            <PortalClienteView />
+            <PortalClienteView clientes={clientes} ordenes={ordenes} />
           ) : vistaActiva === "incidentes" ? (
             <IncidentesListView ordenes={ordenes} />
           ) : vistaActiva === "reportes" ? (

@@ -16,7 +16,7 @@ const estilosTono = {
 
 export function KpiCard({ titulo, valor, icono: Icono, tono }: KpiCardProps) {
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-panel">
+    <article className="rounded-2xl border border-slate-100 bg-white/80 p-4 shadow-sm hover:shadow-md transition-shadow duration-300 backdrop-blur-sm">
       <div className="mb-3 flex items-center justify-between">
         <p className="text-sm font-semibold text-slate-500">{titulo}</p>
         <span className={`rounded-lg p-2 ${estilosTono[tono]}`}>

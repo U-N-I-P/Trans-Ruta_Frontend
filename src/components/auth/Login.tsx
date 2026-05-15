@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
+import axios from "axios";
 import { Truck } from "lucide-react";
+import { login } from "../../services/auth.service";
 
 interface LoginFormValues {
-  identificador: string;
+  correo: string;
   contrasena: string;
 }
 
 export interface UsuarioAutenticado {
-  id: string;
+  id: number;
   nombre: string;
-  rol: "Conductor";
-  identificador: string;
+  rol: string;
+  correo: string;
+  token: string;
 }
 
 interface LoginProps {
@@ -28,35 +31,37 @@ export function Login({ onLoginSuccess }: LoginProps) {
     formState: { errors }
   } = useForm<LoginFormValues>({
     defaultValues: {
-      identificador: "",
+      correo: "",
       contrasena: ""
     }
   });
 
-  const onSubmit = (values: LoginFormValues) => {
+  const onSubmit: SubmitHandler<LoginFormValues> = async (values) => {
     setErrorLogin(null);
     setVerificando(true);
 
-    const identificador = values.identificador.trim();
-    const contrasena = values.contrasena.trim();
+    try {
+      const data = await login({
+        correo: values.correo.trim(),
+        contrasena: values.contrasena.trim()
+      });
 
-    setTimeout(() => {
-      const coincideCredencialMock = identificador === "conductor" && contrasena === "1234";
-      const mockAceptaNoVacio = identificador.length > 0 && contrasena.length > 0;
-
-      if (coincideCredencialMock || mockAceptaNoVacio) {
-        onLoginSuccess({
-          id: "conductor-mock-001",
-          nombre: coincideCredencialMock ? "Conductor Demo" : "Conductor Operativo",
-          rol: "Conductor",
-          identificador
-        });
+      onLoginSuccess({
+        id: data.usuario.id,
+        nombre: data.usuario.nombre,
+        rol: data.usuario.rol,
+        correo: data.usuario.correo,
+        token: data.token
+      });
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        setErrorLogin(error.response?.data?.message ?? "No fue posible iniciar sesión. Verifica correo, contraseña y conexión con el backend.");
       } else {
-        setErrorLogin("Credenciales no válidas para el mockup.");
+        setErrorLogin("No fue posible iniciar sesión. Verifica correo, contraseña y conexión con el backend.");
       }
-
+    } finally {
       setVerificando(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -75,15 +80,15 @@ export function Login({ onLoginSuccess }: LoginProps) {
 
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <label className="block space-y-1">
-              <span className="text-sm font-semibold text-slate-700">Correo o Cédula</span>
+              <span className="text-sm font-semibold text-slate-700">Correo electrónico</span>
               <input
-                type="text"
+                type="email"
                 autoComplete="username"
-                placeholder="Ingresa tu correo o cédula"
+                placeholder="Ingresa tu correo"
                 className="h-12 w-full rounded-xl border border-slate-300 px-4 text-base text-slate-800 outline-none transition focus:border-logistics-700 focus:ring-2 focus:ring-logistics-100"
-                {...register("identificador", { required: "Este campo es obligatorio" })}
+                {...register("correo", { required: "Este campo es obligatorio" })}
               />
-              {errors.identificador && <p className="text-xs font-medium text-red-600">{errors.identificador.message}</p>}
+              {errors.correo && <p className="text-xs font-medium text-red-600">{errors.correo.message}</p>}
             </label>
 
             <label className="block space-y-1">

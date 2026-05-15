@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 import { Vehiculo } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -20,13 +20,6 @@ export interface VehiculoInput {
   restricciones?: string | null;
   estado: "DISPONIBLE" | "EN_RUTA" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerVehiculos(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<Vehiculo[]>>("/vehiculos", { params });

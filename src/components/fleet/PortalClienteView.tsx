@@ -1,54 +1,37 @@
-import { useState } from "react";
 import { MessageCircle, Phone, Mail, MapPin } from "lucide-react";
+import { Cliente, OrdenDespacho } from "../../types/domain";
 
-interface ClienteInfo {
-  id: string;
-  nombre: string;
-  email: string;
-  telefono: string;
-  ubicacion: string;
-  ordenesTotal: number;
-  montoTotal: number;
-  estado: "ACTIVO" | "INACTIVO";
-  ultimaOrden: string;
+interface PortalClienteViewProps {
+  clientes: Cliente[];
+  ordenes: OrdenDespacho[];
 }
 
-export function PortalClienteView() {
-  const [clientes] = useState<ClienteInfo[]>([
-    {
-      id: "1",
-      nombre: "Empresa Logística A",
-      email: "contacto@empresaa.com",
-      telefono: "+57 301 234 5678",
-      ubicacion: "Bogotá, DC",
-      ordenesTotal: 45,
-      montoTotal: 12500000,
-      estado: "ACTIVO",
-      ultimaOrden: "2026-05-12"
-    },
-    {
-      id: "2",
-      nombre: "Distribuidora Regional",
-      email: "info@distribuidora.com",
-      telefono: "+57 310 987 6543",
-      ubicacion: "Medellín",
-      ordenesTotal: 28,
-      montoTotal: 8750000,
-      estado: "ACTIVO",
-      ultimaOrden: "2026-05-10"
-    },
-    {
-      id: "3",
-      nombre: "Comercio Mayorista",
-      email: "ventas@mayorista.com",
-      telefono: "+57 305 567 8901",
-      ubicacion: "Cali",
-      ordenesTotal: 12,
-      montoTotal: 3200000,
-      estado: "INACTIVO",
-      ultimaOrden: "2026-04-20"
+export function PortalClienteView({ clientes, ordenes }: PortalClienteViewProps) {
+  // Procesamos los datos para añadir métricas calculadas
+  const clientesConMetricas = clientes.map((cliente) => {
+    const ordenesCliente = ordenes.filter((o) => String(o.clienteId) === String(cliente.id));
+    const ordenesTotal = ordenesCliente.length;
+    
+    // Obtenemos la última orden si tiene
+    let ultimaOrden = "Sin órdenes";
+    if (ordenesTotal > 0) {
+      const fechas = ordenesCliente.map(o => new Date(o.fechaCreacion).getTime());
+      const maxFecha = new Date(Math.max(...fechas));
+      ultimaOrden = maxFecha.toLocaleDateString("es-CO");
     }
-  ]);
+
+    // Como el backend no maneja facturación, simulamos el monto basado en el peso o lo dejamos en 0
+    const montoTotal = ordenesCliente.reduce((acc, o) => acc + (o.pesoCarga * 1500), 0); // 1500 pesos por kg simulado
+
+    return {
+      ...cliente,
+      ordenesTotal,
+      montoTotal,
+      ultimaOrden,
+      // Asumimos que si tiene órdenes recientes está ACTIVO
+      estado: ordenesTotal > 0 ? "ACTIVO" : "INACTIVO"
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -60,38 +43,41 @@ export function PortalClienteView() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-sm text-slate-600">Clientes Activos</p>
-          <p className="text-2xl font-bold text-green-600">{clientes.filter(c => c.estado === "ACTIVO").length}</p>
+          <p className="text-2xl font-bold text-green-600">{clientesConMetricas.filter(c => c.estado === "ACTIVO").length}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Total Órdenes</p>
-          <p className="text-2xl font-bold text-slate-900">{clientes.reduce((acc, c) => acc + c.ordenesTotal, 0)}</p>
+          <p className="text-sm text-slate-600">Total Órdenes Históricas</p>
+          <p className="text-2xl font-bold text-slate-900">{ordenes.length}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Monto Facturado</p>
+          <p className="text-sm text-slate-600">Monto Facturado (Estimado)</p>
           <p className="text-2xl font-bold text-slate-900">
-            ${(clientes.reduce((acc, c) => acc + c.montoTotal, 0) / 1000000).toFixed(1)}M
+            ${(clientesConMetricas.reduce((acc, c) => acc + c.montoTotal, 0) / 1000000).toFixed(1)}M
           </p>
         </div>
       </div>
 
       <div className="space-y-3">
-        {clientes.map((cliente) => (
-          <div key={cliente.id} className="rounded-xl border border-slate-200 bg-white p-6">
+        {clientesConMetricas.length === 0 && (
+          <p className="text-slate-500 text-center py-8">No hay clientes registrados en la base de datos.</p>
+        )}
+        {clientesConMetricas.map((cliente) => (
+          <div key={cliente.id} className="rounded-xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-md">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <h3 className="font-bold text-slate-900 text-lg">{cliente.nombre}</h3>
                 <div className="mt-3 space-y-2">
                   <div className="flex items-center gap-2 text-slate-600">
-                    <Mail className="h-4 w-4" />
-                    <p className="text-sm">{cliente.email}</p>
+                    <Mail className="h-4 w-4 text-slate-400" />
+                    <p className="text-sm">{cliente.correo}</p>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
-                    <Phone className="h-4 w-4" />
-                    <p className="text-sm">{cliente.telefono}</p>
+                    <Phone className="h-4 w-4 text-slate-400" />
+                    <p className="text-sm">{cliente.telefono || "No registrado"}</p>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
-                    <MapPin className="h-4 w-4" />
-                    <p className="text-sm">{cliente.ubicacion}</p>
+                    <MapPin className="h-4 w-4 text-slate-400" />
+                    <p className="text-sm">{cliente.direccion || "No registrada"}</p>
                   </div>
                 </div>
               </div>
@@ -117,7 +103,7 @@ export function PortalClienteView() {
                   <div className="bg-slate-50 rounded-lg p-3">
                     <p className="text-xs text-slate-600">Última Orden</p>
                     <p className="text-sm font-semibold text-slate-900">
-                      {new Date(cliente.ultimaOrden).toLocaleDateString("es-CO")}
+                      {cliente.ultimaOrden}
                     </p>
                   </div>
                 </div>

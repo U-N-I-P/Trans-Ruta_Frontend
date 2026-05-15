@@ -148,10 +148,12 @@ export function DashboardView({
       anchoMinimo: "140px",
       celda: () => (
         <div className="flex items-center gap-2">
-          <button className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-600">
+          <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-transform duration-200 hover:scale-105 hover:bg-slate-50">
             Ver
           </button>
-          <button className="rounded-lg bg-logistics-800 px-3 py-1 text-xs font-semibold text-white">Editar</button>
+          <button className="rounded-lg bg-logistics-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:bg-logistics-900 hover:shadow-md">
+            Editar
+          </button>
         </div>
       )
     }
@@ -171,8 +173,8 @@ export function DashboardView({
         />
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-panel">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <section className="rounded-2xl border border-slate-100 bg-white/80 p-5 shadow-sm hover:shadow-md transition-shadow duration-300 backdrop-blur-sm">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-['Sora'] text-xl font-semibold text-slate-900">Gestion de Despachos</h2>
             <p className="text-sm text-slate-500">Monitorea y administra cada Orden de Despacho</p>

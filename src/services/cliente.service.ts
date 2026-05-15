@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 import { Cliente } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -12,13 +12,6 @@ interface ApiResponse<T> {
     pages: number;
   };
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerClientes(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<Cliente[]>>("/clientes", { params });

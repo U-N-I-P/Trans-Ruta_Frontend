@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, MapPin, Trash2, Edit2 } from "lucide-react";
+import { CreateOrderModal } from "../dashboard/CreateOrderModal";
+import { Cliente, ConductorConDisponibilidad, NuevaOrdenInput, Vehiculo } from "../../types/domain";
+import { actualizarOrdenDespacho, eliminarOrdenDespacho } from "../../services/orden.service";
 
 interface Orden {
   id: string;
@@ -12,19 +15,80 @@ interface Orden {
   fecha: string;
 }
 
-export function OrdenesListView({ ordenes }: any) {
-  const [ordenesList] = useState<Orden[]>(
-    ordenes?.map((o: any) => ({
-      id: o.id,
-      codigo: o.codigo,
-      origen: o.origen,
-      destino: o.destino,
-      pesoCarga: o.pesoCarga,
-      cliente: o.cliente?.nombre || "N/A",
-      estado: o.estado,
-      fecha: o.createdAt || new Date().toISOString()
-    })) || []
+interface OrdenesListViewProps {
+  ordenes: any[];
+  vehiculos: Vehiculo[];
+  conductores: ConductorConDisponibilidad[];
+  clientes: Cliente[];
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
+  onActualizar: () => Promise<void>;
+}
+
+export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, onCrearOrden, onActualizar }: OrdenesListViewProps) {
+  const [abrirModalNuevaOrden, setAbrirModalNuevaOrden] = useState(false);
+  const [ordenEnEdicion, setOrdenEnEdicion] = useState<any | null>(null);
+  const [procesandoAccion, setProcesandoAccion] = useState(false);
+
+  const ordenesList = useMemo<Orden[]>(
+    () =>
+      ordenes?.map((o: any) => ({
+        id: o.id,
+        codigo: o.codigo,
+        origen: o.origen,
+        destino: o.destino,
+        pesoCarga: o.pesoCarga,
+        cliente: o.cliente?.nombre || "N/A",
+        estado: o.estado,
+        fecha: o.createdAt || new Date().toISOString()
+      })) || [],
+    [ordenes]
   );
+
+  const manejarEliminar = async (id: number) => {
+    const confirmar = window.confirm("¿Seguro que deseas eliminar esta orden?");
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      setProcesandoAccion(true);
+      await eliminarOrdenDespacho(id);
+      await onActualizar();
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const manejarEditar = async (payload: NuevaOrdenInput) => {
+    if (!ordenEnEdicion) {
+      return;
+    }
+
+    try {
+      setProcesandoAccion(true);
+      await actualizarOrdenDespacho(ordenEnEdicion.id, payload);
+      setOrdenEnEdicion(null);
+      setAbrirModalNuevaOrden(false);
+      await onActualizar();
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const abrirEditor = (ordenId: number) => {
+    const ordenCompleta = ordenes.find((item) => Number(item.id) === ordenId) ?? null;
+    setOrdenEnEdicion(ordenCompleta);
+    setAbrirModalNuevaOrden(Boolean(ordenCompleta));
+  };
+
+  const manejarCrear = async (payload: NuevaOrdenInput) => {
+    try {
+      setProcesandoAccion(true);
+      await onCrearOrden(payload);
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
 
   const estadoColors: Record<string, string> = {
     PENDIENTE: "bg-slate-100 text-slate-800",
@@ -40,7 +104,14 @@ export function OrdenesListView({ ordenes }: any) {
           <h2 className="text-2xl font-bold text-slate-900">Gestión de Órdenes</h2>
           <p className="text-sm text-slate-600">Crea y controla órdenes de despacho</p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <button
+          type="button"
+          onClick={() => {
+            setOrdenEnEdicion(null);
+            setAbrirModalNuevaOrden(true);
+          }}
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
           <Plus className="h-4 w-4" />
           Nueva Orden
         </button>
@@ -99,10 +170,20 @@ export function OrdenesListView({ ordenes }: any) {
                   <td className="px-6 py-3 text-slate-600">{new Date(orden.fecha).toLocaleDateString("es-CO")}</td>
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
-                      <button className="text-blue-600 hover:text-blue-700">
+                      <button
+                        type="button"
+                        onClick={() => abrirEditor(Number(orden.id))}
+                        className="text-blue-600 hover:text-blue-700"
+                        disabled={procesandoAccion}
+                      >
                         <Edit2 className="h-4 w-4" />
                       </button>
-                      <button className="text-red-600 hover:text-red-700">
+                      <button
+                        type="button"
+                        onClick={() => void manejarEliminar(Number(orden.id))}
+                        className="text-red-600 hover:text-red-700"
+                        disabled={procesandoAccion}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
@@ -119,6 +200,19 @@ export function OrdenesListView({ ordenes }: any) {
           </tbody>
         </table>
       </div>
+
+      <CreateOrderModal
+        abierto={abrirModalNuevaOrden}
+        vehiculos={vehiculos}
+        conductores={conductores}
+        clientes={clientes}
+        ordenInicial={ordenEnEdicion}
+        onCerrar={() => {
+          setAbrirModalNuevaOrden(false);
+          setOrdenEnEdicion(null);
+        }}
+        onCrearOrden={ordenEnEdicion ? manejarEditar : manejarCrear}
+      />
     </div>
   );
 }

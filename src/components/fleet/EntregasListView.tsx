@@ -1,75 +1,86 @@
-import { useState } from "react";
-import { CheckCircle, Signature } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { CheckCircle, Signature, Truck, ClipboardCheck } from "lucide-react";
+import { Entrega, OrdenDespacho, EntregaInput } from "../../types/domain";
+import { obtenerEntregas, registrarEntrega } from "../../services/entrega.service";
+import { EntregaFormModal } from "./EntregaFormModal";
 
-interface Entrega {
-  id: string;
-  ordenId: string;
-  conductor: string;
-  destino: string;
-  fechaEstimada: string;
-  estado: "PENDIENTE" | "EN_TRANSITO" | "ENTREGADO" | "NO_ENTREGADO";
-  firmado: boolean;
+interface EntregasListViewProps {
+  ordenes: OrdenDespacho[];
+  onActualizar?: () => Promise<void>;
 }
 
-export function EntregasListView({}: any) {
-  const [entregas, setEntregas] = useState<Entrega[]>([
-    {
-      id: "1",
-      ordenId: "ORD-001",
-      conductor: "Juan Pérez",
-      destino: "Bogotá",
-      fechaEstimada: "2026-05-13",
-      estado: "ENTREGADO",
-      firmado: true
-    },
-    {
-      id: "2",
-      ordenId: "ORD-002",
-      conductor: "Carlos López",
-      destino: "Medellín",
-      fechaEstimada: "2026-05-15",
-      estado: "EN_TRANSITO",
-      firmado: false
-    },
-    {
-      id: "3",
-      ordenId: "ORD-003",
-      conductor: "Ana García",
-      destino: "Cali",
-      fechaEstimada: "2026-05-14",
-      estado: "PENDIENTE",
-      firmado: false
-    }
-  ]);
+export function EntregasListView({ ordenes, onActualizar }: EntregasListViewProps) {
+  const [entregas, setEntregas] = useState<Entrega[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [ordenSeleccionada, setOrdenSeleccionada] = useState<OrdenDespacho | null>(null);
 
-  const [selectedEntrega, setSelectedEntrega] = useState<Entrega | null>(null);
-  const [showSignature, setShowSignature] = useState(false);
+  const cargarEntregas = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const datos = await obtenerEntregas();
+      setEntregas(datos);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al cargar entregas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void cargarEntregas();
+  }, []);
+
+  const entregasPorOrden = useMemo(() => new Set(entregas.map((entrega) => entrega.ordenDeDespachoId)), [entregas]);
+  const ordenesPendientes = useMemo(
+    () =>
+      ordenes.filter(
+        (orden) =>
+          (orden.estado === "DESPACHADO" || orden.estado === "EN_RUTA") && !entregasPorOrden.has(orden.id)
+      ),
+    [entregasPorOrden, ordenes]
+  );
 
   const estadoColors: Record<string, string> = {
-    PENDIENTE: "bg-slate-100 text-slate-800",
-    EN_TRANSITO: "bg-blue-100 text-blue-800",
+    DESPACHADO: "bg-blue-100 text-blue-800",
+    EN_RUTA: "bg-yellow-100 text-yellow-800",
     ENTREGADO: "bg-green-100 text-green-800",
-    NO_ENTREGADO: "bg-red-100 text-red-800"
+    CANCELADO: "bg-red-100 text-red-800"
   };
 
-  const handleFirmarEntrega = (entrega: Entrega) => {
-    setSelectedEntrega(entrega);
-    setShowSignature(true);
+  const handleAbrirRegistro = (orden: OrdenDespacho) => {
+    setOrdenSeleccionada(orden);
+    setMostrarModal(true);
   };
 
-  const handleConfirmarFirma = () => {
-    if (selectedEntrega) {
-      setEntregas(
-        entregas.map(e =>
-          e.id === selectedEntrega.id
-            ? { ...e, estado: "ENTREGADO", firmado: true }
-            : e
-        )
-      );
-      setShowSignature(false);
-      setSelectedEntrega(null);
+  const handleRegistrarEntrega = async (payload: EntregaInput) => {
+    if (!ordenSeleccionada) {
+      return;
+    }
+
+    try {
+      await registrarEntrega(ordenSeleccionada.id, payload);
+      await cargarEntregas();
+      await onActualizar?.();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(err.response?.data?.message ?? "No se pudo registrar la entrega");
+      }
+
+      throw err instanceof Error ? err : new Error("No se pudo registrar la entrega");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <p className="text-gray-500">Cargando entregas...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -78,19 +89,61 @@ export function EntregasListView({}: any) {
         <p className="text-sm text-slate-600">Controla entregas con firma digital</p>
       </div>
 
+      {error && <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Entregas Completadas</p>
-          <p className="text-2xl font-bold text-green-600">{entregas.filter(e => e.estado === "ENTREGADO").length}</p>
+          <div className="flex items-center gap-2">
+            <ClipboardCheck className="h-4 w-4 text-green-600" />
+            <p className="text-sm text-slate-600">Entregas registradas</p>
+          </div>
+          <p className="text-2xl font-bold text-green-600">{entregas.length}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">En Tránsito</p>
-          <p className="text-2xl font-bold text-blue-600">{entregas.filter(e => e.estado === "EN_TRANSITO").length}</p>
+          <div className="flex items-center gap-2">
+            <Truck className="h-4 w-4 text-blue-600" />
+            <p className="text-sm text-slate-600">Órdenes disponibles</p>
+          </div>
+          <p className="text-2xl font-bold text-blue-600">{ordenesPendientes.length}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Pendientes</p>
-          <p className="text-2xl font-bold text-yellow-600">{entregas.filter(e => e.estado === "PENDIENTE").length}</p>
+          <div className="flex items-center gap-2">
+            <Signature className="h-4 w-4 text-amber-600" />
+            <p className="text-sm text-slate-600">Con firma digital</p>
+          </div>
+          <p className="text-2xl font-bold text-amber-600">{entregas.filter((entrega) => Boolean(entrega.firmaDigital)).length}</p>
         </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">Órdenes listas para registrar entrega</h3>
+            <p className="text-sm text-slate-600">Selecciona una orden en ruta o despachada y registra la entrega real</p>
+          </div>
+        </div>
+
+        {ordenesPendientes.length > 0 ? (
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {ordenesPendientes.map((orden) => (
+              <div key={orden.id} className="rounded-xl border border-slate-200 p-4">
+                <p className="font-semibold text-slate-900">{orden.codigo}</p>
+                <p className="text-sm text-slate-600">{orden.origen} → {orden.destino}</p>
+                <p className="mt-1 text-xs text-slate-500">Estado: {orden.estado}</p>
+                <button
+                  type="button"
+                  onClick={() => handleAbrirRegistro(orden)}
+                  className="mt-3 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  <Signature className="h-4 w-4" />
+                  Registrar entrega
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-slate-500">No hay órdenes pendientes de registro.</p>
+        )}
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
@@ -98,82 +151,56 @@ export function EntregasListView({}: any) {
           <thead className="border-b border-slate-200 bg-slate-50">
             <tr>
               <th className="px-6 py-3 font-semibold text-slate-900">Orden</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Conductor</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Destino</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Fecha Estimada</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Estado</th>
+              <th className="px-6 py-3 font-semibold text-slate-900">Fecha entrega</th>
               <th className="px-6 py-3 font-semibold text-slate-900">Firma</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Acción</th>
+              <th className="px-6 py-3 font-semibold text-slate-900">Estado de orden</th>
+              <th className="px-6 py-3 font-semibold text-slate-900">Observaciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
-            {entregas.map((entrega) => (
-              <tr key={entrega.id} className="hover:bg-slate-50">
-                <td className="px-6 py-3 font-medium text-slate-900">{entrega.ordenId}</td>
-                <td className="px-6 py-3 text-slate-600">{entrega.conductor}</td>
-                <td className="px-6 py-3 text-slate-600">{entrega.destino}</td>
-                <td className="px-6 py-3 text-slate-600">{new Date(entrega.fechaEstimada).toLocaleDateString("es-CO")}</td>
-                <td className="px-6 py-3">
-                  <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${estadoColors[entrega.estado]}`}>
-                    {entrega.estado}
-                  </span>
-                </td>
-                <td className="px-6 py-3">
-                  {entrega.firmado ? (
-                    <span className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                      <CheckCircle className="h-4 w-4" />
-                      Firmado
+            {entregas.length > 0 ? (
+              entregas.map((entrega) => (
+                <tr key={entrega.id} className="hover:bg-slate-50">
+                  <td className="px-6 py-3 font-medium text-slate-900">{entrega.ordenDeDespacho?.codigo ?? `Orden ${entrega.ordenDeDespachoId}`}</td>
+                  <td className="px-6 py-3 text-slate-600">{new Date(entrega.fechaEntrega).toLocaleDateString("es-CO")}</td>
+                  <td className="px-6 py-3">
+                    {entrega.firmaDigital ? (
+                      <span className="flex items-center gap-1 text-green-600 text-sm font-medium">
+                        <CheckCircle className="h-4 w-4" />
+                        Firmada
+                      </span>
+                    ) : (
+                      <span className="text-slate-500 text-sm">Sin firma</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-3">
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${estadoColors[entrega.ordenDeDespacho?.estado ?? "DESPACHADO"]}`}>
+                      {entrega.ordenDeDespacho?.estado ?? "DESPACHADO"}
                     </span>
-                  ) : (
-                    <span className="text-slate-500 text-sm">Pendiente</span>
-                  )}
-                </td>
-                <td className="px-6 py-3">
-                  {entrega.estado === "EN_TRANSITO" && !entrega.firmado ? (
-                    <button
-                      onClick={() => handleFirmarEntrega(entrega)}
-                      className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                    >
-                      <Signature className="h-4 w-4" />
-                      Firmar
-                    </button>
-                  ) : null}
+                  </td>
+                  <td className="px-6 py-3 text-slate-600">{entrega.observaciones ?? "-"}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                  Aún no hay entregas registradas
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
-      {showSignature && selectedEntrega && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold text-slate-900 mb-4">Firma Digital - Entrega</h3>
-            <p className="text-sm text-slate-600 mb-4">Orden: <span className="font-semibold">{selectedEntrega.ordenId}</span></p>
-            
-            <div className="bg-slate-100 rounded-lg p-8 mb-4 text-center border-2 border-dashed border-slate-300">
-              <Signature className="h-16 w-16 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm text-slate-600">Área de firma (simulado)</p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSignature(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmarFirma}
-                className="flex-1 px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center justify-center gap-2"
-              >
-                <CheckCircle className="h-4 w-4" />
-                Confirmar Entrega
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EntregaFormModal
+        abierto={mostrarModal}
+        orden={ordenSeleccionada}
+        onClose={() => {
+          setMostrarModal(false);
+          setOrdenSeleccionada(null);
+        }}
+        onSubmit={handleRegistrarEntrega}
+      />
     </div>
   );
 }

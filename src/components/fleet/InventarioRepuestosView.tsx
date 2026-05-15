@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, Trash2, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, AlertTriangle, Save, X } from "lucide-react";
+import { Modal } from "../ui/Modal";
 
 interface Repuesto {
   id: string;
@@ -14,7 +15,7 @@ interface Repuesto {
 }
 
 export function InventarioRepuestosView() {
-  const [repuestos] = useState<Repuesto[]>([
+  const [repuestos, setRepuestos] = useState<Repuesto[]>([
     {
       id: "1",
       codigo: "REP-001",
@@ -50,6 +51,38 @@ export function InventarioRepuestosView() {
     }
   ]);
 
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({
+    codigo: "",
+    nombre: "",
+    categoria: "Motor",
+    stock: 0,
+    cantidadMinima: 5,
+    precio: 0,
+    ubicacion: ""
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nuevoRepuesto: Repuesto = {
+      id: Math.random().toString(36).substr(2, 9),
+      ...formData,
+      estado: formData.stock === 0 ? "AGOTADO" : formData.stock <= formData.cantidadMinima ? "BAJO_STOCK" : "DISPONIBLE"
+    };
+    
+    setRepuestos([...repuestos, nuevoRepuesto]);
+    setShowForm(false);
+    setFormData({
+      codigo: "",
+      nombre: "",
+      categoria: "Motor",
+      stock: 0,
+      cantidadMinima: 5,
+      precio: 0,
+      ubicacion: ""
+    });
+  };
+
   const estadoColors: Record<string, string> = {
     DISPONIBLE: "bg-green-100 text-green-800",
     BAJO_STOCK: "bg-yellow-100 text-yellow-800",
@@ -63,7 +96,10 @@ export function InventarioRepuestosView() {
           <h2 className="text-2xl font-bold text-slate-900">Inventario de Repuestos</h2>
           <p className="text-sm text-slate-600">Gestiona stock de piezas y componentes</p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <button 
+          onClick={() => setShowForm(true)}
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
           <Plus className="h-4 w-4" />
           Nuevo Repuesto
         </button>
@@ -142,6 +178,110 @@ export function InventarioRepuestosView() {
           </tbody>
         </table>
       </div>
+
+      <Modal abierto={showForm} titulo="Registrar Nuevo Repuesto" onCerrar={() => setShowForm(false)}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Código</label>
+              <input 
+                type="text" 
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                placeholder="Ej. REP-004"
+                value={formData.codigo}
+                onChange={e => setFormData({...formData, codigo: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Nombre</label>
+              <input 
+                type="text" 
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                placeholder="Ej. Batería 12V"
+                value={formData.nombre}
+                onChange={e => setFormData({...formData, nombre: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Categoría</label>
+              <select 
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm"
+                value={formData.categoria}
+                onChange={e => setFormData({...formData, categoria: e.target.value})}
+              >
+                <option value="Motor">Motor</option>
+                <option value="Sistema de Frenos">Sistema de Frenos</option>
+                <option value="Filtros">Filtros</option>
+                <option value="Eléctrico">Eléctrico</option>
+                <option value="Suspensión">Suspensión</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Ubicación</label>
+              <input 
+                type="text" 
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                placeholder="Ej. Estante D4"
+                value={formData.ubicacion}
+                onChange={e => setFormData({...formData, ubicacion: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Stock Inicial</label>
+              <input 
+                type="number" 
+                min="0"
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                value={formData.stock}
+                onChange={e => setFormData({...formData, stock: Number(e.target.value)})}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-slate-700">Stock Mínimo (Alerta)</label>
+              <input 
+                type="number" 
+                min="1"
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                value={formData.cantidadMinima}
+                onChange={e => setFormData({...formData, cantidadMinima: Number(e.target.value)})}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-sm font-medium text-slate-700">Precio Unitario ($)</label>
+              <input 
+                type="number" 
+                min="0"
+                required
+                className="w-full rounded-lg border border-slate-300 p-2 text-sm" 
+                value={formData.precio}
+                onChange={e => setFormData({...formData, precio: Number(e.target.value)})}
+              />
+            </div>
+          </div>
+          <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowForm(false)}
+              className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <X className="h-4 w-4" />
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            >
+              <Save className="h-4 w-4" />
+              Guardar Repuesto
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

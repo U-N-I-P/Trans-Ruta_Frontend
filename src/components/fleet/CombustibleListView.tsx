@@ -1,19 +1,21 @@
 import { useState, useEffect } from "react";
 import { Plus, TrendingDown } from "lucide-react";
 import { ConsumoCombustible, ConsumoCombustibleInput, registrarConsumoCombustible, obtenerConsumosCombustible } from "../../services/consumoCombustible.service";
-import { Vehiculo } from "../../types/domain";
+import { Vehiculo, OrdenDespacho } from "../../types/domain";
 
 interface CombustibleListViewProps {
   vehiculos: Vehiculo[];
+  ordenes: OrdenDespacho[];
 }
 
-export function CombustibleListView({ vehiculos }: CombustibleListViewProps) {
+export function CombustibleListView({ vehiculos, ordenes }: CombustibleListViewProps) {
   const [consumos, setConsumos] = useState<ConsumoCombustible[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<ConsumoCombustibleInput>({
-    vehiculoId: vehiculos[0]?.id || 0,
+    vehiculoId: 0,
+    ordenDeDespachoId: ordenes[0]?.id || 0,
     kilometrajeInicial: 0,
     kilometrajeFinal: 0,
     litrosCargados: 0,
@@ -42,7 +44,8 @@ export function CombustibleListView({ vehiculos }: CombustibleListViewProps) {
       await registrarConsumoCombustible(formData);
       setShowForm(false);
       setFormData({
-        vehiculoId: vehiculos[0]?.id || 0,
+        vehiculoId: 0,
+        ordenDeDespachoId: ordenes[0]?.id || 0,
         kilometrajeInicial: 0,
         kilometrajeFinal: 0,
         litrosCargados: 0,
@@ -84,17 +87,21 @@ export function CombustibleListView({ vehiculos }: CombustibleListViewProps) {
         <div className="rounded-xl border border-slate-200 bg-white p-6">
           <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-slate-700">Vehículo</label>
+              <label className="block text-sm font-medium text-slate-700">Orden de Despacho (Viaje)</label>
               <select
-                value={formData.vehiculoId}
-                onChange={(e) => setFormData({ ...formData, vehiculoId: parseInt(e.target.value) })}
+                value={formData.ordenDeDespachoId}
+                onChange={(e) => setFormData({ ...formData, ordenDeDespachoId: parseInt(e.target.value) })}
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                required
               >
-                {vehiculos.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.placa}
-                  </option>
-                ))}
+                {ordenes.map((o) => {
+                  const placa = vehiculos.find((v) => v.id === o.vehiculoId)?.placa || "Desconocido";
+                  return (
+                    <option key={o.id} value={o.id}>
+                      {o.codigo} - Vehículo: {placa}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <div>
