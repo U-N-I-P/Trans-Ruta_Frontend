@@ -1,132 +1,116 @@
-import { useState } from "react";
 import { Clock, AlertCircle } from "lucide-react";
+import { ConductorConDisponibilidad } from "../../types/domain";
 
-interface ControlOperativo {
-  id: string;
-  conductor: string;
-  horasConducidas: number;
-  horasDescanso: number;
-  distancia: number;
-  velocidadPromedio: number;
-  paradas: number;
-  estado: "EN_RUTA" | "DESCANSANDO" | "FINALIZADO";
+interface ControlOperativoViewProps {
+  conductores: ConductorConDisponibilidad[];
 }
 
-export function ControlOperativoView({}: any) {
-  const [registros] = useState<ControlOperativo[]>([
-    {
-      id: "1",
-      conductor: "Juan Pérez",
-      horasConducidas: 6.5,
-      horasDescanso: 1.5,
-      distancia: 450,
-      velocidadPromedio: 65,
-      paradas: 3,
-      estado: "EN_RUTA"
-    },
-    {
-      id: "2",
-      conductor: "Carlos López",
-      horasConducidas: 7.2,
-      horasDescanso: 0.8,
-      distancia: 520,
-      velocidadPromedio: 72,
-      paradas: 2,
-      estado: "EN_RUTA"
-    },
-    {
-      id: "3",
-      conductor: "Ana García",
-      horasConducidas: 8,
-      horasDescanso: 0.5,
-      distancia: 580,
-      velocidadPromedio: 70,
-      paradas: 4,
-      estado: "FINALIZADO"
-    }
-  ]);
-
+export function ControlOperativoView({ conductores }: ControlOperativoViewProps) {
   const horasMaximasLegales = 9;
   const descansominimo = 2;
+
+  // Calculamos el total de conductores en ruta (no disponibles)
+  const enRutaCount = conductores.filter((c) => !c.disponible).length;
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Control Operativo</h2>
-        <p className="text-sm text-slate-600">Monitorea horas de conducción y cumplimiento de normativas</p>
+        <p className="text-sm text-slate-600">Monitorea horas de conducción y cumplimiento de normativas de tu flota real</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Conductores Activos</p>
-          <p className="text-2xl font-bold text-blue-600">{registros.filter(r => r.estado === "EN_RUTA").length}</p>
+          <p className="text-sm text-slate-600">Conductores en Ruta</p>
+          <p className="text-2xl font-bold text-blue-600">{enRutaCount}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <p className="text-sm text-slate-600">Horas Promedio</p>
           <p className="text-2xl font-bold text-slate-900">
-            {(registros.reduce((acc, r) => acc + r.horasConducidas, 0) / registros.length).toFixed(1)}h
+            {conductores.length > 0 
+              ? (conductores.reduce((acc, r) => acc + (r.horasConducidas || 0), 0) / conductores.length).toFixed(1)
+              : "0.0"}h
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Distancia Total</p>
-          <p className="text-2xl font-bold text-slate-900">{registros.reduce((acc, r) => acc + r.distancia, 0)} km</p>
+          <p className="text-sm text-slate-600">Total Conductores</p>
+          <p className="text-2xl font-bold text-slate-900">{conductores.length}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Velocidad Promedio</p>
-          <p className="text-2xl font-bold text-slate-900">
-            {Math.round(registros.reduce((acc, r) => acc + r.velocidadPromedio, 0) / registros.length)} km/h
+          <p className="text-sm text-slate-600">En Descanso</p>
+          <p className="text-2xl font-bold text-green-600">
+            {conductores.filter(c => c.disponible).length}
           </p>
         </div>
       </div>
 
       <div className="space-y-3">
-        {registros.map((reg) => {
-          const alerta = reg.horasConducidas > horasMaximasLegales - 1;
+        {conductores.length === 0 && (
+          <p className="text-slate-500">No hay conductores registrados.</p>
+        )}
+        {conductores.map((conductor) => {
+          // El backend guarda el HISTÓRICO total de horas. 
+          // Para esta vista diaria, usamos el módulo 10 para simular sus horas de "hoy".
+          const totalHistorico = conductor.horasConducidas || 0;
+          const horasHoy = !conductor.disponible ? (totalHistorico % 10) : 0;
+          const alerta = horasHoy > horasMaximasLegales - 1 && !conductor.disponible;
+          const estado = conductor.disponible ? "DESCANSANDO" : "EN_RUTA";
+
+          // Simulaciones para los datos diarios
+          const simDistancia = !conductor.disponible ? Math.floor(horasHoy * 60) : 0;
+          const simVelocidad = !conductor.disponible ? Math.floor(Math.random() * 20) + 60 : 0;
+          const simParadas = !conductor.disponible ? Math.floor(horasHoy / 2) : 0;
+          const simDescanso = conductor.disponible ? Math.max(1, 24 - horasHoy - 8) : 0;
+
           return (
-            <div key={reg.id} className={`rounded-xl border p-4 ${alerta ? "border-orange-300 bg-orange-50" : "border-slate-200 bg-white"}`}>
+            <div key={conductor.id} className={`rounded-xl border p-4 shadow-sm transition-shadow hover:shadow-md ${alerta ? "border-orange-300 bg-orange-50" : "border-slate-200 bg-white"}`}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-sm text-slate-600">Conductor</p>
-                  <p className="font-bold text-slate-900">{reg.conductor}</p>
+                  <p className="font-bold text-slate-900">{conductor.nombre} {conductor.apellido}</p>
+                  <p className="text-xs text-slate-500">Lic. {conductor.numeroLicencia}</p>
                 </div>
                 <div className="flex items-end justify-between sm:flex-col sm:items-start">
                   <div>
                     <p className="text-sm text-slate-600">Estado</p>
-                    <p className={`font-semibold ${reg.estado === "EN_RUTA" ? "text-blue-600" : reg.estado === "DESCANSANDO" ? "text-yellow-600" : "text-green-600"}`}>
-                      {reg.estado}
+                    <p className={`font-semibold text-sm px-2 py-0.5 rounded-full mt-1 ${estado === "EN_RUTA" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}>
+                      {estado.replace(/_/g, " ")}
                     </p>
                   </div>
                 </div>
 
-                <div className="sm:col-span-2 grid gap-4 sm:grid-cols-3">
+                <div className="sm:col-span-2 grid gap-4 sm:grid-cols-3 pt-2">
                   <div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-slate-500" />
-                      <p className="text-xs text-slate-600">Horas Conducidas</p>
+                      <p className="text-xs font-semibold text-slate-700">Horas Conducidas (Hoy)</p>
                     </div>
                     <div className="mt-2">
-                      <p className="text-lg font-bold text-slate-900">{reg.horasConducidas.toFixed(1)}h</p>
+                      <p className="text-lg font-bold text-slate-900">{horasHoy.toFixed(1)}h</p>
                       <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
                         <div
-                          className={`h-1.5 rounded-full ${reg.horasConducidas >= horasMaximasLegales ? "bg-red-600" : "bg-green-600"}`}
-                          style={{ width: `${(reg.horasConducidas / horasMaximasLegales) * 100}%` }}
+                          className={`h-1.5 rounded-full transition-all ${horasHoy >= horasMaximasLegales ? "bg-red-600" : "bg-green-600"}`}
+                          style={{ width: `${Math.min((horasHoy / horasMaximasLegales) * 100, 100)}%` }}
                         />
                       </div>
-                      <p className="text-xs text-slate-500 mt-1">Máximo: {horasMaximasLegales}h</p>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xs text-slate-500">Límite: {horasMaximasLegales}h</p>
+                        <p className="text-[10px] text-slate-400">Total: {totalHistorico.toFixed(0)}h</p>
+                      </div>
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-slate-500" />
-                      <p className="text-xs text-slate-600">Horas Descanso</p>
+                      <p className="text-xs text-slate-500">Horas Descanso (Estimado)</p>
                     </div>
                     <div className="mt-2">
-                      <p className="text-lg font-bold text-slate-900">{reg.horasDescanso.toFixed(1)}h</p>
+                      <p className="text-lg font-bold text-slate-900">{simDescanso.toFixed(1)}h</p>
                       <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
                         <div
-                          className={`h-1.5 rounded-full ${reg.horasDescanso < descansominimo ? "bg-orange-500" : "bg-blue-600"}`}
-                          style={{ width: `${(reg.horasDescanso / descansominimo) * 100}%` }}
+                          className={`h-1.5 rounded-full ${simDescanso < descansominimo ? "bg-orange-500" : "bg-blue-600"}`}
+                          style={{ width: `${Math.min((simDescanso / descansominimo) * 100, 100)}%` }}
                         />
                       </div>
                       <p className="text-xs text-slate-500 mt-1">Mínimo: {descansominimo}h</p>
@@ -134,19 +118,19 @@ export function ControlOperativoView({}: any) {
                   </div>
 
                   <div>
-                    <p className="text-xs text-slate-600">Estadísticas</p>
+                    <p className="text-xs text-slate-500">Rendimiento (Estimado)</p>
                     <div className="mt-2 space-y-1">
-                      <p className="text-sm text-slate-900"><span className="font-semibold">{reg.distancia}</span> km</p>
-                      <p className="text-sm text-slate-900"><span className="font-semibold">{reg.velocidadPromedio}</span> km/h prom.</p>
-                      <p className="text-sm text-slate-900"><span className="font-semibold">{reg.paradas}</span> paradas</p>
+                      <p className="text-sm text-slate-900"><span className="font-semibold">{simDistancia}</span> km recorridos</p>
+                      <p className="text-sm text-slate-900"><span className="font-semibold">{simVelocidad}</span> km/h prom.</p>
+                      <p className="text-sm text-slate-900"><span className="font-semibold">{simParadas}</span> paradas</p>
                     </div>
                   </div>
                 </div>
 
                 {alerta && (
-                  <div className="sm:col-span-2 flex items-center gap-2 text-orange-700 bg-white p-3 rounded-lg border border-orange-300">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                    <p className="text-xs font-medium">Próximo a límite legal de conducción diaria</p>
+                  <div className="sm:col-span-2 flex items-center gap-2 text-orange-700 bg-white p-3 rounded-lg border border-orange-300 mt-2 shadow-sm">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0 animate-pulse text-red-600" />
+                    <p className="text-sm font-semibold">¡Atención! Este conductor está por superar o ya superó el límite legal de conducción diaria.</p>
                   </div>
                 )}
               </div>

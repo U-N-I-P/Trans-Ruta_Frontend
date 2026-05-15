@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 import { Conductor } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -24,13 +24,6 @@ export interface ConductorInput {
   horasConducidas?: number;
   usuarioId?: number | null;
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerConductores(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<Conductor[]>>("/conductores", { params });

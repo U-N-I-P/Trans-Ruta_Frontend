@@ -13,6 +13,7 @@ interface SolicitudCompra {
 }
 
 export function ComprasListView() {
+  const [showForm, setShowForm] = useState(false);
   const [solicitudes] = useState<SolicitudCompra[]>([
     {
       id: "1",
@@ -60,11 +61,48 @@ export function ComprasListView() {
           <h2 className="text-2xl font-bold text-slate-900">Solicitudes de Compra</h2>
           <p className="text-sm text-slate-600">Aprueba o rechaza solicitudes de repuestos</p>
         </div>
-        <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        <button 
+          onClick={() => setShowForm(!showForm)}
+          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        >
           <Plus className="h-4 w-4" />
-          Nueva Solicitud
+          Nueva Compra
         </button>
       </div>
+
+      {showForm && (
+        <div className="rounded-xl border border-slate-200 bg-white p-6">
+          <form 
+            className="grid gap-4 sm:grid-cols-2" 
+            onSubmit={(e) => { 
+              e.preventDefault(); 
+              alert("Solicitud de compra registrada (Simulación)"); 
+              setShowForm(false); 
+            }}
+          >
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Concepto / Repuesto</label>
+              <input type="text" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required placeholder="Ej. Filtro de Aceite" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Cantidad</label>
+              <input type="number" min="1" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Costo Estimado</label>
+              <input type="number" step="0.01" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2" required />
+            </div>
+            <div className="sm:col-span-2 flex gap-3 mt-2">
+              <button type="submit" className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 font-medium">
+                Guardar Compra
+              </button>
+              <button type="button" onClick={() => setShowForm(false)} className="flex-1 rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50 font-medium">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-4">
         <div className="rounded-xl border border-slate-200 bg-white p-4">

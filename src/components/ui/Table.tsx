@@ -16,7 +16,7 @@ interface TableProps<T> {
 
 export function Table<T>({ columnas, datos, claveFila, estadoVacio }: TableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+    <div className="overflow-x-auto overflow-y-hidden rounded-xl border border-slate-100 bg-white/50 backdrop-blur-sm">
       <table className="min-w-full text-left text-sm">
         <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
@@ -36,7 +36,7 @@ export function Table<T>({ columnas, datos, claveFila, estadoVacio }: TableProps
             </tr>
           )}
           {datos.map((fila) => (
-            <tr key={claveFila(fila)} className="transition hover:bg-slate-50/80">
+            <tr key={claveFila(fila)} className="transition-colors duration-200 hover:bg-slate-50/80">
               {columnas.map((columna) => (
                 <td key={columna.id} className="px-4 py-3 text-slate-700">
                   {columna.celda(fila)}

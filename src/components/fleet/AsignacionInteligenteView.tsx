@@ -1,38 +1,100 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { BarChart3, Zap, CheckCircle } from "lucide-react";
+import { Conductor, OrdenDespacho, Vehiculo } from "../../types/domain";
+import { actualizarOrdenDespacho } from "../../services/orden.service";
 
 interface Recomendacion {
-  ordenId: string;
+  ordenId: number;
+  codigoOrden: string;
+  vehiculoId: number;
   vehiculoPlaca: string;
+  conductorId: number;
   conductorNombre: string;
   score: number;
-  razon: string[];
+  razones: string[];
 }
 
-export function AsignacionInteligenteView({}: any) {
-  const [recomendaciones] = useState<Recomendacion[]>([
-    {
-      ordenId: "ORD-004",
-      vehiculoPlaca: "ABC-123",
-      conductorNombre: "Juan Pérez",
-      score: 95,
-      razon: ["Disponible", "Zona cercana", "Licencia vigente", "Buen rendimiento"]
-    },
-    {
-      ordenId: "ORD-005",
-      vehiculoPlaca: "XYZ-789",
-      conductorNombre: "Carlos López",
-      score: 87,
-      razon: ["Capacidad suficiente", "Ruta optimizada", "Horario disponible"]
-    },
-    {
-      ordenId: "ORD-006",
-      vehiculoPlaca: "DEF-456",
-      conductorNombre: "Ana García",
-      score: 92,
-      razon: ["Especializado", "Documentación completa", "Experiencia"]
-    }
-  ]);
+interface AsignacionInteligenteProps {
+  ordenes: OrdenDespacho[];
+  vehiculos: Vehiculo[];
+  conductores: Conductor[];
+}
+
+export function AsignacionInteligenteView({ ordenes, vehiculos, conductores }: AsignacionInteligenteProps) {
+  const [actualizando, setActualizando] = useState<number | null>(null);
+
+  const recomendaciones = useMemo(() => {
+    // Solo evaluamos órdenes que recién se despachan
+    const ordenesEvaluables = ordenes.filter(o => o.estado === "DESPACHADO");
+    
+    return ordenesEvaluables.map(orden => {
+      const vehiculo = vehiculos.find(v => v.id === orden.vehiculoId);
+      const conductor = conductores.find(c => c.id === orden.conductorId);
+      
+      let score = 100;
+      const razones: string[] = [];
+
+      if (!vehiculo || !conductor) {
+        return {
+          ordenId: orden.id,
+          codigoOrden: orden.codigo,
+          vehiculoId: 0,
+          vehiculoPlaca: "Desconocido",
+          conductorId: 0,
+          conductorNombre: "Desconocido",
+          score: 0,
+          razones: ["Faltan datos de asignación"]
+        };
+      }
+
+      // Evaluar Vehículo
+      if (vehiculo.capacidadCarga < orden.pesoCarga) {
+        score -= 50;
+        razones.push("¡Peligro! Sobrecarga detectada");
+      } else if (vehiculo.capacidadCarga >= orden.pesoCarga * 2) {
+        score -= 15;
+        razones.push("Vehículo sobredimensionado (Gasto innecesario)");
+      } else {
+        razones.push("Capacidad de carga óptima");
+      }
+
+      if (vehiculo.estado === "EN_MANTENIMIENTO") {
+        score -= 40;
+        razones.push("Vehículo en mantenimiento");
+      } else if (vehiculo.estado === "DISPONIBLE" || vehiculo.estado === "EN_RUTA") {
+        razones.push("Vehículo operativo");
+      }
+
+      // Evaluar Conductor
+      if (conductor.horasConducidas > 40) {
+        score -= 20;
+        razones.push("Fatiga: Exceso de horas de conducción");
+      } else {
+        razones.push("Horas de conducción en norma");
+      }
+
+      if (conductor.licenciaVencida) {
+        score -= 50;
+        razones.push("¡Licencia Vencida!");
+      } else if (conductor.diasParaVencimiento < 30) {
+        score -= 10;
+        razones.push("Licencia próxima a vencer");
+      } else {
+        razones.push("Licencia vigente");
+      }
+
+      return {
+        ordenId: orden.id,
+        codigoOrden: orden.codigo,
+        vehiculoId: vehiculo.id,
+        vehiculoPlaca: vehiculo.placa,
+        conductorId: conductor.id,
+        conductorNombre: `${conductor.nombre} ${conductor.apellido}`,
+        score: Math.max(0, score),
+        razones
+      };
+    });
+  }, [ordenes, vehiculos, conductores]);
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "bg-green-100 text-green-800";
@@ -40,22 +102,35 @@ export function AsignacionInteligenteView({}: any) {
     return "bg-red-100 text-red-800";
   };
 
-  const handleAsignar = (rec: Recomendacion) => {
-    alert(`Orden ${rec.ordenId} asignada a ${rec.conductorNombre} - Vehículo ${rec.vehiculoPlaca}`);
+  const handleAsignar = async (rec: Recomendacion) => {
+    try {
+      setActualizando(rec.ordenId);
+      // Simula confirmación de evaluación en backend (o podría hacer una reasignación si cambiara IDs)
+      await actualizarOrdenDespacho(rec.ordenId, { vehiculoId: rec.vehiculoId, conductorId: rec.conductorId });
+      alert(`Asignación de la Orden ${rec.codigoOrden} confirmada y optimizada exitosamente.`);
+    } catch (err) {
+      alert("Error al confirmar asignación.");
+    } finally {
+      setActualizando(null);
+    }
   };
+
+  const promediarScore = recomendaciones.length > 0 
+    ? Math.round(recomendaciones.reduce((acc, r) => acc + r.score, 0) / recomendaciones.length)
+    : 0;
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Asignación Inteligente</h2>
-        <p className="text-sm text-slate-600">Sistema de recomendación automática de recursos</p>
+        <p className="text-sm text-slate-600">Evaluador y optimizador de recursos asignados a órdenes activas</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Órdenes Pendientes</p>
+              <p className="text-sm text-slate-600">Órdenes Evaluadas</p>
               <p className="text-2xl font-bold text-slate-900">{recomendaciones.length}</p>
             </div>
             <BarChart3 className="h-8 w-8 text-blue-600" />
@@ -65,8 +140,8 @@ export function AsignacionInteligenteView({}: any) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Score Promedio</p>
-              <p className="text-2xl font-bold text-slate-900">
-                {Math.round(recomendaciones.reduce((acc, r) => acc + r.score, 0) / recomendaciones.length)}%
+              <p className={`text-2xl font-bold ${promediarScore >= 90 ? 'text-green-600' : promediarScore >= 75 ? 'text-yellow-600' : 'text-red-600'}`}>
+                {promediarScore}%
               </p>
             </div>
             <Zap className="h-8 w-8 text-yellow-600" />
@@ -76,7 +151,7 @@ export function AsignacionInteligenteView({}: any) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-600">Asignaciones Óptimas</p>
-              <p className="text-2xl font-bold text-slate-900">
+              <p className="text-2xl font-bold text-green-600">
                 {recomendaciones.filter(r => r.score >= 90).length}
               </p>
             </div>
@@ -86,52 +161,65 @@ export function AsignacionInteligenteView({}: any) {
       </div>
 
       <div className="space-y-4">
-        {recomendaciones.map((rec) => (
-          <div key={rec.ordenId} className="rounded-xl border border-slate-200 bg-white p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm text-slate-500">Orden</p>
-                <p className="font-bold text-slate-900">{rec.ordenId}</p>
-              </div>
-              <div className="flex items-end justify-between sm:flex-col sm:items-start">
+        {recomendaciones.length === 0 ? (
+          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-500">
+            No hay órdenes recién despachadas para evaluar.
+          </div>
+        ) : (
+          recomendaciones.map((rec) => (
+            <div key={rec.ordenId} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-sm text-slate-500">Score de Asignación</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`inline-block rounded-full px-3 py-1 text-sm font-bold ${getScoreColor(rec.score)}`}>
-                      {rec.score}%
-                    </span>
+                  <p className="text-sm text-slate-500">Orden</p>
+                  <p className="font-bold text-slate-900">{rec.codigoOrden}</p>
+                </div>
+                <div className="flex items-end justify-between sm:flex-col sm:items-start">
+                  <div>
+                    <p className="text-sm text-slate-500">Score de Asignación actual</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`inline-block rounded-full px-3 py-1 text-sm font-bold ${getScoreColor(rec.score)}`}>
+                        {rec.score}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Conductor Recomendado</p>
-                <p className="font-semibold text-slate-900">{rec.conductorNombre}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Vehículo Recomendado</p>
-                <p className="font-semibold text-slate-900">{rec.vehiculoPlaca}</p>
-              </div>
-              <div className="sm:col-span-2">
-                <p className="text-sm text-slate-500 mb-2">Criterios que optimizan esta asignación:</p>
-                <div className="flex flex-wrap gap-2">
-                  {rec.razon.map((r) => (
-                    <span key={r} className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
-                      {r}
-                    </span>
-                  ))}
+                <div>
+                  <p className="text-sm text-slate-500">Conductor Asignado</p>
+                  <p className="font-semibold text-slate-900">{rec.conductorNombre}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">Vehículo Asignado</p>
+                  <p className="font-semibold text-slate-900">{rec.vehiculoPlaca}</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-sm font-medium text-slate-700 mb-2">Evaluación de esta asignación:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {rec.razones.map((r, i) => (
+                      <span key={i} className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                        r.includes("¡Peligro!") || r.includes("Vencida") 
+                          ? "bg-red-50 text-red-700 border border-red-200" 
+                          : r.includes("óptima") || r.includes("vigente") || r.includes("norma")
+                            ? "bg-green-50 text-green-700 border border-green-200"
+                            : "bg-blue-50 text-blue-700 border border-blue-200"
+                      }`}>
+                        {r}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="sm:col-span-2 mt-2">
+                  <button
+                    onClick={() => handleAsignar(rec)}
+                    disabled={actualizando === rec.ordenId}
+                    className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 font-medium disabled:opacity-50"
+                  >
+                    {actualizando === rec.ordenId ? "Confirmando..." : "Confirmar Evaluación"}
+                  </button>
                 </div>
               </div>
-              <div className="sm:col-span-2">
-                <button
-                  onClick={() => handleAsignar(rec)}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 font-medium"
-                >
-                  Confirmar Asignación
-                </button>
-              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

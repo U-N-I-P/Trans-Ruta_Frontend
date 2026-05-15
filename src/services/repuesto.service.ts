@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 import { Repuesto } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -21,13 +21,6 @@ export interface RepuestoInput {
   unidadMedida: string;
   precio: number;
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerRepuestos(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<Repuesto[]>>("/repuestos", { params });

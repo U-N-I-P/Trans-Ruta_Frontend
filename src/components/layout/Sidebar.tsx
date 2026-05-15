@@ -13,184 +13,156 @@ interface SidebarProps {
 }
 
 export function Sidebar({
-  colapsado,
   movilAbierto,
   vistaActiva,
   onCerrarMovil,
-  onAlternarColapsado,
   onCambiarVista
 }: SidebarProps) {
   return (
     <>
       {movilAbierto && <div className="fixed inset-0 z-30 bg-slate-950/50 lg:hidden" onClick={onCerrarMovil} />}
       <aside
-        className={`fixed left-0 top-0 z-40 h-screen bg-gradient-to-b from-logistics-900 to-logistics-800 p-4 text-white shadow-panel transition-all duration-300 ${
-          colapsado ? "w-[88px]" : "w-72"
-        } ${movilAbierto ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        className={`group fixed left-0 top-0 z-40 m-4 h-[calc(100vh-2rem)] flex flex-col rounded-2xl bg-slate-900/75 backdrop-blur-md border border-slate-800 text-white shadow-2xl transition-all duration-300 ease-in-out [&::-webkit-scrollbar]:hidden overflow-y-auto overflow-x-hidden ${
+          movilAbierto ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0 w-20 hover:w-64"
+        }`}
       >
-        <div className="mb-8 flex items-center justify-between">
-          {!colapsado && (
-            <div>
-              <p className="font-['Sora'] text-lg font-bold">Trans-Ruta</p>
-              <p className="text-xs text-blue-100">Centro de Control</p>
+        <div className="mb-6 flex items-center justify-center p-4 sticky top-0 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/50 z-10">
+          <div className="flex items-center gap-3 w-full">
+            <div className="bg-blue-600 rounded-lg p-2 shrink-0 shadow-lg shadow-blue-500/20">
+              <Truck size={24} className="text-white" />
             </div>
-          )}
-          <button
-            type="button"
-            className="rounded-lg p-2 text-blue-100 hover:bg-white/10"
-            onClick={onAlternarColapsado}
-            aria-label="Alternar barra lateral"
-          >
-            {colapsado ? <Truck size={18} /> : <X size={18} />}
-          </button>
+            <div className="flex-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 overflow-hidden whitespace-nowrap">
+              <p className="font-['Sora'] text-lg font-bold tracking-wide">Trans-Ruta</p>
+              <p className="text-[10px] text-blue-300 font-medium uppercase tracking-wider">Centro de Control</p>
+            </div>
+          </div>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="flex-1 space-y-1.5 px-3 pb-6">
           <SidebarItem
             icono={ClipboardList}
             etiqueta="Panel de Control"
             activo={vistaActiva === "panel"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("panel")}
           />
           <SidebarItem
             icono={Truck}
             etiqueta="Vehículos"
             activo={vistaActiva === "vehiculos"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("vehiculos")}
           />
           <SidebarItem
             icono={Users}
             etiqueta="Conductores"
             activo={vistaActiva === "conductores"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("conductores")}
           />
           <SidebarItem
             icono={FileText}
             etiqueta="Documentos"
             activo={vistaActiva === "documentos"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("documentos")}
           />
           <SidebarItem
             icono={ClipboardList}
             etiqueta="Órdenes"
             activo={vistaActiva === "ordenes"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("ordenes")}
           />
           <SidebarItem
             icono={Wrench}
             etiqueta="Mantenimiento"
             activo={vistaActiva === "mantenimiento"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("mantenimiento")}
           />
           <SidebarItem
             icono={CheckCircle}
             etiqueta="Entregas"
             activo={vistaActiva === "entregas"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("entregas")}
           />
           <SidebarItem
             icono={AlertCircle}
             etiqueta="Incidentes"
             activo={vistaActiva === "incidentes"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("incidentes")}
           />
           <SidebarItem
             icono={DollarSign}
             etiqueta="Viáticos"
             activo={vistaActiva === "viaticos"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("viaticos")}
           />
           <SidebarItem
             icono={Truck}
             etiqueta="Combustible"
             activo={vistaActiva === "combustible"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("combustible")}
           />
           <SidebarItem
             icono={Zap}
             etiqueta="Asignación"
             activo={vistaActiva === "asignacion"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("asignacion")}
           />
           <SidebarItem
             icono={ShoppingCart}
             etiqueta="Compras"
             activo={vistaActiva === "compras"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("compras")}
           />
           <SidebarItem
             icono={MapPin}
             etiqueta="GPS"
             activo={vistaActiva === "gps"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("gps")}
           />
           <SidebarItem
             icono={FileText}
             etiqueta="Manifiestos"
             activo={vistaActiva === "manifiestos"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("manifiestos")}
           />
           <SidebarItem
             icono={Clock}
             etiqueta="Control Operativo"
             activo={vistaActiva === "operativo"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("operativo")}
           />
           <SidebarItem
             icono={Package}
             etiqueta="Inventario"
             activo={vistaActiva === "inventario"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("inventario")}
           />
           <SidebarItem
             icono={Phone}
             etiqueta="Clientes"
             activo={vistaActiva === "clientes"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("clientes")}
           />
           <SidebarItem
             icono={Award}
             etiqueta="Evaluación"
             activo={vistaActiva === "evaluacion"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("evaluacion")}
           />
           <SidebarItem
             icono={BarChart3}
             etiqueta="Reportes"
             activo={vistaActiva === "reportes"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("reportes")}
           />
           <SidebarItem
             icono={Lock}
             etiqueta="Auditoría"
             activo={vistaActiva === "auditoria"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("auditoria")}
           />
           <SidebarItem
             icono={PackageSearch}
-            etiqueta="Inventario"
+            etiqueta="Gestión Flota"
             activo={vistaActiva === "flota"}
-            colapsado={colapsado}
             onClick={() => onCambiarVista("flota")}
           />
         </nav>

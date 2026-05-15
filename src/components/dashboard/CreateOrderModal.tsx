@@ -1,16 +1,40 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MapPin } from "lucide-react";
-import { Cliente, ConductorConDisponibilidad, Coordenada, NuevaOrdenInput, Vehiculo } from "../../types/domain";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { Cliente, ConductorConDisponibilidad, Coordenada, NuevaOrdenInput, OrdenDespacho, Vehiculo } from "../../types/domain";
 import { Modal } from "../ui/Modal";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
+function MapClickHandler({ onMapClick }: { onMapClick: (latlng: L.LatLng) => void }) {
+  useMapEvents({
+    click(e) {
+      onMapClick(e.latlng);
+    },
+  });
+  return null;
+}
 
 interface CreateOrderModalProps {
   abierto: boolean;
   vehiculos: Vehiculo[];
   conductores: ConductorConDisponibilidad[];
   clientes: Cliente[];
+  ordenInicial?: OrdenDespacho | null;
   onCerrar: () => void;
   onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
 }
@@ -63,6 +87,7 @@ export function CreateOrderModal({
   vehiculos,
   conductores,
   clientes,
+  ordenInicial,
   onCerrar,
   onCrearOrden
 }: CreateOrderModalProps) {
@@ -73,16 +98,44 @@ export function CreateOrderModal({
   const [errorSubmit, setErrorSubmit] = useState<string | null>(null);
 
   const esquema = useMemo(() => crearEsquema(vehiculos), [vehiculos]);
+  const vehiculosFormulario = useMemo(
+    () =>
+      ordenInicial
+        ? vehiculos.filter((vehiculo) => vehiculo.estado === "DISPONIBLE" || vehiculo.id === ordenInicial.vehiculoId)
+        : vehiculos.filter((vehiculo) => vehiculo.estado === "DISPONIBLE"),
+    [ordenInicial, vehiculos]
+  );
+
+  const conductoresFormulario = useMemo(
+    () =>
+      ordenInicial
+        ? conductores.filter((conductor) => conductor.disponible || conductor.id === ordenInicial.conductorId)
+        : conductores.filter((conductor) => conductor.disponible),
+    [conductores, ordenInicial]
+  );
 
   const {
     register,
     watch,
     handleSubmit,
+    setValue,
     formState: { errors },
     reset
   } = useForm<z.infer<typeof esquema>>({
     resolver: zodResolver(esquema),
-    defaultValues: {
+    defaultValues: ordenInicial
+      ? {
+          vehiculoId: String(ordenInicial.vehiculoId),
+          conductorId: String(ordenInicial.conductorId),
+          clienteId: String(ordenInicial.clienteId),
+          origen: ordenInicial.origen,
+          destino: ordenInicial.destino,
+          pesoCarga: ordenInicial.pesoCarga,
+          descripcionCarga: ordenInicial.descripcionCarga ?? "",
+          fechaSalida: ordenInicial.fechaSalida ?? "",
+          fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? ""
+        }
+      : {
       vehiculoId: "",
       conductorId: "",
       clienteId: "",
@@ -92,25 +145,55 @@ export function CreateOrderModal({
       descripcionCarga: "",
       fechaSalida: "",
       fechaEntregaEstimada: ""
-    }
+      }
   });
+
+  useEffect(() => {
+    if (!abierto) {
+      return;
+    }
+
+    reset(
+      ordenInicial
+        ? {
+            vehiculoId: String(ordenInicial.vehiculoId),
+            conductorId: String(ordenInicial.conductorId),
+            clienteId: String(ordenInicial.clienteId),
+            origen: ordenInicial.origen,
+            destino: ordenInicial.destino,
+            pesoCarga: ordenInicial.pesoCarga,
+            descripcionCarga: ordenInicial.descripcionCarga ?? "",
+            fechaSalida: ordenInicial.fechaSalida ?? "",
+            fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? ""
+          }
+        : {
+            vehiculoId: "",
+            conductorId: "",
+            clienteId: "",
+            origen: "",
+            destino: "",
+            pesoCarga: 0,
+            descripcionCarga: "",
+            fechaSalida: "",
+            fechaEntregaEstimada: ""
+          }
+    );
+  }, [abierto, ordenInicial, reset]);
 
   const vehiculoSeleccionado = vehiculos.find((item) => String(item.id) === watch("vehiculoId"));
 
-  const manejarClickMapa = (event: React.MouseEvent<HTMLDivElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width;
-    const y = (event.clientY - rect.top) / rect.height;
-
+  const manejarClickMapa = (latlng: L.LatLng) => {
     const coordenada = {
-      lat: Number((4.5 + y * 8).toFixed(5)),
-      lng: Number((-77 + x * 10).toFixed(5))
+      lat: Number(latlng.lat.toFixed(5)),
+      lng: Number(latlng.lng.toFixed(5))
     };
 
     if (modoMapa === "origen") {
       setCoordenadaOrigen(coordenada);
+      setValue("origen", `${coordenada.lat}, ${coordenada.lng}`, { shouldValidate: true });
     } else {
       setCoordenadaDestino(coordenada);
+      setValue("destino", `${coordenada.lat}, ${coordenada.lng}`, { shouldValidate: true });
     }
   };
 
@@ -144,20 +227,19 @@ export function CreateOrderModal({
   };
 
   return (
-    <Modal abierto={abierto} titulo="Crear Orden de Despacho" onCerrar={onCerrar}>
+    <Modal abierto={abierto} titulo={ordenInicial ? "Editar Orden de Despacho" : "Crear Orden de Despacho"} onCerrar={onCerrar}>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Vehiculo</span>
             <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("vehiculoId")}>
               <option value="">Seleccione...</option>
-              {vehiculos
-                .filter((v) => v.estado === "DISPONIBLE")
-                .map((vehiculo) => (
-                  <option key={vehiculo.id} value={String(vehiculo.id)}>
-                    {vehiculo.placa} - {formatearTipoVehiculo(vehiculo.tipo)} ({vehiculo.capacidadCarga} kg)
-                  </option>
-                ))}
+              {vehiculosFormulario.map((vehiculo) => (
+                <option key={vehiculo.id} value={String(vehiculo.id)}>
+                  {vehiculo.placa} - {formatearTipoVehiculo(vehiculo.tipo)} ({vehiculo.capacidadCarga} kg)
+                  {ordenInicial && vehiculo.id === ordenInicial.vehiculoId ? " (actual)" : ""}
+                </option>
+              ))}
             </select>
             {errors.vehiculoId && <p className="text-xs text-red-600">{errors.vehiculoId.message}</p>}
           </label>
@@ -166,13 +248,12 @@ export function CreateOrderModal({
             <span className="font-semibold">Conductor</span>
             <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("conductorId")}>
               <option value="">Seleccione...</option>
-              {conductores
-                .filter((c) => c.disponible)
-                .map((conductor) => (
-                  <option key={conductor.id} value={String(conductor.id)}>
-                    {conductor.nombre} {conductor.apellido} - Lic. {conductor.numeroLicencia}
-                  </option>
-                ))}
+              {conductoresFormulario.map((conductor) => (
+                <option key={conductor.id} value={String(conductor.id)}>
+                  {conductor.nombre} {conductor.apellido} - Lic. {conductor.numeroLicencia}
+                  {ordenInicial && conductor.id === ordenInicial.conductorId ? " (actual)" : ""}
+                </option>
+              ))}
             </select>
             {errors.conductorId && <p className="text-xs text-red-600">{errors.conductorId.message}</p>}
           </label>
@@ -274,18 +355,26 @@ export function CreateOrderModal({
               </button>
             </div>
           </div>
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={manejarClickMapa}
-            onKeyDown={() => undefined}
-            className="flex h-44 cursor-crosshair items-center justify-center rounded-xl border border-dashed border-logistics-700/60 bg-gradient-to-br from-blue-50 to-cyan-50 text-center"
-          >
-            <div className="text-sm text-slate-700">
-              <MapPin className="mx-auto mb-2 text-logistics-800" size={18} />
-              <p>Haz clic para fijar coordenadas de {modoMapa}</p>
-              <p className="text-xs text-slate-500">Integrable a react-leaflet reemplazando este contenedor</p>
-            </div>
+          <div className="flex h-56 w-full rounded-xl border border-slate-200 overflow-hidden relative z-0 mt-2">
+            <MapContainer 
+              center={[4.7110, -74.0721]} 
+              zoom={10} 
+              scrollWheelZoom={true} 
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                attribution='&copy; OpenStreetMap'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MapClickHandler onMapClick={manejarClickMapa} />
+              
+              {coordenadaOrigen && (
+                <Marker position={[coordenadaOrigen.lat, coordenadaOrigen.lng]} />
+              )}
+              {coordenadaDestino && (
+                <Marker position={[coordenadaDestino.lat, coordenadaDestino.lng]} />
+              )}
+            </MapContainer>
           </div>
           <div className="mt-2 grid gap-2 text-xs text-slate-600 md:grid-cols-2">
             <p>
@@ -313,7 +402,7 @@ export function CreateOrderModal({
             disabled={isSubmitting}
             className="rounded-xl bg-logistics-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-logistics-900 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isSubmitting ? "Guardando..." : "Guardar orden"}
+            {isSubmitting ? "Guardando..." : ordenInicial ? "Guardar cambios" : "Guardar orden"}
           </button>
         </div>
       </form>

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "./api";
 import { Notificacion } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -20,13 +20,6 @@ export interface NotificacionInput {
   destinatario: string;
   clienteId: number;
 }
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerNotificaciones(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<Notificacion[]>>("/notificaciones", { params });

@@ -19,7 +19,8 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
     conductorId: conductores[0]?.id || 0,
     ordenDeDespachoId: ordenes[0]?.id || 0,
     monto: 0,
-    estado: "APROBADO"
+    estado: "APROBADO",
+    fecha: new Date().toISOString().split('T')[0]
   });
 
   const cargarDatos = async () => {
@@ -55,7 +56,8 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
         conductorId: conductores[0]?.id || 0,
         ordenDeDespachoId: ordenes[0]?.id || 0,
         monto: 0,
-        estado: "APROBADO"
+        estado: "APROBADO",
+        fecha: new Date().toISOString().split('T')[0]
       });
       cargarDatos();
     } catch (err) {
@@ -132,6 +134,16 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
                 value={formData.monto}
                 onChange={(e) => setFormData({ ...formData, monto: parseInt(e.target.value) })}
                 className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Fecha</label>
+              <input
+                type="date"
+                value={formData.fecha}
+                onChange={(e) => setFormData({ ...formData, fecha: e.target.value })}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                required
               />
             </div>
             <div className="flex gap-3 sm:col-span-2">

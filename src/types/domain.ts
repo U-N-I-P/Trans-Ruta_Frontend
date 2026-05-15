@@ -26,6 +26,32 @@ export interface VehiculoInput {
   estado: "DISPONIBLE" | "EN_RUTA" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
 }
 
+export interface PlanMantenimiento {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+  frecuenciaKm: number | null;
+  frecuenciaDias: number | null;
+  tipoVehiculo: Vehiculo["tipo"];
+  vehiculoId: number;
+  createdAt: string;
+  updatedAt: string;
+  vehiculo?: {
+    id: number;
+    placa: string;
+    tipo: Vehiculo["tipo"];
+  };
+}
+
+export interface PlanMantenimientoInput {
+  nombre: string;
+  descripcion?: string | null;
+  frecuenciaKm?: number | null;
+  frecuenciaDias?: number | null;
+  tipoVehiculo: Vehiculo["tipo"];
+  vehiculoId: number;
+}
+
 export interface Cliente {
   id: number;
   nombre: string;
@@ -110,6 +136,59 @@ export interface OrdenDespacho {
   entrega?: {
     id: number;
   } | null;
+}
+
+export interface Incidente {
+  id: number;
+  tipo: string;
+  descripcion: string;
+  fecha: string;
+  latitud: number | null;
+  longitud: number | null;
+  protocoloActivado: boolean;
+  ordenDeDespachoId: number;
+  createdAt: string;
+  updatedAt: string;
+  ordenDeDespacho?: {
+    id: number;
+    codigo: string;
+  };
+}
+
+export interface IncidenteInput {
+  tipo: string;
+  descripcion: string;
+  fecha: string;
+  latitud?: number | null;
+  longitud?: number | null;
+  protocoloActivado?: boolean;
+}
+
+export interface Entrega {
+  id: number;
+  fechaEntrega: string;
+  firmaDigital: string | null;
+  fotografia: string | null;
+  observaciones: string | null;
+  latitud: number | null;
+  longitud: number | null;
+  ordenDeDespachoId: number;
+  createdAt: string;
+  updatedAt: string;
+  ordenDeDespacho?: {
+    id: number;
+    codigo: string;
+    estado: EstadoOrden;
+  };
+}
+
+export interface EntregaInput {
+  fechaEntrega: string;
+  firmaDigital?: string | null;
+  fotografia?: string | null;
+  observaciones?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
 }
 
 export type TipoNotificacion = "ESTADO_ENVIO" | "INCIDENTE" | "STOCK_BAJO" | "MANTENIMIENTO" | "SISTEMA";

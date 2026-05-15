@@ -5,11 +5,11 @@ interface BadgeProps {
 }
 
 const estilosPorEstado: Record<EstadoOrden, string> = {
-  DESPACHADO: "bg-blue-100 text-blue-800 border-blue-200",
-  EN_RUTA: "bg-amber-100 text-amber-800 border-amber-200",
-  CERCA_DEL_DESTINO: "bg-sky-100 text-sky-800 border-sky-200",
-  ENTREGADO: "bg-emerald-100 text-emerald-800 border-emerald-200",
-  CANCELADO: "bg-red-100 text-red-800 border-red-200"
+  DESPACHADO: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  EN_RUTA: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+  CERCA_DEL_DESTINO: "bg-sky-500/10 text-sky-700 border-sky-500/20",
+  ENTREGADO: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+  CANCELADO: "bg-red-500/10 text-red-700 border-red-500/20"
 };
 
 const etiquetasPorEstado: Record<EstadoOrden, string> = {
@@ -23,7 +23,7 @@ const etiquetasPorEstado: Record<EstadoOrden, string> = {
 export function Badge({ estado }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${estilosPorEstado[estado]}`}
+      className={`inline-flex items-center justify-center rounded-full border px-2 py-0.5 text-[11px] font-semibold tracking-wide backdrop-blur-sm ${estilosPorEstado[estado]}`}
     >
       {etiquetasPorEstado[estado]}
     </span>
