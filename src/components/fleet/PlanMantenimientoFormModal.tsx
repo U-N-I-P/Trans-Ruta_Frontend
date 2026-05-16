@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X } from "lucide-react";
+
 import { PlanMantenimiento, PlanMantenimientoInput, Vehiculo } from "../../types/domain";
 import { crearPlanMantenimiento, actualizarPlanMantenimiento } from "../../services/planDeMantenimiento.service";
 import { Modal } from "../ui/Modal";

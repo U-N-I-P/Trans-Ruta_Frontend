@@ -36,7 +36,7 @@ export function GPSTrackingView({ vehiculos }: GPSTrackingViewProps) {
     // Solo monitorear los que pueden estar en calle
     const vehiculosEnCalle = vehiculos.filter(v => v.estado === "EN_RUTA" || v.estado === "DISPONIBLE");
 
-    const initialData = vehiculosEnCalle.map((v, i) => ({
+    const initialData = vehiculosEnCalle.map((v) => ({
       ...v,
       // Coordenadas aleatorias cerca a Bogotá (Centro: 4.7110, -74.0721)
       lat: 4.65 + (Math.random() * 0.1),

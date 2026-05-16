@@ -1,4 +1,4 @@
-import { ClipboardList, PackageSearch, Truck, X, Users, FileText, AlertCircle, DollarSign, BarChart3, Lock, Zap, Wrench, CheckCircle, Award, MapPin, ShoppingCart, Clock, Package, Phone } from "lucide-react";
+import { ClipboardList, PackageSearch, Truck, Users, FileText, AlertCircle, DollarSign, BarChart3, Lock, Zap, Wrench, CheckCircle, Award, MapPin, ShoppingCart, Clock, Package, Phone } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 
 export type VistaPrincipal = "panel" | "flota" | "vehiculos" | "conductores" | "documentos" | "mantenimiento" | "entregas" | "ordenes" | "incidentes" | "viaticos" | "combustible" | "asignacion" | "evaluacion" | "compras" | "gps" | "manifiestos" | "operativo" | "inventario" | "clientes" | "reportes" | "auditoria";

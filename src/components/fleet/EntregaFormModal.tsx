@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { CheckCircle, Signature } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { EntregaInput, OrdenDespacho } from "../../types/domain";
 import { Modal } from "../ui/Modal";
 

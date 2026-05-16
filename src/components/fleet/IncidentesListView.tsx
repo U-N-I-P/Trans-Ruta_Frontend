@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { AlertTriangle, CheckCircle, Edit2, Plus, Flag, X } from "lucide-react";
+import { AlertTriangle, CheckCircle, Edit2, Plus, Flag } from "lucide-react";
 import { Incidente, IncidenteInput, OrdenDespacho } from "../../types/domain";
 import { eliminarIncidente, obtenerIncidentes, reportarIncidente } from "../../services/incidente.service";
 import { IncidenteFormModal } from "./IncidenteFormModal";
