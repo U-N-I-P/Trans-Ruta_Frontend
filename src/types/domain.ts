@@ -230,10 +230,70 @@ export interface Repuesto {
 }
 
 export interface SolicitudCompra {
-  id: string;
-  repuesto: string;
+  id: number;
+  codigo: string;
+  conceptoLibre: string | null;
   cantidad: number;
-  estado: "Pendiente" | "Aprobada" | "Rechazada";
+  costoEstimado: number | null;
+  estado: "PENDIENTE" | "APROBADA" | "RECHAZADA" | "RECIBIDA";
+  fechaSolicitud: string;
+  repuesto?: {
+    id: number;
+    nombre: string;
+  } | null;
+  solicitante?: {
+    id: number;
+    nombre: string;
+  };
+  aprobador?: {
+    id: number;
+    nombre: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuditoriaLog {
+  id: number;
+  usuarioId: number;
+  accion: "CREATE" | "UPDATE" | "DELETE" | "APPROVE" | "REJECT" | "ASSIGN" | "LOGIN" | "LOGOUT";
+  entidad: string;
+  entidadId: number | null;
+  ipAddress: string | null;
+  datosAnteriores: any | null;
+  datosNuevos: any | null;
+  createdAt: string;
+  usuario?: {
+    id: number;
+    nombre: string;
+    correo: string;
+    rol: string;
+  };
+}
+
+export interface EvaluacionConductor {
+  id: number;
+  conductorId: number;
+  periodo: string;
+  scoreTotal: number;
+  scorePuntualidad: number;
+  scoreIncidentes: number;
+  scoreCombustible: number;
+  scoreCalificacionClientes: number | null;
+  scoreCumplimientoProtocolos: number;
+  entregasTotales: number;
+  entregasATiempo: number;
+  incidentesTotales: number;
+  rendimientoPromedio: number | null;
+  comentariosAdmin: string | null;
+  ranking?: number; // Calculado en backend
+  createdAt: string;
+  updatedAt: string;
+  conductor?: {
+    id: number;
+    nombre: string;
+    apellido: string;
+  };
 }
 
 export interface DocumentoVehicular {
