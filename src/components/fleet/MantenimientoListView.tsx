@@ -3,7 +3,7 @@ import { Plus, Wrench, AlertTriangle, Edit2, Trash2 } from "lucide-react";
 import { PlanMantenimiento, Vehiculo } from "../../types/domain";
 import { obtenerPlanesMantenimiento, eliminarPlanMantenimiento } from "../../services/planDeMantenimiento.service";
 import { PlanMantenimientoFormModal } from "./PlanMantenimientoFormModal";
-import { Modal } from "../ui/Modal";
+
 
 interface MantenimientoListViewProps {
   vehiculos: Vehiculo[];
