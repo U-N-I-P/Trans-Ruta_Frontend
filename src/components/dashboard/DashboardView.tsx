@@ -63,7 +63,7 @@ export function DashboardView({
     const viajesActivos = ordenes.filter((o) => o.estado === "DESPACHADO" || o.estado === "EN_RUTA").length;
     const enMantenimiento = vehiculos.filter((v) => v.estado === "EN_MANTENIMIENTO").length;
     const conductoresDisponibles = conductores.filter((c) => c.disponible).length;
-    const solicitudesPendientes = solicitudesCompra.filter((s) => s.estado === "Pendiente").length;
+    const solicitudesPendientes = solicitudesCompra.filter((s) => s.estado === "PENDIENTE").length;
 
     return {
       viajesActivos,

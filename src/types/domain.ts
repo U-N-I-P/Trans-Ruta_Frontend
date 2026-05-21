@@ -151,10 +151,97 @@ export interface Repuesto {
 }
 
 export interface SolicitudCompra {
-  id: string;
-  repuesto: string;
+  id: number;
+  fecha: string;
+  estado: "PENDIENTE" | "APROBADA" | "RECHAZADA" | "RECIBIDA";
+  descripcion: string | null;
   cantidad: number;
-  estado: "Pendiente" | "Aprobada" | "Rechazada";
+  costoEstimado: number | null;
+  montoTotal: number;
+  conceptoLibre: string | null;
+  comentariosAprobacion?: string | null;
+  fechaAprobacion?: string | null;
+  fechaRecepcion?: string | null;
+  repuestoId?: number | null;
+  aprobadorId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  codigo?: string;
+  concepto?: string;
+  solicitadoPor?: string;
+  costo?: number;
+}
+
+export interface AuditoriaLog {
+  id: number;
+  usuarioId: number;
+  accion: "CREATE" | "UPDATE" | "DELETE" | "APPROVE" | "REJECT" | "ASSIGN" | "LOGIN" | "LOGOUT";
+  entidad: string;
+  entidadId: number | null;
+  ipAddress: string | null;
+  datosAnteriores?: unknown;
+  datosNuevos?: unknown;
+  createdAt: string;
+}
+
+export interface SugerenciaAsignacion {
+  vehiculo: {
+    id: number;
+    placa: string;
+    tipo: string;
+    capacidadCarga: number;
+  };
+  conductor: {
+    id: number;
+    nombre: string;
+    numeroLicencia: string;
+    categoriaLicencia: string;
+  };
+  scoreCombinado: number;
+  scoreVehiculo: number;
+  scoreConductor: number;
+  detallesVehiculo: string[];
+  detallesConductor: string[];
+  justificacion: string;
+}
+
+export interface EvaluacionRanking {
+  posicion: number;
+  conductor: {
+    id: number;
+    nombre: string;
+    cedula: string;
+    numeroLicencia: string;
+  };
+  scoreTotal: number;
+  entregasTotales: number;
+  entregasATiempo: number;
+  incidentesTotales: number;
+  rendimientoPromedio: number | null;
+  porcentajePuntualidad: number;
+}
+
+export interface ReporteConsumoCombustible {
+  vehiculo: {
+    id: number;
+    placa: string;
+    tipo: string;
+  };
+  totalOrdenes: number;
+  pesoTotal: number;
+}
+
+export interface ReporteRutaRentable {
+  ruta: string;
+  totalOrdenes: number;
+  pesoTotal: number;
+}
+
+export interface ReporteCumplimientoEntregas {
+  totalEntregas: number;
+  aTiempo: number;
+  tarde: number;
+  porcentajeCumplimiento: string;
 }
 
 export interface DocumentoVehicular {

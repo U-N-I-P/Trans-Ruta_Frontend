@@ -28,7 +28,7 @@ import { obtenerVehiculos } from "../../services/vehiculo.service";
 import { crearOrdenDespacho, obtenerOrdenesDespacho } from "../../services/orden.service";
 import { obtenerNotificaciones } from "../../services/notificacion.service";
 import { obtenerRepuestos } from "../../services/repuesto.service";
-import { obtenerSolicitudesCompra } from "../../services/mockServices";
+import { obtenerSolicitudesCompra } from "../../services/solicitudDeCompra.service";
 import {
   Cliente,
   Conductor,
