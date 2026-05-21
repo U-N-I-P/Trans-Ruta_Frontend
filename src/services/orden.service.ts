@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 import { NuevaOrdenInput, OrdenDespacho } from "../types/domain";
 
 interface ApiResponse<T> {
@@ -17,12 +17,6 @@ export interface OrdenEstadoInput {
   estado: OrdenDespacho["estado"];
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerOrdenesDespacho(params?: Record<string, string | number | boolean | undefined>) {
   const response = await api.get<ApiResponse<OrdenDespacho[]>>("/ordenes-despacho", { params });

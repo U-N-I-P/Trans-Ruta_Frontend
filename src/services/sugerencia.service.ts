@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -27,12 +27,6 @@ export interface SugerenciaAsignacion {
   justificacion: string;
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerSugerencias(pesoCarga: number, origen: string, destino: string, limite = 5) {
   const response = await api.get<ApiResponse<SugerenciaAsignacion[]>>("/sugerencias", {

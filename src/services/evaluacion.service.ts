@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -22,12 +22,6 @@ export interface EvaluacionRanking {
   porcentajePuntualidad: number;
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerRankingEvaluacion(periodo: string) {
   const response = await api.get<ApiResponse<EvaluacionRanking[]>>("/evaluaciones/ranking", {

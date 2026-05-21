@@ -225,7 +225,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "asignacion" ? (
             <AsignacionInteligenteView ordenes={ordenes} vehiculos={vehiculos} conductores={conductores} />
           ) : vistaActiva === "evaluacion" ? (
-            <EvaluacionConductoresView conductores={conductores} />
+            <EvaluacionConductoresView />
           ) : vistaActiva === "compras" ? (
             <ComprasListView />
           ) : vistaActiva === "gps" ? (

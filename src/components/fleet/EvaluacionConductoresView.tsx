@@ -2,11 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Award, AlertTriangle, Loader2, RefreshCcw } from "lucide-react";
 import { obtenerRankingEvaluacion, EvaluacionRanking } from "../../services/evaluacion.service";
 
-interface EvaluacionConductoresViewProps {
-  conductores: unknown[];
-}
-
-export function EvaluacionConductoresView({ conductores }: EvaluacionConductoresViewProps) {
+export function EvaluacionConductoresView() {
   const [evaluaciones, setEvaluaciones] = useState<EvaluacionRanking[]>([]);
   const [periodo, setPeriodo] = useState(() => new Date().toISOString().slice(0, 7));
   const [isLoading, setIsLoading] = useState(false);

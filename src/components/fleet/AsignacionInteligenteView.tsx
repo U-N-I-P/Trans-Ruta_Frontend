@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BarChart3, Zap, CheckCircle, Loader2, RefreshCcw } from "lucide-react";
+import { Loader2, RefreshCcw } from "lucide-react";
 import { obtenerSugerencias, SugerenciaAsignacion } from "../../services/sugerencia.service";
 import { Conductor, OrdenDespacho, Vehiculo } from "../../types/domain";
 
@@ -91,7 +91,7 @@ export function AsignacionInteligenteView({ ordenes }: AsignacionInteligenteView
         <div className="rounded-xl border border-slate-200 bg-white p-5">
           <p className="text-sm text-slate-600">Asignaciones Óptimas</p>
           <p className="mt-3 text-2xl font-semibold text-slate-900">{asignacionesOptimas}</p>
-          <p className="text-sm text-slate-500 mt-2">Propuestas con score >= 90%</p>
+          <p className="text-sm text-slate-500 mt-2">Propuestas con score &gt;= 90&#37;</p>
         </div>
       </div>
 

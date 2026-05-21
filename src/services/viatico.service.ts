@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -53,12 +53,6 @@ export interface GastoViaticInput {
   evidenciaFotografica?: string;
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerViaticos() {
   const response = await api.get<ApiResponse<Viatico[]>>("/viaticos");

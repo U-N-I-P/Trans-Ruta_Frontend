@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "./api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -18,12 +18,6 @@ export interface AuditoriaLog {
   createdAt: string;
 }
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
 
 export async function obtenerLogsAuditoria() {
   const response = await api.get<ApiResponse<AuditoriaLog[]>>("/auditoria");

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle, Clock, Loader2, Plus, RefreshCcw, XCircle } from "lucide-react";
+import { CheckCircle, Clock, Loader2, RefreshCcw, XCircle } from "lucide-react";
 import {
   aprobarSolicitudCompra,
   obtenerSolicitudesCompra,

@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Truck } from "lucide-react";
+import { login, UsuarioAutenticado } from "../../services/auth.service";
 
 interface LoginFormValues {
-  identificador: string;
+  correo: string;
   contrasena: string;
-}
-
-export interface UsuarioAutenticado {
-  id: string;
-  nombre: string;
-  rol: "Conductor";
-  identificador: string;
 }
 
 interface LoginProps {
@@ -28,35 +22,23 @@ export function Login({ onLoginSuccess }: LoginProps) {
     formState: { errors }
   } = useForm<LoginFormValues>({
     defaultValues: {
-      identificador: "",
+      correo: "",
       contrasena: ""
     }
   });
 
-  const onSubmit = (values: LoginFormValues) => {
+  const onSubmit = async (values: LoginFormValues) => {
     setErrorLogin(null);
     setVerificando(true);
 
-    const identificador = values.identificador.trim();
-    const contrasena = values.contrasena.trim();
-
-    setTimeout(() => {
-      const coincideCredencialMock = identificador === "conductor" && contrasena === "1234";
-      const mockAceptaNoVacio = identificador.length > 0 && contrasena.length > 0;
-
-      if (coincideCredencialMock || mockAceptaNoVacio) {
-        onLoginSuccess({
-          id: "conductor-mock-001",
-          nombre: coincideCredencialMock ? "Conductor Demo" : "Conductor Operativo",
-          rol: "Conductor",
-          identificador
-        });
-      } else {
-        setErrorLogin("Credenciales no válidas para el mockup.");
-      }
-
+    try {
+      const { usuario } = await login(values.correo.trim(), values.contrasena.trim());
+      onLoginSuccess(usuario);
+    } catch (error) {
+      setErrorLogin("Credenciales inválidas o error de conexión.");
+    } finally {
       setVerificando(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -75,15 +57,15 @@ export function Login({ onLoginSuccess }: LoginProps) {
 
           <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
             <label className="block space-y-1">
-              <span className="text-sm font-semibold text-slate-700">Correo o Cédula</span>
+              <span className="text-sm font-semibold text-slate-700">Correo</span>
               <input
-                type="text"
+                type="email"
                 autoComplete="username"
-                placeholder="Ingresa tu correo o cédula"
+                placeholder="Ingresa tu correo"
                 className="h-12 w-full rounded-xl border border-slate-300 px-4 text-base text-slate-800 outline-none transition focus:border-logistics-700 focus:ring-2 focus:ring-logistics-100"
-                {...register("identificador", { required: "Este campo es obligatorio" })}
+                {...register("correo", { required: "Este campo es obligatorio" })}
               />
-              {errors.identificador && <p className="text-xs font-medium text-red-600">{errors.identificador.message}</p>}
+              {errors.correo && <p className="text-xs font-medium text-red-600">{errors.correo.message}</p>}
             </label>
 
             <label className="block space-y-1">

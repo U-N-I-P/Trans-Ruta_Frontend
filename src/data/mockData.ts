@@ -630,8 +630,56 @@ export const repuestosMock: Repuesto[] = [
 ];
 
 export const solicitudesCompraMock: SolicitudCompra[] = [
-  { id: "sc-001", repuesto: "Pastillas de freno", cantidad: 50, estado: "Pendiente" },
-  { id: "sc-002", repuesto: "Llanta 22.5", cantidad: 20, estado: "Pendiente" },
-  { id: "sc-003", repuesto: "Refrigerante", cantidad: 30, estado: "Pendiente" },
-  { id: "sc-004", repuesto: "Filtro de aceite", cantidad: 60, estado: "Aprobada" }
+  {
+    id: 1,
+    fecha: "2026-05-20T08:00:00.000Z",
+    estado: "PENDIENTE",
+    descripcion: "Solicitando pastillas de freno para mantenimiento",
+    cantidad: 50,
+    costoEstimado: 2250,
+    montoTotal: 2250,
+    conceptoLibre: "Pastillas de freno",
+    repuestoId: 1,
+    createdAt: "2026-05-20T08:00:00.000Z",
+    updatedAt: "2026-05-20T08:00:00.000Z"
+  },
+  {
+    id: 2,
+    fecha: "2026-05-21T08:00:00.000Z",
+    estado: "PENDIENTE",
+    descripcion: "Compra de llantas para flota",
+    cantidad: 20,
+    costoEstimado: 9000,
+    montoTotal: 9000,
+    conceptoLibre: "Llanta 22.5",
+    repuestoId: 2,
+    createdAt: "2026-05-21T08:00:00.000Z",
+    updatedAt: "2026-05-21T08:00:00.000Z"
+  },
+  {
+    id: 3,
+    fecha: "2026-05-22T08:00:00.000Z",
+    estado: "PENDIENTE",
+    descripcion: "Pedido de refrigerante para sistema de enfriamiento",
+    cantidad: 30,
+    costoEstimado: 675,
+    montoTotal: 675,
+    conceptoLibre: "Refrigerante",
+    repuestoId: 5,
+    createdAt: "2026-05-22T08:00:00.000Z",
+    updatedAt: "2026-05-22T08:00:00.000Z"
+  },
+  {
+    id: 4,
+    fecha: "2026-05-23T08:00:00.000Z",
+    estado: "APROBADA",
+    descripcion: "Repuesto aprobado para reemplazo de filtro de aceite",
+    cantidad: 60,
+    costoEstimado: 765,
+    montoTotal: 765,
+    conceptoLibre: "Filtro de aceite",
+    repuestoId: 2,
+    createdAt: "2026-05-23T08:00:00.000Z",
+    updatedAt: "2026-05-23T08:00:00.000Z"
+  }
 ];
