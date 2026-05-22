@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { Plus, MapPin, Trash2, Edit2 } from "lucide-react";
 import { CreateOrderModal } from "../dashboard/CreateOrderModal";
-import { Cliente, ConductorConDisponibilidad, NuevaOrdenInput, Vehiculo } from "../../types/domain";
+import { Cliente, ConductorConDisponibilidad, NuevaOrdenInput, OrdenDespacho, Vehiculo } from "../../types/domain";
 import { actualizarOrdenDespacho, eliminarOrdenDespacho } from "../../services/orden.service";
+import { crearViatico, actualizarViatico, Viatico } from "../../services/viatico.service";
 
 interface Orden {
   id: string;
@@ -20,11 +21,12 @@ interface OrdenesListViewProps {
   vehiculos: Vehiculo[];
   conductores: ConductorConDisponibilidad[];
   clientes: Cliente[];
-  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
+  viaticos: Viatico[];
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
   onActualizar: () => Promise<void>;
 }
 
-export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, onCrearOrden, onActualizar }: OrdenesListViewProps) {
+export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, viaticos, onCrearOrden, onActualizar }: OrdenesListViewProps) {
   const [abrirModalNuevaOrden, setAbrirModalNuevaOrden] = useState(false);
   const [ordenEnEdicion, setOrdenEnEdicion] = useState<any | null>(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
@@ -61,15 +63,36 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, onC
 
   const manejarEditar = async (payload: NuevaOrdenInput) => {
     if (!ordenEnEdicion) {
-      return;
+      throw new Error("No hay una orden en edición");
     }
 
     try {
       setProcesandoAccion(true);
-      await actualizarOrdenDespacho(ordenEnEdicion.id, payload);
+
+      if (payload.viaticoMonto != null && payload.viaticoMonto > 0) {
+        const viaticoExistente = viaticos.find((item) => item.ordenDeDespachoId === Number(ordenEnEdicion.id));
+        const viaticoPayload = {
+          conductorId: payload.conductorId,
+          ordenDeDespachoId: Number(ordenEnEdicion.id),
+          monto: payload.viaticoMonto,
+          saldo: payload.viaticoMonto,
+          estado: "APROBADO" as const,
+          fecha: payload.fechaSalida ?? new Date().toISOString().split("T")[0],
+          descripcion: `Viático asociado a la orden ${ordenEnEdicion.codigo}`
+        };
+
+        if (viaticoExistente) {
+          await actualizarViatico(viaticoExistente.id, viaticoPayload);
+        } else {
+          await crearViatico(viaticoPayload);
+        }
+      }
+
+      const ordenActualizada = await actualizarOrdenDespacho(ordenEnEdicion.id, payload);
       setOrdenEnEdicion(null);
       setAbrirModalNuevaOrden(false);
       await onActualizar();
+      return ordenActualizada;
     } finally {
       setProcesandoAccion(false);
     }
@@ -84,7 +107,7 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, onC
   const manejarCrear = async (payload: NuevaOrdenInput) => {
     try {
       setProcesandoAccion(true);
-      await onCrearOrden(payload);
+      return await onCrearOrden(payload);
     } finally {
       setProcesandoAccion(false);
     }

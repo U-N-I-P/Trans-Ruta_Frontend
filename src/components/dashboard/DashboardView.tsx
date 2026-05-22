@@ -19,7 +19,7 @@ interface DashboardViewProps {
   conductores: ConductorConDisponibilidad[];
   clientes: Cliente[];
   solicitudesCompra: SolicitudCompra[];
-  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
 }
 
 const progresoEstado: Record<OrdenDespacho["estado"], number> = {

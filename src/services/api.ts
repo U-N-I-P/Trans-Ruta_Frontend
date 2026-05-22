@@ -37,6 +37,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    if (status === 401) {
+      // clear token and notify app
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      window.dispatchEvent(new CustomEvent('transruta:authError', { detail: { status: 401 } }));
+    } else if (status === 403) {
+      window.dispatchEvent(new CustomEvent('transruta:authError', { detail: { status: 403 } }));
+    }
+    return Promise.reject(error);
+  }
+);
+
 export function setAuthToken(token: string) {
   localStorage.setItem(AUTH_TOKEN_KEY, token);
 }
