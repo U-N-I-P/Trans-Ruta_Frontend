@@ -36,7 +36,7 @@ interface CreateOrderModalProps {
   clientes: Cliente[];
   ordenInicial?: OrdenDespacho | null;
   onCerrar: () => void;
-  onCrearOrden: (payload: NuevaOrdenInput) => Promise<void>;
+  onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
 }
 
 type ModoMapa = "origen" | "destino";
@@ -65,7 +65,8 @@ const crearEsquema = (vehiculos: Vehiculo[]) =>
       pesoCarga: z.coerce.number().positive("El peso debe ser mayor a 0"),
       descripcionCarga: z.string().optional(),
       fechaSalida: z.string().optional(),
-      fechaEntregaEstimada: z.string().optional()
+      fechaEntregaEstimada: z.string().optional(),
+      viaticoMonto: z.coerce.number().min(0, "El viático no puede ser negativo").optional()
     })
     .superRefine((data, ctx) => {
       const vehiculo = vehiculos.find((item) => String(item.id) === data.vehiculoId);
@@ -133,7 +134,8 @@ export function CreateOrderModal({
           pesoCarga: ordenInicial.pesoCarga,
           descripcionCarga: ordenInicial.descripcionCarga ?? "",
           fechaSalida: ordenInicial.fechaSalida ?? "",
-          fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? ""
+          fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? "",
+          viaticoMonto: 0
         }
       : {
       vehiculoId: "",
@@ -144,7 +146,8 @@ export function CreateOrderModal({
       pesoCarga: 0,
       descripcionCarga: "",
       fechaSalida: "",
-      fechaEntregaEstimada: ""
+        fechaEntregaEstimada: "",
+        viaticoMonto: 0
       }
   });
 
@@ -164,7 +167,8 @@ export function CreateOrderModal({
             pesoCarga: ordenInicial.pesoCarga,
             descripcionCarga: ordenInicial.descripcionCarga ?? "",
             fechaSalida: ordenInicial.fechaSalida ?? "",
-            fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? ""
+            fechaEntregaEstimada: ordenInicial.fechaEntregaEstimada ?? "",
+            viaticoMonto: 0
           }
         : {
             vehiculoId: "",
@@ -175,7 +179,8 @@ export function CreateOrderModal({
             pesoCarga: 0,
             descripcionCarga: "",
             fechaSalida: "",
-            fechaEntregaEstimada: ""
+            fechaEntregaEstimada: "",
+            viaticoMonto: 0
           }
     );
   }, [abierto, ordenInicial, reset]);
@@ -211,7 +216,8 @@ export function CreateOrderModal({
         pesoCarga: values.pesoCarga,
         descripcionCarga: values.descripcionCarga?.trim() || null,
         fechaSalida: values.fechaSalida || null,
-        fechaEntregaEstimada: values.fechaEntregaEstimada || null
+        fechaEntregaEstimada: values.fechaEntregaEstimada || null,
+        viaticoMonto: values.viaticoMonto ?? null
       });
 
       reset();
@@ -312,6 +318,18 @@ export function CreateOrderModal({
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               type="date"
               {...register("fechaEntregaEstimada")}
+            />
+          </label>
+
+          <label className="space-y-1 text-sm text-slate-700">
+            <span className="font-semibold">Viático asignado (COP)</span>
+            <input
+              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              type="number"
+              min="0"
+              step="1000"
+              placeholder="Opcional"
+              {...register("viaticoMonto")}
             />
           </label>
         </div>

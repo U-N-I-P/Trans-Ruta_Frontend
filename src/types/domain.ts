@@ -341,4 +341,5 @@ export interface NuevaOrdenInput {
   fechaSalida?: string | null;
   fechaEntregaEstimada?: string | null;
   descripcionCarga?: string | null;
+  viaticoMonto?: number | null;
 }

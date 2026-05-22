@@ -3,7 +3,7 @@ import { Navigation, AlertTriangle, Zap, CheckCircle } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Vehiculo } from "../../types/domain";
+import { OrdenDespacho, Vehiculo } from "../../types/domain";
 
 // Solución al problema de los iconos por defecto de Leaflet en React
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -19,6 +19,7 @@ L.Icon.Default.mergeOptions({
 
 interface GPSTrackingViewProps {
   vehiculos: Vehiculo[];
+  ordenes: OrdenDespacho[];
 }
 
 interface SimulatedVehicle extends Vehiculo {
@@ -26,24 +27,50 @@ interface SimulatedVehicle extends Vehiculo {
   lng: number;
   velocidad: number;
   ultima_actualizacion: string;
+  progreso: number;
+  ordenCodigo?: string;
 }
 
-export function GPSTrackingView({ vehiculos }: GPSTrackingViewProps) {
+function parseCoordenadas(valor?: string | null) {
+  if (!valor) return null;
+  const partes = valor.split(",").map((item) => Number(item.trim()));
+  if (partes.length !== 2 || partes.some((item) => Number.isNaN(item))) return null;
+  return { lat: partes[0], lng: partes[1] };
+}
+
+function interpolarPunto(origen: { lat: number; lng: number }, destino: { lat: number; lng: number }, progreso: number) {
+  const factor = Math.max(0, Math.min(1, progreso / 100));
+  return {
+    lat: origen.lat + (destino.lat - origen.lat) * factor,
+    lng: origen.lng + (destino.lng - origen.lng) * factor,
+  };
+}
+
+export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
   const [simulatedData, setSimulatedData] = useState<SimulatedVehicle[]>([]);
 
   // Inicializar simulación basada en vehículos reales
   useEffect(() => {
-    // Solo monitorear los que pueden estar en calle
-    const vehiculosEnCalle = vehiculos.filter(v => v.estado === "EN_RUTA" || v.estado === "DISPONIBLE");
+    const ordenesActivas = ordenes.filter((orden) => orden.estado === "DESPACHADO" || orden.estado === "EN_RUTA" || orden.estado === "CERCA_DEL_DESTINO");
+    const vehiculosEnCalle = vehiculos.filter((vehiculo) => vehiculo.estado === "EN_RUTA" || vehiculo.estado === "DISPONIBLE");
 
-    const initialData = vehiculosEnCalle.map((v) => ({
-      ...v,
-      // Coordenadas aleatorias cerca a Bogotá (Centro: 4.7110, -74.0721)
-      lat: 4.65 + (Math.random() * 0.1),
-      lng: -74.15 + (Math.random() * 0.1),
-      velocidad: v.estado === "EN_RUTA" ? Math.floor(Math.random() * 30) + 50 : 0,
-      ultima_actualizacion: new Date().toLocaleTimeString("es-CO"),
-    }));
+    const initialData = vehiculosEnCalle.map((vehiculo, index) => {
+      const orden = ordenesActivas[index % Math.max(ordenesActivas.length, 1)];
+      const origen = parseCoordenadas(orden?.origen);
+      const destino = parseCoordenadas(orden?.destino);
+      const progreso = orden ? (orden.estado === "DESPACHADO" ? 20 : orden.estado === "EN_RUTA" ? 55 : 82) : 0;
+      const punto = origen && destino ? interpolarPunto(origen, destino, progreso) : { lat: 4.65 + Math.random() * 0.1, lng: -74.15 + Math.random() * 0.1 };
+
+      return {
+        ...vehiculo,
+        lat: punto.lat,
+        lng: punto.lng,
+        velocidad: vehiculo.estado === "EN_RUTA" ? Math.floor(Math.random() * 30) + 50 : 0,
+        ultima_actualizacion: new Date().toLocaleTimeString("es-CO"),
+        progreso,
+        ordenCodigo: orden?.codigo,
+      };
+    });
 
     setSimulatedData(initialData);
 
@@ -66,6 +93,7 @@ export function GPSTrackingView({ vehiculos }: GPSTrackingViewProps) {
             lng: v.lng + moveLng,
             velocidad: newVel,
             ultima_actualizacion: new Date().toLocaleTimeString("es-CO"),
+            progreso: Math.min(100, v.progreso + 3),
           };
         })
       );
@@ -133,8 +161,10 @@ export function GPSTrackingView({ vehiculos }: GPSTrackingViewProps) {
                 <Popup>
                   <div className="text-sm">
                     <p className="font-bold text-base border-b pb-1 mb-1">{v.placa}</p>
+                        {v.ordenCodigo && <p><b>Orden:</b> {v.ordenCodigo}</p>}
                     <p><b>Tipo:</b> {v.tipo.replace(/_/g, ' ')}</p>
                     <p><b>Velocidad:</b> {v.velocidad} km/h</p>
+                        <p><b>Progreso:</b> {v.progreso}%</p>
                     <p><b>Estado:</b> <span className={estadoColors[v.estado] + " px-2 py-0.5 rounded text-xs ml-1"}>{v.estado.replace(/_/g, ' ')}</span></p>
                   </div>
                 </Popup>
@@ -182,6 +212,7 @@ export function GPSTrackingView({ vehiculos }: GPSTrackingViewProps) {
                     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${estadoColors[vehiculo.estado]}`}>
                       {vehiculo.estado.replace(/_/g, ' ')}
                     </span>
+                    <p className="text-xs text-slate-500">Progreso estimado: {vehiculo.progreso}%</p>
                   </div>
                 </div>
                 <div className="flex flex-col justify-center">

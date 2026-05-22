@@ -27,6 +27,7 @@ import { obtenerClientes } from "../../services/cliente.service";
 import { obtenerVehiculos } from "../../services/vehiculo.service";
 import { crearOrdenDespacho, obtenerOrdenesDespacho } from "../../services/orden.service";
 import { obtenerNotificaciones } from "../../services/notificacion.service";
+import { crearViatico, obtenerViaticos } from "../../services/viatico.service";
 import { obtenerRepuestos } from "../../services/repuesto.service";
 import { obtenerSolicitudesCompra } from "../../services/solicitudCompra.service";
 import {
@@ -40,6 +41,7 @@ import {
   SolicitudCompra,
   Vehiculo
 } from "../../types/domain";
+import { Viatico } from "../../services/viatico.service";
 
 interface AdminLayoutProps {
   onCerrarSesion: () => void;
@@ -88,7 +90,45 @@ function adaptarNotificacionesParaTopbar(notificaciones: Notificacion[]): Notifi
 export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [colapsado, setColapsado] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
-  const [vistaActiva, setVistaActiva] = useState<VistaPrincipal>("panel");
+  const STORAGE_KEY = "transruta:vistaActiva";
+
+  const validarVista = (v: string | null): VistaPrincipal => {
+    const opciones: VistaPrincipal[] = [
+      "panel",
+      "flota",
+      "vehiculos",
+      "conductores",
+      "documentos",
+      "mantenimiento",
+      "entregas",
+      "ordenes",
+      "incidentes",
+      "viaticos",
+      "combustible",
+      "asignacion",
+      "evaluacion",
+      "compras",
+      "gps",
+      "manifiestos",
+      "operativo",
+      "inventario",
+      "clientes",
+      "reportes",
+      "auditoria"
+    ];
+
+    if (!v) return "panel";
+    return opciones.includes(v as VistaPrincipal) ? (v as VistaPrincipal) : "panel";
+  };
+
+  const [vistaActiva, setVistaActiva] = useState<VistaPrincipal>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return validarVista(saved);
+    } catch (err) {
+      return "panel";
+    }
+  });
 
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [conductores, setConductores] = useState<Conductor[]>([]);
@@ -97,6 +137,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [notificacionesBackend, setNotificacionesBackend] = useState<Notificacion[]>([]);
   const [repuestos, setRepuestos] = useState<Repuesto[]>([]);
   const [solicitudesCompra, setSolicitudesCompra] = useState<SolicitudCompra[]>([]);
+  const [viaticos, setViaticos] = useState<Viatico[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -117,6 +158,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
         withTimeout(obtenerClientes(), "clientes"),
         withTimeout(obtenerOrdenesDespacho(), "ordenes-despacho"),
         withTimeout(obtenerNotificaciones(), "notificaciones"),
+        withTimeout(obtenerViaticos(), "viaticos"),
         withTimeout(obtenerRepuestos(), "repuestos"),
         withTimeout(obtenerSolicitudesCompra(), "solicitudes-compra")
       ]);
@@ -159,14 +201,21 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
       }
 
       if (results[5].status === "fulfilled") {
-        setRepuestos(results[5].value);
+        setViaticos(results[5].value);
+      } else {
+        setViaticos([]);
+        fallos.push("viaticos");
+      }
+
+      if (results[6].status === "fulfilled") {
+        setRepuestos(results[6].value);
       } else {
         setRepuestos([]);
         fallos.push("repuestos");
       }
 
-      if (results[6].status === "fulfilled") {
-        setSolicitudesCompra(results[6].value);
+      if (results[7].status === "fulfilled") {
+        setSolicitudesCompra(results[7].value);
       } else {
         setSolicitudesCompra([]);
         fallos.push("solicitudes-compra");
@@ -187,6 +236,24 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
 
   useEffect(() => {
     void cargarDatos();
+  }, []);
+
+  // Escuchar eventos globales para refrescar datos desde otros componentes (p.ej. crear notificación)
+  useEffect(() => {
+    const handler = (ev: Event) => {
+      try {
+        const ce = ev as CustomEvent;
+        const scope = ce?.detail?.scope as string | undefined;
+        if (!scope || scope === "notificaciones") {
+          void cargarDatos();
+        }
+      } catch (err) {
+        void cargarDatos();
+      }
+    };
+
+    window.addEventListener("transruta:refreshData", handler as EventListener);
+    return () => window.removeEventListener("transruta:refreshData", handler as EventListener);
   }, []);
 
   const conductoresConDisponibilidad = useMemo(
@@ -211,8 +278,22 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   }, [colapsado]);
 
   const crearOrden = async (payload: NuevaOrdenInput) => {
-    await crearOrdenDespacho(payload);
+    const orden = await crearOrdenDespacho(payload);
+
+    if (payload.viaticoMonto && payload.viaticoMonto > 0) {
+      await crearViatico({
+        conductorId: payload.conductorId,
+        ordenDeDespachoId: orden.id,
+        monto: payload.viaticoMonto,
+        saldo: payload.viaticoMonto,
+        estado: "APROBADO",
+        fecha: payload.fechaSalida ?? new Date().toISOString().split("T")[0],
+        descripcion: `Viático asignado para la orden ${orden.codigo}`
+      });
+    }
+
     await cargarDatos();
+    return orden;
   };
 
   return (
@@ -224,6 +305,11 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
         onCerrarMovil={() => setMovilAbierto(false)}
         onAlternarColapsado={() => setColapsado((prev) => !prev)}
         onCambiarVista={(vista) => {
+          try {
+            localStorage.setItem(STORAGE_KEY, vista);
+          } catch (err) {
+            // ignore
+          }
           setVistaActiva(vista);
           setMovilAbierto(false);
         }}
@@ -273,6 +359,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               vehiculos={vehiculos}
               conductores={conductoresConDisponibilidad}
               clientes={clientes}
+              viaticos={viaticos}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
             />
@@ -291,7 +378,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "compras" ? (
             <ComprasListView />
           ) : vistaActiva === "gps" ? (
-            <GPSTrackingView vehiculos={vehiculos} />
+            <GPSTrackingView vehiculos={vehiculos} ordenes={ordenes} />
           ) : vistaActiva === "manifiestos" ? (
             <ManifiestosListView ordenes={ordenes} />
           ) : vistaActiva === "operativo" ? (
@@ -299,7 +386,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "inventario" ? (
             <InventarioRepuestosView />
           ) : vistaActiva === "clientes" ? (
-            <PortalClienteView clientes={clientes} ordenes={ordenes} />
+            <PortalClienteView clientes={clientes} ordenes={ordenes} notificaciones={notificacionesBackend} />
           ) : vistaActiva === "incidentes" ? (
             <IncidentesListView ordenes={ordenes} />
           ) : vistaActiva === "reportes" ? (
@@ -308,15 +395,6 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
             <AuditoriaListView />
           ) : vistaActiva === "flota" ? (
             <FleetInventoryView vehiculos={vehiculos} repuestos={repuestos} />
-          ) : vistaActiva === "panel" ? (
-            <DashboardView
-              ordenes={ordenes}
-              vehiculos={vehiculos}
-              conductores={conductoresConDisponibilidad}
-              clientes={clientes}
-              solicitudesCompra={solicitudesCompra}
-              onCrearOrden={crearOrden}
-            />
           ) : (
             <DashboardView
               ordenes={ordenes}

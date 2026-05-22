@@ -26,6 +26,7 @@ export async function obtenerVehiculos(params?: Record<string, string | number |
   return response.data.data;
 }
 
+
 export async function obtenerVehiculoPorId(id: number) {
   const response = await api.get<ApiResponse<Vehiculo>>(`/vehiculos/${id}`);
   return response.data.data;

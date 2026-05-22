@@ -18,8 +18,9 @@ export interface Viatico {
   ordenDeDespachoId: number;
   monto: number;
   saldo: number;
-  estado: "PENDIENTE" | "APROBADO" | "LIQUIDADO";
+  estado: "PENDIENTE" | "APROBADO" | "LIQUIDADO" | "PAGADO";
   fecha: string;
+  descripcion?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,8 +29,10 @@ export interface ViaticoInput {
   conductorId: number;
   ordenDeDespachoId: number;
   monto: number;
-  estado: "PENDIENTE" | "APROBADO" | "LIQUIDADO";
+  estado: "PENDIENTE" | "APROBADO" | "LIQUIDADO" | "PAGADO";
   fecha?: string;
+  descripcion?: string | null;
+  saldo?: number;
 }
 
 export interface GastoViatico {
@@ -39,6 +42,7 @@ export interface GastoViatico {
   categoria: "COMBUSTIBLE" | "PEAJES" | "ALIMENTACION" | "HOSPEDAJE" | "OTROS";
   descripcion: string;
   evidenciaFotografica?: string;
+  fechaHora?: string;
   estado: "PENDIENTE" | "APROBADO" | "RECHAZADO";
   comentariosAdmin?: string;
   createdAt: string;
@@ -51,6 +55,7 @@ export interface GastoViaticInput {
   categoria: "COMBUSTIBLE" | "PEAJES" | "ALIMENTACION" | "HOSPEDAJE" | "OTROS";
   descripcion: string;
   evidenciaFotografica?: string;
+  fechaHora?: string;
 }
 
 export async function obtenerViaticos() {
