@@ -382,7 +382,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "manifiestos" ? (
             <ManifiestosListView ordenes={ordenes} />
           ) : vistaActiva === "operativo" ? (
-            <ControlOperativoView conductores={conductoresConDisponibilidad} />
+            <ControlOperativoView />
           ) : vistaActiva === "inventario" ? (
             <InventarioRepuestosView />
           ) : vistaActiva === "clientes" ? (
