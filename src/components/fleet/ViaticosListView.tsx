@@ -2,18 +2,20 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle, DollarSign, Edit3, FileText, Plus } from "lucide-react";
 import { Conductor, OrdenDespacho } from "../../types/domain";
 import {
-  aprobarGastoViatico,
   actualizarViatico,
   crearViatico,
-  GastoViatico,
-  GastoViaticInput,
-  obtenerGastosViatico,
   obtenerViaticos,
-  registrarGastoViatico,
-  rechazarGastoViatico,
   Viatico,
   ViaticoInput
 } from "../../services/viatico.service";
+import {
+  aprobarGastoViatico,
+  GastoViatico,
+  GastoViaticInput,
+  obtenerGastosViatico,
+  registrarGastoViatico,
+  rechazarGastoViatico,
+} from "../../services/gastoViatico.service";
 
 interface ViaticosListViewProps {
   conductores: Conductor[];
