@@ -31,3 +31,13 @@ export async function reportarIncidente(ordenId: number, payload: IncidenteInput
 export async function eliminarIncidente(id: number) {
   await api.delete<ApiResponse<null>>(`/incidentes/${id}`);
 }
+
+export async function cambiarEstadoIncidente(id: number, estado: string) {
+  const response = await api.patch<ApiResponse<Incidente>>(`/incidentes/${id}/estado`, { estado });
+  return response.data.data;
+}
+
+export async function finalizarIncidente(id: number) {
+  const response = await api.patch<ApiResponse<Incidente>>(`/incidentes/${id}/finalizar`);
+  return response.data.data;
+}

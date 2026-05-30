@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { AlertTriangle, CheckCircle, Edit2, Plus, Flag } from "lucide-react";
 import { Incidente, IncidenteInput, OrdenDespacho } from "../../types/domain";
-import { eliminarIncidente, obtenerIncidentes, reportarIncidente } from "../../services/incidente.service";
+import { eliminarIncidente, obtenerIncidentes, reportarIncidente, finalizarIncidente } from "../../services/incidente.service";
 import { IncidenteFormModal } from "./IncidenteFormModal";
 
 interface IncidentesListViewProps {
@@ -55,7 +55,7 @@ export function IncidentesListView({ ordenes }: IncidentesListViewProps) {
     return incidentes
       .map((incidente) => ({
         ...incidente,
-        finalizado: finalizados[incidente.id] ?? false
+        finalizado: incidente.estado ? ['RESUELTO', 'CERRADO'].includes(incidente.estado) : (finalizados[incidente.id] ?? false),
       }))
       .filter((incidente) => {
         if (!termino) {
@@ -99,8 +99,17 @@ export function IncidentesListView({ ordenes }: IncidentesListViewProps) {
     }
   };
 
-  const handleFinalizar = (incidente: Incidente) => {
-    setFinalizados((actual) => ({ ...actual, [incidente.id]: true }));
+  const handleFinalizar = async (incidente: Incidente) => {
+    try {
+      await finalizarIncidente(incidente.id);
+      await cargarIncidentes();
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message ?? "No se pudo finalizar el incidente");
+      } else {
+        setError(err instanceof Error ? err.message : "No se pudo finalizar el incidente");
+      }
+    }
   };
 
   if (loading) {
@@ -209,9 +218,9 @@ export function IncidentesListView({ ordenes }: IncidentesListViewProps) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleFinalizar(incidente)}
+                        onClick={() => void handleFinalizar(incidente)}
                         className="text-green-600 hover:text-green-700"
-                        title="Finalizar"
+                        title="Marcar como resuelto"
                         disabled={Boolean(incidente.finalizado)}
                       >
                         <Flag className="h-4 w-4" />

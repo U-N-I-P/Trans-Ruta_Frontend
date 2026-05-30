@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, ClipboardCheck, Truck, Wrench } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Truck, Wrench, Edit2 } from "lucide-react";
 import {
   Cliente,
   ConductorConDisponibilidad,
@@ -12,6 +12,7 @@ import { Badge } from "../ui/Badge";
 import { ColumnaTabla, Table } from "../ui/Table";
 import { KpiCard } from "./KpiCard";
 import { CreateOrderModal } from "./CreateOrderModal";
+import { actualizarOrdenDespacho } from "../../services/orden.service";
 
 interface DashboardViewProps {
   ordenes: OrdenDespacho[];
@@ -50,10 +51,13 @@ export function DashboardView({
   clientes,
   solicitudesCompra,
   onCrearOrden
-}: DashboardViewProps) {
+  , onActualizar
+}: DashboardViewProps & { onActualizar?: () => Promise<void> }) {
   const [filtroEstado, setFiltroEstado] = useState<string>("Todos");
   const [busqueda, setBusqueda] = useState("");
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [ordenEnEdicion, setOrdenEnEdicion] = useState<OrdenDespacho | null>(null);
+  const [viewMode, setViewMode] = useState<'view' | 'edit'>('edit');
 
   const mapaVehiculos = useMemo(() => new Map(vehiculos.map((v) => [String(v.id), v])), [vehiculos]);
   const mapaConductores = useMemo(() => new Map(conductores.map((c) => [String(c.id), c])), [conductores]);
@@ -146,13 +150,33 @@ export function DashboardView({
       id: "acciones",
       encabezado: "Acciones",
       anchoMinimo: "140px",
-      celda: () => (
+      celda: (orden) => (
         <div className="flex items-center gap-2">
-          <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-transform duration-200 hover:scale-105 hover:bg-slate-50">
-            Ver
+          <button
+            type="button"
+            onClick={() => {
+              setOrdenEnEdicion(orden);
+              setViewMode('edit');
+              setModalAbierto(true);
+            }}
+            className="rounded-lg bg-logistics-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:bg-logistics-900 hover:shadow-md"
+            title="Editar"
+            aria-label="Editar orden"
+          >
+            <Edit2 className="h-4 w-4" />
           </button>
-          <button className="rounded-lg bg-logistics-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all duration-200 hover:scale-105 hover:bg-logistics-900 hover:shadow-md">
-            Editar
+          <button
+            type="button"
+            onClick={() => {
+              setOrdenEnEdicion(orden);
+              setViewMode('view');
+              setModalAbierto(true);
+            }}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-transform duration-200 hover:scale-105 hover:bg-slate-50"
+            title="Ver"
+            aria-label="Ver orden"
+          >
+            <span role="img" aria-hidden="false" aria-label="ojito">👁️</span>
           </button>
         </div>
       )
@@ -223,8 +247,22 @@ export function DashboardView({
         vehiculos={vehiculos}
         conductores={conductores}
         clientes={clientes}
-        onCerrar={() => setModalAbierto(false)}
-        onCrearOrden={onCrearOrden}
+        ordenInicial={ordenEnEdicion}
+        onCerrar={() => {
+          setModalAbierto(false);
+          setOrdenEnEdicion(null);
+        }}
+        readOnly={viewMode === 'view'}
+        onCrearOrden={async (payload) => {
+          if (ordenEnEdicion) {
+            // editar orden
+            await actualizarOrdenDespacho(ordenEnEdicion.id, payload as any);
+            await onActualizar?.();
+            return ordenEnEdicion as OrdenDespacho;
+          }
+
+          return await onCrearOrden(payload);
+        }}
       />
     </section>
   );

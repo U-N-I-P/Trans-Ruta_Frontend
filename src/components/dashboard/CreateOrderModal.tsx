@@ -37,6 +37,7 @@ interface CreateOrderModalProps {
   ordenInicial?: OrdenDespacho | null;
   onCerrar: () => void;
   onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
+  readOnly?: boolean;
 }
 
 type ModoMapa = "origen" | "destino";
@@ -91,6 +92,7 @@ export function CreateOrderModal({
   ordenInicial,
   onCerrar,
   onCrearOrden
+  , readOnly = false
 }: CreateOrderModalProps) {
   const [modoMapa, setModoMapa] = useState<ModoMapa>("origen");
   const [coordenadaOrigen, setCoordenadaOrigen] = useState<Coordenada | undefined>();
@@ -192,6 +194,7 @@ export function CreateOrderModal({
       lat: Number(latlng.lat.toFixed(5)),
       lng: Number(latlng.lng.toFixed(5))
     };
+    if (readOnly) return;
 
     if (modoMapa === "origen") {
       setCoordenadaOrigen(coordenada);
@@ -238,7 +241,7 @@ export function CreateOrderModal({
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Vehiculo</span>
-            <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("vehiculoId")}>
+            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("vehiculoId")}>
               <option value="">Seleccione...</option>
               {vehiculosFormulario.map((vehiculo) => (
                 <option key={vehiculo.id} value={String(vehiculo.id)}>
@@ -252,7 +255,7 @@ export function CreateOrderModal({
 
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Conductor</span>
-            <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("conductorId")}>
+            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("conductorId")}>
               <option value="">Seleccione...</option>
               {conductoresFormulario.map((conductor) => (
                 <option key={conductor.id} value={String(conductor.id)}>
@@ -266,7 +269,7 @@ export function CreateOrderModal({
 
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Cliente</span>
-            <select className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("clienteId")}>
+            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("clienteId")}>
               <option value="">Seleccione...</option>
               {clientes.map((cliente) => (
                 <option key={cliente.id} value={String(cliente.id)}>
@@ -280,6 +283,7 @@ export function CreateOrderModal({
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Origen</span>
             <input
+              disabled={readOnly}
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               placeholder="Ciudad o centro logistico"
               {...register("origen")}
@@ -290,6 +294,7 @@ export function CreateOrderModal({
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Destino</span>
             <input
+              disabled={readOnly}
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               placeholder="Ciudad o punto de entrega"
               {...register("destino")}
@@ -300,6 +305,7 @@ export function CreateOrderModal({
           <label className="space-y-1 text-sm text-slate-700 md:col-span-2">
             <span className="font-semibold">Descripcion de la carga</span>
             <textarea
+              disabled={readOnly}
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               rows={3}
               placeholder="Descripcion opcional de la carga"
@@ -309,12 +315,13 @@ export function CreateOrderModal({
 
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Fecha de salida</span>
-            <input className="w-full rounded-xl border border-slate-300 px-3 py-2" type="date" {...register("fechaSalida")} />
+            <input disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" type="date" {...register("fechaSalida")} />
           </label>
 
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Fecha estimada de entrega</span>
             <input
+              disabled={readOnly}
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               type="date"
               {...register("fechaEntregaEstimada")}
@@ -324,6 +331,7 @@ export function CreateOrderModal({
           <label className="space-y-1 text-sm text-slate-700">
             <span className="font-semibold">Viático asignado (COP)</span>
             <input
+              disabled={readOnly}
               className="w-full rounded-xl border border-slate-300 px-3 py-2"
               type="number"
               min="0"
@@ -337,6 +345,7 @@ export function CreateOrderModal({
         <label className="space-y-1 text-sm text-slate-700">
           <span className="font-semibold">Peso Carga (kg)</span>
           <input
+            disabled={readOnly}
             type="number"
             className="w-full rounded-xl border border-slate-300 px-3 py-2"
             {...register("pesoCarga")}
@@ -384,7 +393,7 @@ export function CreateOrderModal({
                 attribution='&copy; OpenStreetMap'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <MapClickHandler onMapClick={manejarClickMapa} />
+              {!readOnly && <MapClickHandler onMapClick={manejarClickMapa} />}
               
               {coordenadaOrigen && (
                 <Marker position={[coordenadaOrigen.lat, coordenadaOrigen.lng]} />
@@ -413,15 +422,17 @@ export function CreateOrderModal({
             onClick={onCerrar}
             disabled={isSubmitting}
           >
-            Cancelar
+            Cerrar
           </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="rounded-xl bg-logistics-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-logistics-900 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting ? "Guardando..." : ordenInicial ? "Guardar cambios" : "Guardar orden"}
-          </button>
+          {!readOnly && (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-xl bg-logistics-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-logistics-900 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isSubmitting ? "Guardando..." : ordenInicial ? "Guardar cambios" : "Guardar orden"}
+            </button>
+          )}
         </div>
       </form>
     </Modal>

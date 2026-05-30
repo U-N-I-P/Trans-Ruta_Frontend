@@ -146,6 +146,7 @@ export interface Incidente {
   latitud: number | null;
   longitud: number | null;
   protocoloActivado: boolean;
+  estado?: 'ABIERTO' | 'EN_PROCESO' | 'RESUELTO' | 'CERRADO';
   ordenDeDespachoId: number;
   createdAt: string;
   updatedAt: string;
