@@ -53,3 +53,14 @@ export async function obtenerLicenciasPorVencer() {
   const response = await api.get<ApiResponse<Conductor[]>>("/conductores/licencias-por-vencer");
   return response.data.data;
 }
+
+export interface ConductorHorasHoy extends Conductor {
+  horasHoy: number;
+  ordenesHoy: number;
+  disponible: boolean;
+}
+
+export async function obtenerHorasHoy() {
+  const response = await api.get<ApiResponse<ConductorHorasHoy[]>>("/conductores/horas-hoy");
+  return response.data.data;
+}
