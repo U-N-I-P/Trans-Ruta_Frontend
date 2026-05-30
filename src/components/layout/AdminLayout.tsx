@@ -346,6 +346,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               clientes={clientes}
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
+              onActualizar={cargarDatos}
             />
           ) : vistaActiva === "vehiculos" ? (
             <VehicleListView onActualizar={cargarDatos} />
@@ -403,6 +404,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               clientes={clientes}
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
+              onActualizar={cargarDatos}
             />
           )}
         </div>
