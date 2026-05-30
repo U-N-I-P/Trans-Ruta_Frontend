@@ -5,6 +5,8 @@ interface TopbarProps {
   notificaciones: NotificacionIncidente[];
   onAbrirMovil: () => void;
   onCerrarSesion: () => void;
+  busquedaGlobal: string;
+  onBusquedaGlobalChange: (valor: string) => void;
 }
 
 const colorSeveridad = {
@@ -13,7 +15,13 @@ const colorSeveridad = {
   Baja: "bg-emerald-500"
 };
 
-export function Topbar({ notificaciones, onAbrirMovil, onCerrarSesion }: TopbarProps) {
+export function Topbar({
+  notificaciones,
+  onAbrirMovil,
+  onCerrarSesion,
+  busquedaGlobal,
+  onBusquedaGlobalChange
+}: TopbarProps) {
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:px-8">
       <div className="flex items-center justify-between gap-4">
@@ -37,6 +45,8 @@ export function Topbar({ notificaciones, onAbrirMovil, onCerrarSesion }: TopbarP
           <input
             type="search"
             placeholder="Buscar orden, placa o conductor"
+            value={busquedaGlobal}
+            onChange={(e) => onBusquedaGlobalChange(e.target.value)}
             className="w-56 border-none text-sm text-slate-700 outline-none"
           />
         </div>

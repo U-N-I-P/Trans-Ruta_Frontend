@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, ClipboardCheck, Truck, Wrench, Edit2 } from "lucide-react";
 import {
   Cliente,
@@ -21,6 +21,7 @@ interface DashboardViewProps {
   clientes: Cliente[];
   solicitudesCompra: SolicitudCompra[];
   onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
+  busquedaExterna?: string;
 }
 
 const progresoEstado: Record<OrdenDespacho["estado"], number> = {
@@ -52,6 +53,7 @@ export function DashboardView({
   solicitudesCompra,
   onCrearOrden
   , onActualizar
+  , busquedaExterna
 }: DashboardViewProps & { onActualizar?: () => Promise<void> }) {
   const [filtroEstado, setFiltroEstado] = useState<string>("Todos");
   const [busqueda, setBusqueda] = useState("");
@@ -62,6 +64,7 @@ export function DashboardView({
   const mapaVehiculos = useMemo(() => new Map(vehiculos.map((v) => [String(v.id), v])), [vehiculos]);
   const mapaConductores = useMemo(() => new Map(conductores.map((c) => [String(c.id), c])), [conductores]);
   const mapaClientes = useMemo(() => new Map(clientes.map((cliente) => [String(cliente.id), cliente])), [clientes]);
+  const busquedaActiva = busquedaExterna ?? busqueda;
 
   const kpis = useMemo(() => {
     const viajesActivos = ordenes.filter((o) => o.estado === "DESPACHADO" || o.estado === "EN_RUTA").length;
@@ -78,7 +81,7 @@ export function DashboardView({
   }, [conductores, ordenes, solicitudesCompra, vehiculos]);
 
   const ordenesFiltradas = useMemo(() => {
-    const termino = busqueda.trim().toLowerCase();
+    const termino = busquedaActiva.trim().toLowerCase();
 
     return ordenes.filter((orden) => {
       const conductor = orden.conductor ?? mapaConductores.get(String(orden.conductorId));
@@ -97,7 +100,13 @@ export function DashboardView({
 
       return coincideEstado && coincideBusqueda;
     });
-  }, [busqueda, filtroEstado, mapaConductores, mapaVehiculos, ordenes]);
+  }, [busquedaActiva, filtroEstado, mapaConductores, mapaVehiculos, ordenes, mapaClientes]);
+
+  useEffect(() => {
+    if (busquedaExterna !== undefined) {
+      setBusqueda(busquedaExterna);
+    }
+  }, [busquedaExterna]);
 
   const columnas: ColumnaTabla<OrdenDespacho>[] = [
     {

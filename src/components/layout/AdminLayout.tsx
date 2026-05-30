@@ -138,6 +138,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [repuestos, setRepuestos] = useState<Repuesto[]>([]);
   const [solicitudesCompra, setSolicitudesCompra] = useState<SolicitudCompra[]>([]);
   const [viaticos, setViaticos] = useState<Viatico[]>([]);
+  const [busquedaGlobal, setBusquedaGlobal] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -320,6 +321,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           notificaciones={notificaciones}
           onAbrirMovil={() => setMovilAbierto(true)}
           onCerrarSesion={onCerrarSesion}
+          busquedaGlobal={busquedaGlobal}
+          onBusquedaGlobalChange={setBusquedaGlobal}
         />
         <div className="p-4 lg:p-8">
           {error ? (
@@ -347,6 +350,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
+              busquedaExterna={busquedaGlobal}
             />
           ) : vistaActiva === "vehiculos" ? (
             <VehicleListView onActualizar={cargarDatos} />
@@ -405,6 +409,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
+              busquedaExterna={busquedaGlobal}
             />
           )}
         </div>
