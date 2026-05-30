@@ -151,10 +151,10 @@ export function ReportesListView() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 p-6 text-white shadow-panel">
+      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
+            <span className="inline-flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">
               <BarChart3 size={14} /> Reportes y estadísticas
             </span>
             <h2 className="mt-3 font-['Sora'] text-3xl font-semibold">Lectura rápida del rendimiento operativo</h2>
@@ -171,7 +171,7 @@ export function ReportesListView() {
         </div>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-[1.35fr_1fr]">
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-200 backdrop-blur">
+          <label className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700">
             <Search size={18} className="shrink-0 text-slate-300" />
             <input
               value={busqueda}
@@ -181,7 +181,7 @@ export function ReportesListView() {
             />
           </label>
 
-          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur">
+          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50 p-2">
             {tiposDisponibles.map((tipo) => {
               const activo = filtroTipo === tipo;
               const total = tipo === "TODOS" ? reportes.length : reportes.filter((reporte) => reporte.tipo === tipo).length;
@@ -342,14 +342,15 @@ function SummaryCard({
   icono: typeof FileText;
   tono: string;
 }) {
+  const bgClass = tono === "bg-white/10" ? "bg-slate-50" : tono;
   return (
-    <div className={`rounded-2xl border border-white/10 ${tono} p-3 backdrop-blur`}>
+    <div className={`rounded-2xl border border-slate-200 ${bgClass} p-3`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-300">{titulo}</p>
-          <p className="mt-1 text-xl font-bold text-white">{valor}</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{titulo}</p>
+          <p className="mt-1 text-xl font-bold text-slate-900">{valor}</p>
         </div>
-        <Icono size={18} className="text-white/80" />
+        <Icono size={18} className="text-slate-700" />
       </div>
     </div>
   );

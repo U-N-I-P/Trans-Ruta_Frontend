@@ -137,11 +137,21 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
 
   const resumen = useMemo(() => {
     const promedio = evaluaciones.length
-      ? Math.round(evaluaciones.reduce((acc, item) => acc + Number(item.scoreTotal), 0) / evaluaciones.length)
+      ? Math.round(
+          evaluaciones.reduce((acc, item) => {
+            const v = Number(item.scoreTotal);
+            return acc + (Number.isFinite(v) ? v : 0);
+          }, 0) / evaluaciones.length
+        )
       : 0;
-    const entregas = evaluaciones.reduce((acc, item) => acc + item.entregasTotales, 0);
+    const entregas = evaluaciones.reduce((acc, item) => acc + (Number(item.entregasTotales) || 0), 0);
     const puntualidad = evaluaciones.length
-      ? Math.round(evaluaciones.reduce((acc, item) => acc + Number(item.scorePuntualidad), 0) / evaluaciones.length)
+      ? Math.round(
+          evaluaciones.reduce((acc, item) => {
+            const v = Number(item.scorePuntualidad);
+            return acc + (Number.isFinite(v) ? v : 0);
+          }, 0) / evaluaciones.length
+        )
       : 0;
     const top = evaluaciones[0];
     return { promedio, entregas, puntualidad, top };
@@ -151,10 +161,10 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-800 p-6 text-white shadow-panel">
+      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
+            <span className="inline-flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">
               <Trophy size={14} /> Evaluación de conductores
             </span>
             <h2 className="mt-3 font-['Sora'] text-3xl font-semibold">Desempeño, ranking y seguimiento operativo</h2>
@@ -172,7 +182,7 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
         </div>
 
         <div className="mt-6 grid gap-3 xl:grid-cols-[1.2fr_1fr]">
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-200 backdrop-blur">
+          <label className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700">
             <Search size={18} className="shrink-0 text-slate-300" />
             <input
               value={busqueda}
@@ -182,13 +192,13 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
             />
           </label>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur">
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3">
             <div className="flex items-center gap-2 text-sm text-slate-200">
               <label className="font-medium">Modo</label>
               <select
                 value={modoReporte}
                 onChange={(e) => setModoReporte(e.target.value as "MENSUAL" | "TRIMESTRAL")}
-                className="rounded-xl border border-white/10 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none"
+                className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none"
               >
                 <option value="MENSUAL">Mensual</option>
                 <option value="TRIMESTRAL">Trimestral</option>
@@ -201,7 +211,7 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
                 type="month"
                 value={periodo}
                 onChange={(e) => setPeriodo(e.target.value)}
-                className="rounded-xl border border-white/10 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none"
+                className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-900 outline-none"
               />
             </div>
 
@@ -231,10 +241,22 @@ export function EvaluacionConductoresView({ conductores: _ }: EvaluacionConducto
               </span>
             </div>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <InfoChip label="Período" value={evaluacionDetalle.periodo} />
-              <InfoChip label="Puntaje total" value={`${evaluacionDetalle.scoreTotal}%`} />
-              <InfoChip label="Puntualidad" value={String(evaluacionDetalle.scorePuntualidad)} />
-              <InfoChip label="Incidentes" value={String(evaluacionDetalle.scoreIncidentes)} />
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs text-slate-600">Período</p>
+                <p className="font-bold text-slate-900">{evaluacionDetalle.periodo}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs text-slate-600">Puntaje total</p>
+                <p className="font-bold text-slate-900">{`${evaluacionDetalle.scoreTotal}%`}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs text-slate-600">Puntualidad</p>
+                <p className="font-bold text-slate-900">{String(evaluacionDetalle.scorePuntualidad)}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs text-slate-600">Incidentes</p>
+                <p className="font-bold text-slate-900">{String(evaluacionDetalle.scoreIncidentes)}</p>
+              </div>
               <div className="sm:col-span-2 rounded-2xl bg-slate-50 p-4">
                 <p className="text-sm font-semibold text-slate-700">Comentarios</p>
                 <p className="mt-2 text-sm text-slate-600">{evaluacionDetalle.comentariosAdmin || "—"}</p>
@@ -425,24 +447,16 @@ function SummaryCard({
   icono: typeof Star;
   tono: string;
 }) {
+  const bgClass = tono === "bg-white/10" ? "bg-slate-50" : tono;
   return (
-    <div className={`rounded-2xl border border-white/10 ${tono} p-3 backdrop-blur`}>
+    <div className={`rounded-2xl border border-slate-200 ${bgClass} p-3`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-300">{titulo}</p>
-          <p className="mt-1 text-2xl font-bold text-white">{valor}</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{titulo}</p>
+          <p className="mt-1 text-xl font-bold text-slate-900">{valor}</p>
         </div>
-        <Icono size={18} className="text-white/80" />
+        <Icono size={18} className="text-slate-700" />
       </div>
-    </div>
-  );
-}
-
-function InfoChip({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-sm font-semibold text-slate-700">{label}</p>
-      <p className="mt-2 text-sm text-slate-600">{value}</p>
     </div>
   );
 }

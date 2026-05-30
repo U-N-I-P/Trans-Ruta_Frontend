@@ -156,10 +156,10 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
 
   return (
     <section className="space-y-6">
-      <article className="overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-panel">
+      <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200">
+            <p className="inline-flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">
               <Truck size={14} /> Gestión Flota
             </p>
             <h2 className="mt-3 font-['Sora'] text-2xl font-semibold sm:text-3xl">Inventario operativo de vehículos</h2>
@@ -177,7 +177,7 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
         </div>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-          <label className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-200 backdrop-blur">
+          <label className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700">
             <Search size={18} className="shrink-0 text-slate-300" />
             <input
               value={busqueda}
@@ -187,7 +187,7 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
             />
           </label>
 
-          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur">
+          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50 p-2">
             <Filter size={16} className="ml-1 shrink-0 text-slate-300" />
             {estados.map((estado) => {
               const activo = filtroEstado === estado.key;
@@ -263,14 +263,15 @@ function StatCard({
   icono: typeof Truck;
   tono: string;
 }) {
+  const bgClass = tono === "bg-white/10" ? "bg-slate-50" : tono;
   return (
-    <div className={`rounded-2xl border border-white/10 ${tono} p-3 backdrop-blur`}> 
+    <div className={`rounded-2xl border border-slate-200 ${bgClass} p-3`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-300">{titulo}</p>
-          <p className="mt-1 text-2xl font-bold text-white">{valor}</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{titulo}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900">{valor}</p>
         </div>
-        <Icono size={18} className="text-white/80" />
+        <Icono size={18} className="text-slate-700" />
       </div>
     </div>
   );
