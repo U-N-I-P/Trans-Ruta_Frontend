@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileText, Search, DownloadCloud, RefreshCw, PlusCircle, BarChart3 } from "lucide-react";
-import { listarReportes, obtenerReporte, generarReporte, ReporteItem } from "../../services/reporte.service";
+import { listarReportes, obtenerReporte, generarReporte, exportarReporte, ReporteItem } from "../../services/reporte.service";
 import { obtenerVehiculos } from "../../services/vehiculo.service";
 import { useToast } from "../ui/ToastProvider";
 
@@ -18,6 +18,7 @@ export function ReportesListView() {
   const [advancedJson, setAdvancedJson] = useState<boolean>(false);
   const [busqueda, setBusqueda] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("TODOS");
+  const [descargandoId, setDescargandoId] = useState<number | null>(null);
 
   const { addToast } = useToast();
 
@@ -83,14 +84,14 @@ export function ReportesListView() {
     }
   };
 
-  const descargar = (reporte: ReporteItem) => {
+  const descargar = async (reporte: ReporteItem, formato: "pdf" | "csv" = "pdf") => {
     try {
-      const contenido = reporte.contenido ?? JSON.stringify({ mensaje: 'Sin contenido' });
-      const blob = new Blob([contenido], { type: 'application/json' });
+      setDescargandoId(reporte.id);
+      const blob = await exportarReporte(reporte.id, formato);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `reporte-${reporte.id}.json`;
+      a.download = `reporte-${reporte.tipo.toLowerCase().replace(/_/g, '-')}-${reporte.id}.${formato}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -98,6 +99,8 @@ export function ReportesListView() {
       addToast({ message: 'Descarga iniciada', type: 'success' });
     } catch {
       addToast({ message: 'No se pudo descargar el reporte', type: 'error' });
+    } finally {
+      setDescargandoId(null);
     }
   };
 
@@ -249,13 +252,23 @@ export function ReportesListView() {
                 >
                   Ver detalle
                 </button>
-                <button 
-                  onClick={() => descargar(reporte)} 
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-850"
-                >
-                  <DownloadCloud className="h-4 w-4" />
-                  Descargar
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => void descargar(reporte, "pdf")}
+                    disabled={descargandoId === reporte.id}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-850 disabled:opacity-50"
+                  >
+                    <DownloadCloud className="h-4 w-4" />
+                    {descargandoId === reporte.id ? "Generando..." : "PDF"}
+                  </button>
+                  <button
+                    onClick={() => void descargar(reporte, "csv")}
+                    disabled={descargandoId === reporte.id}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-850 disabled:opacity-50"
+                  >
+                    CSV
+                  </button>
+                </div>
               </div>
             </article>
           ))}
