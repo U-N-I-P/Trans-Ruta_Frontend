@@ -316,7 +316,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
         }}
       />
 
-      <main className={`transition-all duration-300 ${margenContenido}`}>
+      <main className={`transition-all duration-300 ${margenContenido} max-w-full overflow-x-hidden`}>
         <Topbar
           notificaciones={notificaciones}
           onAbrirMovil={() => setMovilAbierto(true)}

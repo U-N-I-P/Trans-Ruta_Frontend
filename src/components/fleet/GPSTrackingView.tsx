@@ -146,7 +146,7 @@ export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
           <Navigation className="h-5 w-5 text-blue-600 dark:text-blue-400" />
           <p className="font-semibold text-slate-800 dark:text-slate-200">Mapa de Rastreo en Vivo (Simulador)</p>
         </div>
-        <div className="w-full h-[500px] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 relative z-0">
+        <div className="w-full h-[320px] sm:h-[500px] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 relative z-0">
           <MapContainer 
             center={[4.7110, -74.0721]} 
             zoom={11} 
