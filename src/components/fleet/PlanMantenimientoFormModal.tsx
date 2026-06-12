@@ -109,72 +109,72 @@ export function PlanMantenimientoFormModal({ abierto, vehiculos, plan, onClose, 
   return (
     <Modal abierto={abierto} titulo={plan ? "Editar Plan de Mantenimiento" : "Nuevo Plan de Mantenimiento"} onCerrar={onClose}>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Nombre</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre</label>
           <input
             type="text"
             {...register("nombre")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="ej: Cambio de aceite preventivo"
           />
-          {errors.nombre && <p className="text-sm text-red-600">{errors.nombre.message}</p>}
+          {errors.nombre && <p className="text-sm text-red-600 dark:text-red-400">{errors.nombre.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Descripción</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Descripción</label>
           <textarea
             {...register("descripcion")}
             rows={3}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Detalles del plan"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Frecuencia (km)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Frecuencia (km)</label>
             <input
               type="number"
               {...register("frecuenciaKm")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="ej: 10000"
             />
-            {errors.frecuenciaKm && <p className="text-sm text-red-600">{errors.frecuenciaKm.message}</p>}
+            {errors.frecuenciaKm && <p className="text-sm text-red-600 dark:text-red-400">{errors.frecuenciaKm.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Frecuencia (días)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Frecuencia (días)</label>
             <input
               type="number"
               {...register("frecuenciaDias")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="ej: 90"
             />
-            {errors.frecuenciaDias && <p className="text-sm text-red-600">{errors.frecuenciaDias.message}</p>}
+            {errors.frecuenciaDias && <p className="text-sm text-red-600 dark:text-red-400">{errors.frecuenciaDias.message}</p>}
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Tipo de Vehículo</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Vehículo</label>
             <select
               {...register("tipoVehiculo")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="CAMION_CARGA_PESADA">Camión Carga Pesada</option>
               <option value="TURBO">Turbo</option>
               <option value="CAMIONETA">Camioneta</option>
             </select>
-            {errors.tipoVehiculo && <p className="text-sm text-red-600">{errors.tipoVehiculo.message}</p>}
+            {errors.tipoVehiculo && <p className="text-sm text-red-600 dark:text-red-400">{errors.tipoVehiculo.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Vehículo</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Vehículo</label>
             <select
               {...register("vehiculoId", { valueAsNumber: true })}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value={0}>Selecciona un vehículo</option>
+              <option value={0} className="text-slate-500 dark:text-slate-400">Selecciona un vehículo</option>
               {vehiculos
                 .filter((vehiculo) => vehiculo.tipo === (plan?.tipoVehiculo ?? undefined) || vehiculo.tipo === planSchema.shape.tipoVehiculo._def.values[0])
                 .map((vehiculo) => (
@@ -183,7 +183,7 @@ export function PlanMantenimientoFormModal({ abierto, vehiculos, plan, onClose, 
                   </option>
                 ))}
             </select>
-            {errors.vehiculoId && <p className="text-sm text-red-600">{errors.vehiculoId.message}</p>}
+            {errors.vehiculoId && <p className="text-sm text-red-600 dark:text-red-400">{errors.vehiculoId.message}</p>}
           </div>
         </div>
 
@@ -191,14 +191,14 @@ export function PlanMantenimientoFormModal({ abierto, vehiculos, plan, onClose, 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             disabled={loading}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             disabled={loading}
           >
             {loading ? "Guardando..." : plan ? "Guardar cambios" : "Guardar plan"}

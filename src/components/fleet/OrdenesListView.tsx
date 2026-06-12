@@ -114,100 +114,104 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, via
   };
 
   const estadoColors: Record<string, string> = {
-    PENDIENTE: "bg-slate-100 text-slate-800",
-    DESPACHADO: "bg-blue-100 text-blue-800",
-    EN_RUTA: "bg-yellow-100 text-yellow-800",
-    ENTREGADO: "bg-green-100 text-green-800"
+    PENDIENTE: "bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-350 border border-slate-200/30 dark:border-slate-700/50",
+    DESPACHADO: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10",
+    EN_RUTA: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/30 dark:border-amber-500/10",
+    ENTREGADO: "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10"
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Gestión de Órdenes</h2>
-          <p className="text-sm text-slate-600">Crea y controla órdenes de despacho</p>
+      <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Gestión de Órdenes</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Crea y controla órdenes de despacho en el sistema</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setOrdenEnEdicion(null);
+              setAbrirModalNuevaOrden(true);
+            }}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+          >
+            <Plus className="h-4 w-4" />
+            Nueva Orden
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setOrdenEnEdicion(null);
-            setAbrirModalNuevaOrden(true);
-          }}
-          className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          Nueva Orden
-        </button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Total Órdenes</p>
-          <p className="text-2xl font-bold text-slate-900">{ordenesList.length}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Órdenes</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{ordenesList.length}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Pendientes</p>
-          <p className="text-2xl font-bold text-slate-600">{ordenesList.filter(o => o.estado === "PENDIENTE").length}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pendientes</p>
+          <p className="text-2xl font-bold text-slate-600 dark:text-slate-400">{ordenesList.filter(o => o.estado === "PENDIENTE").length}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">En Ruta</p>
-          <p className="text-2xl font-bold text-yellow-600">{ordenesList.filter(o => o.estado === "EN_RUTA").length}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">En Ruta</p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{ordenesList.filter(o => o.estado === "EN_RUTA").length}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Entregadas</p>
-          <p className="text-2xl font-bold text-green-600">{ordenesList.filter(o => o.estado === "ENTREGADO").length}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Entregadas</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-emerald-400">{ordenesList.filter(o => o.estado === "ENTREGADO").length}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-slate-200 bg-slate-50">
+          <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 text-slate-900 dark:text-slate-100">
             <tr>
-              <th className="px-6 py-3 font-semibold text-slate-900">Código</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Cliente</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Ruta</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Peso (kg)</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Estado</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Fecha</th>
-              <th className="px-6 py-3 font-semibold text-slate-900">Acciones</th>
+              <th className="px-6 py-3 font-semibold">Código</th>
+              <th className="px-6 py-3 font-semibold">Cliente</th>
+              <th className="px-6 py-3 font-semibold">Ruta</th>
+              <th className="px-6 py-3 font-semibold">Peso (kg)</th>
+              <th className="px-6 py-3 font-semibold">Estado</th>
+              <th className="px-6 py-3 font-semibold">Fecha</th>
+              <th className="px-6 py-3 font-semibold">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
             {ordenesList.length > 0 ? (
               ordenesList.map((orden) => (
-                <tr key={orden.id} className="hover:bg-slate-50">
-                  <td className="px-6 py-3 font-medium text-slate-900">{orden.codigo}</td>
-                  <td className="px-6 py-3 text-slate-600">{orden.cliente}</td>
-                  <td className="px-6 py-3 text-slate-600">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4 text-slate-400" />
+                <tr key={orden.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  <td className="px-6 py-3 font-medium text-slate-900 dark:text-slate-100">{orden.codigo}</td>
+                  <td className="px-6 py-3">{orden.cliente}</td>
+                  <td className="px-6 py-3">
+                    <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                      <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                       {orden.origen} → {orden.destino}
                     </div>
                   </td>
-                  <td className="px-6 py-3 text-slate-600">{orden.pesoCarga}</td>
+                  <td className="px-6 py-3">{orden.pesoCarga}</td>
                   <td className="px-6 py-3">
-                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${estadoColors[orden.estado]}`}>
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${estadoColors[orden.estado]}`}>
                       {orden.estado}
                     </span>
                   </td>
-                  <td className="px-6 py-3 text-slate-600">{new Date(orden.fecha).toLocaleDateString("es-CO")}</td>
+                  <td className="px-6 py-3">{new Date(orden.fecha).toLocaleDateString("es-CO")}</td>
                   <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => abrirEditor(Number(orden.id))}
-                        className="text-blue-600 hover:text-blue-700"
+                        className="rounded-lg bg-blue-600/10 border border-blue-500/20 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 transition hover:bg-blue-600/20 disabled:opacity-50 disabled:pointer-events-none"
                         disabled={procesandoAccion}
+                        title="Editar"
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => void manejarEliminar(Number(orden.id))}
-                        className="text-red-600 hover:text-red-700"
+                        className="rounded-lg bg-red-600/10 border border-red-500/20 px-2.5 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-600/20 disabled:opacity-50 disabled:pointer-events-none"
                         disabled={procesandoAccion}
+                        title="Eliminar"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
@@ -215,7 +219,7 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, via
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={7} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
                   No hay órdenes registradas
                 </td>
               </tr>

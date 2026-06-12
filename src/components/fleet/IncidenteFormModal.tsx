@@ -111,86 +111,86 @@ export function IncidenteFormModal({ abierto, ordenes, incidente, onClose, onSub
   return (
     <Modal abierto={abierto} titulo={incidente ? "Editar Incidente" : "Nuevo Incidente"} onCerrar={onClose}>
       <form className="space-y-4" onSubmit={handleSubmit(submit)}>
-        {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Orden de despacho</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Orden de despacho</label>
           <select
             {...register("ordenDeDespachoId", { valueAsNumber: true })}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
-            <option value={0}>Selecciona una orden</option>
+            <option value={0} className="text-slate-500 dark:text-slate-400">Selecciona una orden</option>
             {ordenes.map((orden) => (
               <option key={orden.id} value={orden.id}>
                 {orden.codigo} - {orden.origen} → {orden.destino}
               </option>
             ))}
           </select>
-          {errors.ordenDeDespachoId && <p className="text-sm text-red-600">{errors.ordenDeDespachoId.message}</p>}
+          {errors.ordenDeDespachoId && <p className="text-sm text-red-600 dark:text-red-400">{errors.ordenDeDespachoId.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Tipo de incidente</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de incidente</label>
           <select
             {...register("tipo")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="FALLA_MECANICA">Falla mecánica</option>
             <option value="RETRASO">Retraso</option>
             <option value="ACCIDENTE">Accidente</option>
             <option value="OTRO">Otro</option>
           </select>
-          {errors.tipo && <p className="text-sm text-red-600">{errors.tipo.message}</p>}
+          {errors.tipo && <p className="text-sm text-red-600 dark:text-red-400">{errors.tipo.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Descripción</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Descripción</label>
           <textarea
             {...register("descripcion")}
             rows={4}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Describe el incidente"
           />
-          {errors.descripcion && <p className="text-sm text-red-600">{errors.descripcion.message}</p>}
+          {errors.descripcion && <p className="text-sm text-red-600 dark:text-red-400">{errors.descripcion.message}</p>}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Fecha</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Fecha</label>
             <input
               type="date"
               {...register("fecha")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {errors.fecha && <p className="text-sm text-red-600">{errors.fecha.message}</p>}
+            {errors.fecha && <p className="text-sm text-red-600 dark:text-red-400">{errors.fecha.message}</p>}
           </div>
           <div className="flex items-center gap-3 pt-6">
-            <input type="checkbox" {...register("protocoloActivado")} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
-            <label className="text-sm text-slate-700">Activar protocolo</label>
+            <input type="checkbox" {...register("protocoloActivado")} className="h-4 w-4 rounded border-slate-300 text-blue-600 dark:bg-slate-950 dark:border-slate-700" />
+            <label className="text-sm text-slate-700 dark:text-slate-300">Activar protocolo</label>
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Latitud</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Latitud</label>
             <input
               type="number"
               step="any"
               {...register("latitud", {
                 setValueAs: (value) => (value === "" ? undefined : Number(value))
               })}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Longitud</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Longitud</label>
             <input
               type="number"
               step="any"
               {...register("longitud", {
                 setValueAs: (value) => (value === "" ? undefined : Number(value))
               })}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -199,14 +199,14 @@ export function IncidenteFormModal({ abierto, ordenes, incidente, onClose, onSub
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             disabled={loading}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             disabled={loading}
           >
             <AlertTriangle className="h-4 w-4" />

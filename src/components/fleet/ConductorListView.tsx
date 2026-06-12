@@ -80,24 +80,24 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
 
   const getLicenciaEstado = (conductor: Conductor) => {
     if (conductor.licenciaVencida) {
-      return { color: "text-red-600", bg: "bg-red-50", label: "Vencida" };
+      return { color: "text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/10", bg: "bg-red-50 dark:bg-red-950/20", label: "Vencida" };
     }
     if (conductor.diasParaVencimiento <= 7) {
-      return { color: "text-orange-600", bg: "bg-orange-50", label: "Crítica" };
+      return { color: "text-orange-700 dark:text-orange-400 border border-orange-200 dark:border-orange-500/10", bg: "bg-orange-50 dark:bg-orange-950/20", label: "Crítica" };
     }
     if (conductor.diasParaVencimiento <= 15) {
-      return { color: "text-yellow-600", bg: "bg-yellow-50", label: "Alerta" };
+      return { color: "text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/10", bg: "bg-amber-50 dark:bg-amber-950/20", label: "Alerta" };
     }
     if (conductor.diasParaVencimiento <= 30) {
-      return { color: "text-blue-600", bg: "bg-blue-50", label: "Próxima" };
+      return { color: "text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/10", bg: "bg-blue-50 dark:bg-blue-950/20", label: "Próxima" };
     }
-    return { color: "text-green-600", bg: "bg-green-50", label: "Vigente" };
+    return { color: "text-green-700 dark:text-emerald-400 border border-green-200 dark:border-emerald-500/10", bg: "bg-green-50 dark:bg-emerald-950/20", label: "Vigente" };
   };
 
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <p className="text-gray-500">Cargando conductores...</p>
+        <p className="text-slate-500 dark:text-slate-400">Cargando conductores...</p>
       </div>
     );
   }
@@ -106,15 +106,15 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
     <div className="space-y-6">
       {/* Alertas de Licencias por Vencer */}
       {licenciasPorVencer.length > 0 && (
-        <div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+        <div className="rounded-xl border border-orange-200 dark:border-orange-500/20 bg-orange-50 dark:bg-orange-950/20 p-4">
           <div className="flex gap-3">
-            <AlertTriangle className="text-orange-600 flex-shrink-0" size={20} />
+            <AlertTriangle className="text-orange-600 dark:text-orange-400 flex-shrink-0" size={20} />
             <div>
-              <h3 className="font-semibold text-orange-900">Licencias por Vencer</h3>
-              <p className="text-sm text-orange-800 mt-1">
+              <h3 className="font-semibold text-orange-900 dark:text-orange-200">Licencias por Vencer</h3>
+              <p className="text-sm text-orange-850 dark:text-orange-300 mt-1">
                 {licenciasPorVencer.length} conductor(es) tienen licencias próximas a vencer o vencidas:
               </p>
-              <ul className="mt-2 space-y-1 text-sm text-orange-700">
+              <ul className="mt-2 space-y-1 text-sm text-orange-700 dark:text-orange-400">
                 {licenciasPorVencer.map((c) => (
                   <li key={c.id}>
                     • {getNombreCompleto(c)} - {c.diasParaVencimiento <= 0 ? "Vencida" : `Vence en ${c.diasParaVencimiento} días`}
@@ -127,79 +127,83 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Conductores</h2>
-          <p className="text-sm text-gray-600">Total: {conductores.length} conductores</p>
+      <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Gestión de Conductores</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Total: {conductores.length} conductores registrados en el sistema</p>
+          </div>
+          <button
+            onClick={handleCrearConductor}
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+          >
+            <Plus size={18} />
+            Nuevo Conductor
+          </button>
         </div>
-        <button
-          onClick={handleCrearConductor}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={18} />
-          Nuevo Conductor
-        </button>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-red-700">
+        <div className="rounded-xl border border-red-500/20 bg-red-950/30 p-4 text-xs text-red-400">
           {error}
         </div>
       )}
 
       {/* Tabla */}
-      <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
         {conductores.length > 0 ? (
-          <table className="w-full">
-            <thead className="bg-gray-50">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nombre</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Cédula</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Licencia</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Categoría</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Vencimiento</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Estado</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Horas</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acciones</th>
+                <th className="px-6 py-3 text-sm font-semibold">Nombre</th>
+                <th className="px-6 py-3 text-sm font-semibold">Cédula</th>
+                <th className="px-6 py-3 text-sm font-semibold">Licencia</th>
+                <th className="px-6 py-3 text-sm font-semibold">Categoría</th>
+                <th className="px-6 py-3 text-sm font-semibold">Vencimiento</th>
+                <th className="px-6 py-3 text-sm font-semibold">Estado</th>
+                <th className="px-6 py-3 text-sm font-semibold">Horas</th>
+                <th className="px-6 py-3 text-sm font-semibold">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               {conductores.map((conductor) => {
                 const licenciaEstado = getLicenciaEstado(conductor);
                 return (
-                  <tr key={conductor.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  <tr key={conductor.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">
                       {getNombreCompleto(conductor)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{conductor.cedula}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{conductor.numeroLicencia}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{conductor.categoriaLicencia}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm">{conductor.cedula}</td>
+                    <td className="px-6 py-4 text-sm">{conductor.numeroLicencia}</td>
+                    <td className="px-6 py-4 text-sm">{conductor.categoriaLicencia}</td>
+                    <td className="px-6 py-4 text-sm">
                       {new Date(conductor.fechaVencimientoLicencia).toLocaleDateString("es-CO")}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${licenciaEstado.bg} ${licenciaEstado.color}`}>
+                      <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${licenciaEstado.bg} ${licenciaEstado.color}`}>
                         {licenciaEstado.label}
                         {conductor.diasParaVencimiento > 0 && ` (${conductor.diasParaVencimiento}d)`}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{conductor.horasConducidas}</td>
+                    <td className="px-6 py-4 text-sm">{conductor.horasConducidas}</td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <button
+                          type="button"
                           onClick={() => handleEditarConductor(conductor)}
-                          className="inline-flex items-center gap-1 rounded px-2 py-1 text-blue-600 hover:bg-blue-50 transition-colors"
+                          className="rounded-lg bg-blue-600/10 border border-blue-500/20 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 transition hover:bg-blue-600/20"
                           title="Editar"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 className="h-3.5 w-3.5" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleEliminarConductor(conductor)}
-                          className="inline-flex items-center gap-1 rounded px-2 py-1 text-red-600 hover:bg-red-50 transition-colors"
+                          className="rounded-lg bg-red-600/10 border border-red-500/20 px-2.5 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-600/20"
                           title="Eliminar"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </td>
@@ -209,7 +213,7 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
             </tbody>
           </table>
         ) : (
-          <div className="flex h-64 items-center justify-center text-gray-500">
+          <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
             No hay conductores registrados. ¡Crea el primero!
           </div>
         )}

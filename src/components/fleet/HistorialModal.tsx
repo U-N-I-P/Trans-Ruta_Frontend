@@ -57,32 +57,37 @@ export function HistorialModal({ open, conductor, onClose }: HistorialModalProps
   if (!open || !conductor) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative max-w-md w-full bg-white rounded shadow-lg p-4 z-10">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Historial: {conductor.nombre} {conductor.apellido}</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-slate-100"><X className="w-4 h-4" /></button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 overflow-y-auto backdrop-blur-xs">
+      <div className="absolute inset-0" onClick={onClose} />
+      <div className="relative max-w-md w-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 shadow-panel rounded-2xl p-6 z-10">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Historial: {conductor.nombre} {conductor.apellido}</h3>
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-200"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="mt-3">
           {loading ? (
-            <p className="text-sm text-slate-500">Cargando historial...</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Cargando historial...</p>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-slate-600">
-                  <th className="py-1">Fecha</th>
-                  <th className="py-1">Horas</th>
-                  <th className="py-1">Km</th>
+                <tr className="text-left text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-150 dark:border-slate-800">
+                  <th className="py-2">Fecha</th>
+                  <th className="py-2">Horas</th>
+                  <th className="py-2">Km</th>
                 </tr>
               </thead>
               <tbody>
                 {entries.map((e) => (
-                  <tr key={e.fecha} className="border-t">
-                    <td className="py-2 text-slate-700">{e.fecha}</td>
-                    <td className="py-2 font-medium text-slate-900">{e.horas}h</td>
-                    <td className="py-2 text-slate-700">{e.distancia} km</td>
+                  <tr key={e.fecha} className="border-t border-slate-100 dark:border-slate-800/60">
+                    <td className="py-2.5 text-slate-700 dark:text-slate-300">{e.fecha}</td>
+                    <td className="py-2.5 font-semibold text-slate-900 dark:text-slate-100">{e.horas}h</td>
+                    <td className="py-2.5 text-slate-700 dark:text-slate-300">{e.distancia} km</td>
                   </tr>
                 ))}
               </tbody>

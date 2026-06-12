@@ -73,7 +73,7 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
     {
       id: "placa",
       encabezado: "Placa",
-      celda: (vehiculo) => <span className="font-semibold text-slate-800">{vehiculo.placa}</span>
+      celda: (vehiculo) => <span className="font-semibold text-slate-900 dark:text-slate-100">{vehiculo.placa}</span>
     },
     {
       id: "tipo",
@@ -91,13 +91,13 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
       celda: (vehiculo) => {
         const estiloEstado =
           vehiculo.estado === "EN_MANTENIMIENTO"
-            ? "bg-amber-100 text-amber-700"
+            ? "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/30 dark:border-amber-500/10"
             : vehiculo.estado === "DISPONIBLE"
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-blue-100 text-blue-700";
+              ? "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10"
+              : "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10";
 
         return (
-          <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${estiloEstado}`}>
+          <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${estiloEstado}`}>
             {formatearEstadoVehiculo(vehiculo.estado)}
           </span>
         );
@@ -136,12 +136,12 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
       encabezado: "Alerta",
       celda: (repuesto) =>
         repuesto.stockActual <= repuesto.stockMinimo ? (
-          <div className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-700">
+          <div className="inline-flex items-center gap-1 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/30 dark:border-red-500/10 px-2 py-1 text-xs font-semibold text-red-700 dark:text-red-400">
             <AlertTriangle size={12} />
             Reponer
           </div>
         ) : (
-          <span className="text-xs text-emerald-700">Stock saludable</span>
+          <span className="text-xs text-emerald-700 dark:text-emerald-450 font-medium">Stock saludable</span>
         )
     }
   ];
@@ -156,39 +156,40 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
 
   return (
     <section className="space-y-6">
-      <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-slate-900 shadow-sm">
+      {/* Header Panel */}
+      <article className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-slate-100 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">
+            <p className="inline-flex items-center gap-2 rounded-full border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-300">
               <Truck size={14} /> Gestión Flota
             </p>
-            <h2 className="mt-3 font-['Sora'] text-2xl font-semibold sm:text-3xl">Inventario operativo de vehículos</h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-300">
+            <h2 className="mt-3 font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Inventario operativo de vehículos</h2>
+            <p className="mt-2 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
               Revisa disponibilidad, mantenimiento y alertas de repuestos con una vista más rápida y dinámica.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-[520px]">
-            <StatCard titulo="Vehículos" valor={vehiculos.length} icono={Truck} tono="bg-white/10" />
-            <StatCard titulo="Disponibles" valor={resumenFlota.disponibles} icono={Activity} tono="bg-emerald-400/20" />
-            <StatCard titulo="En mantenimiento" valor={resumenFlota.enMantenimiento} icono={Wrench} tono="bg-amber-400/20" />
-            <StatCard titulo="Alertas repuestos" valor={repuestosCriticos.length} icono={AlertTriangle} tono="bg-rose-400/20" />
+            <StatCard titulo="Vehículos" valor={vehiculos.length} icono={Truck} />
+            <StatCard titulo="Disponibles" valor={resumenFlota.disponibles} icono={Activity} />
+            <StatCard titulo="En mantenimiento" valor={resumenFlota.enMantenimiento} icono={Wrench} />
+            <StatCard titulo="Alertas repuestos" valor={repuestosCriticos.length} icono={AlertTriangle} />
           </div>
         </div>
 
         <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-          <label className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-slate-700">
-            <Search size={18} className="shrink-0 text-slate-300" />
+          <label className="flex items-center gap-3 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 px-4 py-3 text-slate-700 dark:text-slate-300">
+            <Search size={18} className="shrink-0 text-slate-400 dark:text-slate-500" />
             <input
               value={busqueda}
               onChange={(event) => setBusqueda(event.target.value)}
               placeholder="Buscar por placa o tipo..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
             />
           </label>
 
-          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-slate-100 bg-slate-50 p-2">
-            <Filter size={16} className="ml-1 shrink-0 text-slate-300" />
+          <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-2">
+            <Filter size={16} className="ml-1 shrink-0 text-slate-400 dark:text-slate-500" />
             {estados.map((estado) => {
               const activo = filtroEstado === estado.key;
               return (
@@ -196,9 +197,8 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
                   key={estado.key}
                   type="button"
                   onClick={() => setFiltroEstado(estado.key)}
-                  className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition ${
-                    activo ? "bg-white text-slate-900 shadow-sm" : "text-slate-300 hover:bg-white/10 hover:text-white"
-                  }`}
+                  className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition ${activo ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-800 dark:hover:text-slate-200"
+                    }`}
                 >
                   {estado.label} <span className="ml-1 opacity-70">{estado.total}</span>
                 </button>
@@ -208,18 +208,19 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
         </div>
       </article>
 
-      <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-panel lg:p-5">
+      {/* Vehiculos Table Panel */}
+      <article className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-panel backdrop-blur-sm lg:p-5">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h3 className="font-['Sora'] text-xl font-semibold text-slate-900">Vehículos</h3>
-            <p className="text-sm text-slate-500">
+            <h3 className="font-['Sora'] text-xl font-semibold text-slate-900 dark:text-slate-100">Vehículos</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {vehiculosFiltrados.length} resultado{vehiculosFiltrados.length === 1 ? "" : "s"} de {vehiculos.length}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span className="rounded-full bg-slate-100 px-3 py-1">Disponibles: {resumenFlota.disponibles}</span>
-            <span className="rounded-full bg-slate-100 px-3 py-1">Ruta: {resumenFlota.enRuta}</span>
-            <span className="rounded-full bg-slate-100 px-3 py-1">Mantenimiento: {resumenFlota.enMantenimiento}</span>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1">Disponibles: {resumenFlota.disponibles}</span>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1">Ruta: {resumenFlota.enRuta}</span>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1">Mantenimiento: {resumenFlota.enMantenimiento}</span>
           </div>
         </div>
         <Table
@@ -230,15 +231,16 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
         />
       </article>
 
-      <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-panel lg:p-5">
+      {/* Repuestos Table Panel */}
+      <article className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-panel backdrop-blur-sm lg:p-5">
         <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h3 className="font-['Sora'] text-xl font-semibold text-slate-900">Inventario de repuestos</h3>
-            <p className="text-sm text-slate-500">Alertas visuales de stock mínimo y costos estimados</p>
+            <h3 className="font-['Sora'] text-xl font-semibold text-slate-900 dark:text-slate-100">Inventario de repuestos</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Alertas visuales de stock mínimo y costos estimados</p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
-            <span className="rounded-full bg-red-50 px-3 py-1 text-red-700">Críticos: {repuestosCriticos.length}</span>
-            <span className="rounded-full bg-slate-100 px-3 py-1">Total: {repuestos.length}</span>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="rounded-full bg-red-50 dark:bg-red-950/30 px-3 py-1 text-red-700 dark:text-red-400 border border-red-200/20 dark:border-red-500/10">Críticos: {repuestosCriticos.length}</span>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1">Total: {repuestos.length}</span>
           </div>
         </div>
         <Table
@@ -255,23 +257,20 @@ export function FleetInventoryView({ vehiculos, repuestos }: FleetInventoryViewP
 function StatCard({
   titulo,
   valor,
-  icono: Icono,
-  tono
+  icono: Icono
 }: {
   titulo: string;
   valor: number;
   icono: typeof Truck;
-  tono: string;
 }) {
-  const bgClass = tono === "bg-white/10" ? "bg-slate-50" : tono;
   return (
-    <div className={`rounded-2xl border border-slate-200 ${bgClass} p-3`}>
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-3 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">{titulo}</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">{valor}</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{titulo}</p>
+          <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{valor}</p>
         </div>
-        <Icono size={18} className="text-slate-700" />
+        <Icono size={18} className="text-slate-700 dark:text-slate-300" />
       </div>
     </div>
   );

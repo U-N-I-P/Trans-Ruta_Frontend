@@ -71,29 +71,29 @@ export function DocumentVehicularFormModal({ documento, vehiculos, onClose, onSu
 
   return (
     <Modal abierto={true} titulo={documento ? "Editar Documento Vehicular" : "Nuevo Documento Vehicular"} onCerrar={onClose}>
-      {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-lg bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700">Vehículo</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Vehículo</label>
           <select
             {...register("vehiculoId", { valueAsNumber: true })}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
-            <option value="">Selecciona un vehículo</option>
+            <option value="" className="text-slate-500 dark:text-slate-400">Selecciona un vehículo</option>
             {vehiculos.map((vehiculo) => (
               <option key={vehiculo.id} value={vehiculo.id}>
                 {vehiculo.placa} - {vehiculo.tipo}
               </option>
             ))}
           </select>
-          {errors.vehiculoId && <p className="text-sm text-red-600">{errors.vehiculoId.message}</p>}
+          {errors.vehiculoId && <p className="text-sm text-red-600 dark:text-red-400">{errors.vehiculoId.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Tipo de Documento</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Documento</label>
           <select
             {...register("tipo")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="SOAT">SOAT</option>
             <option value="TECNOMECANICA">Tecnomecánica</option>
@@ -101,46 +101,46 @@ export function DocumentVehicularFormModal({ documento, vehiculos, onClose, onSu
             <option value="POLIZA">Póliza</option>
             <option value="TARJETA_OPERACION">Tarjeta de Operación</option>
           </select>
-          {errors.tipo && <p className="text-sm text-red-600">{errors.tipo.message}</p>}
+          {errors.tipo && <p className="text-sm text-red-600 dark:text-red-400">{errors.tipo.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Número</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Número</label>
           <input
             type="text"
             {...register("numero")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-          {errors.numero && <p className="text-sm text-red-600">{errors.numero.message}</p>}
+          {errors.numero && <p className="text-sm text-red-600 dark:text-red-400">{errors.numero.message}</p>}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Fecha de Expedición</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Fecha de Expedición</label>
             <input
               type="date"
               {...register("fechaExpedicion")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {errors.fechaExpedicion && <p className="text-sm text-red-600">{errors.fechaExpedicion.message}</p>}
+            {errors.fechaExpedicion && <p className="text-sm text-red-600 dark:text-red-400">{errors.fechaExpedicion.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Fecha de Vencimiento</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Fecha de Vencimiento</label>
             <input
               type="date"
               {...register("fechaVencimiento")}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
-            {errors.fechaVencimiento && <p className="text-sm text-red-600">{errors.fechaVencimiento.message}</p>}
+            {errors.fechaVencimiento && <p className="text-sm text-red-600 dark:text-red-400">{errors.fechaVencimiento.message}</p>}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Archivo Adjuntado (URL o ruta)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Archivo Adjuntado (URL o ruta)</label>
           <input
             type="text"
             {...register("archivoAdjunto")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="https://..."
           />
         </div>
@@ -149,14 +149,14 @@ export function DocumentVehicularFormModal({ documento, vehiculos, onClose, onSu
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            className="rounded-xl border border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             disabled={loading}
           >
             Cancelar
           </button>
           <button
             type="submit"
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
             disabled={loading}
           >
             {loading ? "Guardando..." : "Guardar"}
