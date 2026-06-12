@@ -103,10 +103,10 @@ export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
   }, [vehiculos]);
 
   const estadoColors: Record<string, string> = {
-    DISPONIBLE: "bg-green-100 text-green-800",
-    EN_RUTA: "bg-blue-100 text-blue-800",
-    EN_MANTENIMIENTO: "bg-yellow-100 text-yellow-800",
-    FUERA_DE_SERVICIO: "bg-red-100 text-red-800"
+    DISPONIBLE: "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10",
+    EN_RUTA: "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10",
+    EN_MANTENIMIENTO: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/30 dark:border-amber-500/10",
+    FUERA_DE_SERVICIO: "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/30 dark:border-red-500/10"
   };
 
   const vehiculosEnRuta = simulatedData.filter(v => v.estado === "EN_RUTA");
@@ -116,36 +116,37 @@ export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Monitoreo GPS</h2>
-        <p className="text-sm text-slate-600">Ubica en tiempo real tus vehículos en ruta</p>
+      {/* Header */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
+        <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Monitoreo GPS</h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Ubica en tiempo real tus vehículos en ruta</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Vehículos en Ruta</p>
-          <p className="text-2xl font-bold text-blue-600">{vehiculosEnRuta.length}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Vehículos en Ruta</p>
+          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{vehiculosEnRuta.length}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Disponibles en Base</p>
-          <p className="text-2xl font-bold text-green-600">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Disponibles en Base</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-emerald-400">
             {simulatedData.filter(v => v.estado === "DISPONIBLE").length}
           </p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Velocidad Promedio Flota</p>
-          <p className="text-2xl font-bold text-slate-900">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Velocidad Promedio Flota</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {velocidadPromedio} km/h
           </p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-2">
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-2 backdrop-blur-sm shadow-sm">
         <div className="flex items-center gap-2 mb-3 px-4 pt-2">
-          <Navigation className="h-5 w-5 text-blue-600" />
-          <p className="font-semibold text-slate-800">Mapa de Rastreo en Vivo (Simulador)</p>
+          <Navigation className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <p className="font-semibold text-slate-800 dark:text-slate-200">Mapa de Rastreo en Vivo (Simulador)</p>
         </div>
-        <div className="w-full h-[500px] rounded-lg overflow-hidden border border-slate-200 relative z-0">
+        <div className="w-full h-[500px] rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 relative z-0">
           <MapContainer 
             center={[4.7110, -74.0721]} 
             zoom={11} 
@@ -160,12 +161,16 @@ export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
               <Marker key={v.id} position={[v.lat, v.lng]}>
                 <Popup>
                   <div className="text-sm">
-                    <p className="font-bold text-base border-b pb-1 mb-1">{v.placa}</p>
-                        {v.ordenCodigo && <p><b>Orden:</b> {v.ordenCodigo}</p>}
-                    <p><b>Tipo:</b> {v.tipo.replace(/_/g, ' ')}</p>
-                    <p><b>Velocidad:</b> {v.velocidad} km/h</p>
-                        <p><b>Progreso:</b> {v.progreso}%</p>
-                    <p><b>Estado:</b> <span className={estadoColors[v.estado] + " px-2 py-0.5 rounded text-xs ml-1"}>{v.estado.replace(/_/g, ' ')}</span></p>
+                    <p className="font-bold text-base border-b pb-1 mb-1 text-slate-900">{v.placa}</p>
+                    {v.ordenCodigo && <p className="text-slate-600"><b>Orden:</b> {v.ordenCodigo}</p>}
+                    <p className="text-slate-600"><b>Tipo:</b> {v.tipo.replace(/_/g, ' ')}</p>
+                    <p className="text-slate-600"><b>Velocidad:</b> {v.velocidad} km/h</p>
+                    <p className="text-slate-600"><b>Progreso:</b> {v.progreso}%</p>
+                    <div className="pt-1">
+                      <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${estadoColors[v.estado]}`}>
+                        {v.estado.replace(/_/g, ' ')}
+                      </span>
+                    </div>
                   </div>
                 </Popup>
               </Marker>
@@ -175,51 +180,51 @@ export function GPSTrackingView({ vehiculos, ordenes }: GPSTrackingViewProps) {
       </div>
 
       <div className="space-y-3">
-        <h3 className="font-semibold text-slate-900">Detalle de Flota Activa</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">Detalle de Flota Activa</h3>
         {simulatedData.length === 0 ? (
-          <p className="text-slate-500">No hay vehículos activos para monitorear.</p>
+          <p className="text-slate-500 dark:text-slate-400">No hay vehículos activos para monitorear.</p>
         ) : (
           simulatedData.map((vehiculo) => (
-            <div key={vehiculo.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+            <div key={vehiculo.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <p className="text-sm text-slate-600">Vehículo</p>
-                  <p className="font-bold text-slate-900">{vehiculo.placa}</p>
-                  <p className="text-xs text-slate-500">{vehiculo.tipo.replace(/_/g, ' ')}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Vehículo</p>
+                  <p className="font-bold text-slate-900 dark:text-slate-100">{vehiculo.placa}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{vehiculo.tipo.replace(/_/g, ' ')}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600">Ubicación GPS</p>
-                  <p className="text-sm font-mono text-slate-700 bg-slate-50 p-1 rounded">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Ubicación GPS</p>
+                  <p className="text-sm font-mono text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/40 p-1.5 rounded">
                     {vehiculo.lat.toFixed(4)}, {vehiculo.lng.toFixed(4)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-600">Velocidad / Estado</p>
-                  <div className="flex flex-col items-start gap-1 mt-1">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Velocidad / Estado</p>
+                  <div className="flex flex-col items-start gap-1.5 mt-1">
                     {vehiculo.estado === "EN_RUTA" ? (
-                      <div className="flex items-center gap-1">
-                        <Zap className={`h-4 w-4 ${vehiculo.velocidad > 80 ? "text-red-600" : "text-blue-600"}`} />
-                        <span className={`font-bold ${vehiculo.velocidad > 80 ? "text-red-600" : "text-blue-600"}`}>
+                      <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+                        <Zap className={`h-4 w-4 ${vehiculo.velocidad > 80 ? "text-red-650 dark:text-red-400" : "text-blue-600 dark:text-blue-400"}`} />
+                        <span className={`font-bold ${vehiculo.velocidad > 80 ? "text-red-650 dark:text-red-400" : ""}`}>
                           {vehiculo.velocidad} km/h
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="font-bold text-green-600">Estacionado</span>
+                      <div className="flex items-center gap-1 text-green-600 dark:text-emerald-400">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="font-bold">Estacionado</span>
                       </div>
                     )}
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${estadoColors[vehiculo.estado]}`}>
+                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${estadoColors[vehiculo.estado]}`}>
                       {vehiculo.estado.replace(/_/g, ' ')}
                     </span>
-                    <p className="text-xs text-slate-500">Progreso estimado: {vehiculo.progreso}%</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Progreso estimado: {vehiculo.progreso}%</p>
                   </div>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <p className="text-xs text-slate-500 mb-1">Última Actualización</p>
-                  <p className="text-sm font-medium text-slate-700">{vehiculo.ultima_actualizacion}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Última Actualización</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{vehiculo.ultima_actualizacion}</p>
                   {vehiculo.velocidad > 80 && (
-                    <div className="mt-2 flex items-center gap-1 text-red-700 bg-red-50 px-2 py-1 rounded">
+                    <div className="mt-2 flex items-center gap-1 text-red-750 dark:text-red-400 bg-red-50 dark:bg-red-950/20 px-2 py-1 rounded border border-red-200 dark:border-red-500/10">
                       <AlertTriangle className="h-3 w-3" />
                       <p className="text-xs font-bold">¡Límite Excedido!</p>
                     </div>

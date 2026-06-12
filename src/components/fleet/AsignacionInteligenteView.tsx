@@ -122,60 +122,60 @@ export function AsignacionInteligenteView({ ordenes, vehiculos, conductores }: A
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Asignación Inteligente</h2>
-        <p className="text-sm text-slate-600">Evaluador y optimizador de recursos asignados a órdenes activas</p>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Asignación Inteligente</h2>
+        <p className="text-sm text-slate-550 dark:text-slate-400">Evaluador y optimizador de recursos asignados a órdenes activas</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Órdenes Evaluadas</p>
-              <p className="text-2xl font-bold text-slate-900">{recomendaciones.length}</p>
+              <p className="text-sm text-slate-550 dark:text-slate-400">Órdenes Evaluadas</p>
+              <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{recomendaciones.length}</p>
             </div>
-            <BarChart3 className="h-8 w-8 text-blue-600" />
+            <BarChart3 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Score Promedio</p>
-              <p className={`text-2xl font-bold ${promediarScore >= 90 ? 'text-green-600' : promediarScore >= 75 ? 'text-yellow-600' : 'text-red-600'}`}>
+              <p className="text-sm text-slate-550 dark:text-slate-400">Score Promedio</p>
+              <p className={`text-2xl font-bold ${promediarScore >= 90 ? 'text-green-600 dark:text-emerald-400' : promediarScore >= 75 ? 'text-yellow-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
                 {promediarScore}%
               </p>
             </div>
-            <Zap className="h-8 w-8 text-yellow-600" />
+            <Zap className="h-8 w-8 text-yellow-600 dark:text-amber-500" />
           </div>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Asignaciones Óptimas</p>
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-sm text-slate-550 dark:text-slate-400">Asignaciones Óptimas</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-emerald-400">
                 {recomendaciones.filter(r => r.score >= 90).length}
               </p>
             </div>
-            <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-emerald-500" />
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
         {recomendaciones.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-500">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-10 text-center text-slate-500 dark:text-slate-400 shadow-sm">
             No hay órdenes recién despachadas para evaluar.
           </div>
         ) : (
           recomendaciones.map((rec) => (
-            <div key={rec.ordenId} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div key={rec.ordenId} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 shadow-sm hover:shadow-md transition-shadow backdrop-blur-sm">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-sm text-slate-500">Orden</p>
-                  <p className="font-bold text-slate-900">{rec.codigoOrden}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Orden</p>
+                  <p className="font-bold text-slate-900 dark:text-slate-100">{rec.codigoOrden}</p>
                 </div>
                 <div className="flex items-end justify-between sm:flex-col sm:items-start">
                   <div>
-                    <p className="text-sm text-slate-500">Score de Asignación actual</p>
+                    <p className="text-sm text-slate-555 dark:text-slate-400">Score de Asignación actual</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`inline-block rounded-full px-3 py-1 text-sm font-bold ${getScoreColor(rec.score)}`}>
                         {rec.score}%
@@ -184,23 +184,23 @@ export function AsignacionInteligenteView({ ordenes, vehiculos, conductores }: A
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Conductor Asignado</p>
-                  <p className="font-semibold text-slate-900">{rec.conductorNombre}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Conductor Asignado</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{rec.conductorNombre}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Vehículo Asignado</p>
-                  <p className="font-semibold text-slate-900">{rec.vehiculoPlaca}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Vehículo Asignado</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{rec.vehiculoPlaca}</p>
                 </div>
                 <div className="sm:col-span-2">
-                  <p className="text-sm font-medium text-slate-700 mb-2">Evaluación de esta asignación:</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Evaluación de esta asignación:</p>
                   <div className="flex flex-wrap gap-2">
                     {rec.razones.map((r, i) => (
                       <span key={i} className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                         r.includes("¡Peligro!") || r.includes("Vencida") 
-                          ? "bg-red-50 text-red-700 border border-red-200" 
+                          ? "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/30 dark:border-red-500/10" 
                           : r.includes("óptima") || r.includes("vigente") || r.includes("norma")
-                            ? "bg-green-50 text-green-700 border border-green-200"
-                            : "bg-blue-50 text-blue-700 border border-blue-200"
+                            ? "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10"
+                            : "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10"
                       }`}>
                         {r}
                       </span>
@@ -211,7 +211,7 @@ export function AsignacionInteligenteView({ ordenes, vehiculos, conductores }: A
                   <button
                     onClick={() => handleAsignar(rec)}
                     disabled={actualizando === rec.ordenId}
-                    className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 font-medium disabled:opacity-50"
+                    className="w-full rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 font-semibold disabled:opacity-50 transition-colors shadow-md shadow-blue-500/10"
                   >
                     {actualizando === rec.ordenId ? "Confirmando..." : "Confirmar Evaluación"}
                   </button>

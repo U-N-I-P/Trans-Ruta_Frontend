@@ -138,6 +138,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [repuestos, setRepuestos] = useState<Repuesto[]>([]);
   const [solicitudesCompra, setSolicitudesCompra] = useState<SolicitudCompra[]>([]);
   const [viaticos, setViaticos] = useState<Viatico[]>([]);
+  const [busquedaGlobal, setBusquedaGlobal] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -297,7 +298,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-slate-50 via-white to-blue-50/30">
+    <div className="min-h-screen bg-gradient-to-tr from-blue-100/80 via-blue-50/50 to-indigo-100/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
       <Sidebar
         colapsado={colapsado}
         movilAbierto={movilAbierto}
@@ -320,6 +321,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           notificaciones={notificaciones}
           onAbrirMovil={() => setMovilAbierto(true)}
           onCerrarSesion={onCerrarSesion}
+          busquedaGlobal={busquedaGlobal}
+          onBusquedaGlobalChange={setBusquedaGlobal}
         />
         <div className="p-4 lg:p-8">
           {error ? (
@@ -347,6 +350,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
+              busquedaExterna={busquedaGlobal}
             />
           ) : vistaActiva === "vehiculos" ? (
             <VehicleListView onActualizar={cargarDatos} />
@@ -383,7 +387,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           ) : vistaActiva === "manifiestos" ? (
             <ManifiestosListView ordenes={ordenes} />
           ) : vistaActiva === "operativo" ? (
-            <ControlOperativoView />
+            <ControlOperativoView conductores={conductoresConDisponibilidad} />
           ) : vistaActiva === "inventario" ? (
             <InventarioRepuestosView />
           ) : vistaActiva === "clientes" ? (
@@ -405,6 +409,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               solicitudesCompra={solicitudesCompra}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
+              busquedaExterna={busquedaGlobal}
             />
           )}
         </div>

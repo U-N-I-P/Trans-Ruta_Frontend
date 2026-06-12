@@ -216,8 +216,8 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Gestión de Viáticos</h2>
-          <p className="text-sm text-slate-600">Asigna presupuestos, registra gastos y liquida cada viaje</p>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Gestión de Viáticos</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Asigna presupuestos, registra gastos y liquida cada viaje</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
@@ -227,7 +227,7 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               setMode("CREAR");
               setShowViaticoForm((prev) => !prev);
             }}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition-colors font-semibold shadow-md shadow-blue-500/10"
           >
             <Plus size={18} />
             Nuevo Viático
@@ -238,7 +238,7 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               resetGastoForm();
               setShowGastoForm((prev) => !prev);
             }}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/80 px-4 py-2 text-slate-750 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold transition-colors shadow-sm"
           >
             <DollarSign size={18} />
             Registrar Gasto
@@ -246,40 +246,40 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
         </div>
       </div>
 
-      {error && <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {error && <div className="rounded-xl border border-red-500/20 bg-red-950/30 p-4 text-xs text-red-400">{error}</div>}
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Asignado</p>
-          <p className="text-2xl font-bold text-slate-900">{money(resumen.asignado)}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Asignado</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{money(resumen.asignado)}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Aprobado</p>
-          <p className="text-2xl font-bold text-blue-600">{money(resumen.aprobado)}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Aprobado</p>
+          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{money(resumen.aprobado)}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Saldo restante</p>
-          <p className="text-2xl font-bold text-green-600">{money(resumen.saldo)}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Saldo restante</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-emerald-400">{money(resumen.saldo)}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-600">Alertas &gt; 90%</p>
-          <p className="text-2xl font-bold text-orange-600">{resumen.alertas}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-4 shadow-sm backdrop-blur-sm">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Alertas &gt; 90%</p>
+          <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{resumen.alertas}</p>
         </div>
       </div>
 
       {showViaticoForm && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <Edit3 className="h-4 w-4" />
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 shadow-sm backdrop-blur-sm">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <Edit3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             {mode === "EDITAR" ? "Editar viático" : "Asignar viático a orden"}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Conductor</span>
               <select
                 value={viaticoForm.conductorId}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, conductorId: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {conductores.map((conductor) => (
                   <option key={conductor.id} value={conductor.id}>
@@ -289,12 +289,12 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               </select>
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Orden de despacho</span>
               <select
                 value={viaticoForm.ordenDeDespachoId}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, ordenDeDespachoId: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {ordenes.map((orden) => (
                   <option key={orden.id} value={orden.id}>
@@ -304,7 +304,7 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               </select>
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Monto</span>
               <input
                 type="number"
@@ -312,26 +312,26 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
                 step="1000"
                 value={viaticoForm.monto}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, monto: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Fecha</span>
               <input
                 type="date"
                 value={viaticoForm.fecha ?? today()}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, fecha: e.target.value }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Estado</span>
               <select
                 value={viaticoForm.estado}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, estado: e.target.value as ViaticoInput["estado"] }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 <option value="PENDIENTE">PENDIENTE</option>
                 <option value="APROBADO">APROBADO</option>
@@ -340,23 +340,23 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               </select>
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700 sm:col-span-2">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300 sm:col-span-2">
               <span className="font-semibold">Descripción</span>
               <textarea
                 value={viaticoForm.descripcion ?? ""}
                 onChange={(e) => setViaticoForm((prev) => ({ ...prev, descripcion: e.target.value }))}
                 rows={3}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="Motivo o detalle del viático"
               />
             </label>
           </div>
 
           <div className="mt-4 flex gap-3">
-            <button type="button" onClick={() => void guardarViatico()} className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            <button type="button" onClick={() => void guardarViatico()} className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition-colors font-semibold shadow-md shadow-blue-500/10">
               Guardar
             </button>
-            <button type="button" onClick={() => setShowViaticoForm(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50">
+            <button type="button" onClick={() => setShowViaticoForm(false)} className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-semibold">
               Cancelar
             </button>
           </div>
@@ -364,18 +364,18 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
       )}
 
       {showGastoForm && (
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
-            <FileText className="h-4 w-4" />
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 shadow-sm backdrop-blur-sm">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             Registrar gasto con evidencia
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Viático</span>
               <select
                 value={gastoForm.viaticoId}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, viaticoId: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {viaticos.map((viatico) => (
                   <option key={viatico.id} value={viatico.id}>
@@ -385,7 +385,7 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               </select>
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Monto</span>
               <input
                 type="number"
@@ -393,16 +393,16 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
                 step="1000"
                 value={gastoForm.monto}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, monto: Number(e.target.value) }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Categoría</span>
               <select
                 value={gastoForm.categoria}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, categoria: e.target.value as GastoViaticInput["categoria"] }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
                 {categoriasValidas.map((categoria) => (
                   <option key={categoria} value={categoria}>
@@ -412,43 +412,42 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
               </select>
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
               <span className="font-semibold">Fecha y hora</span>
               <input
                 type="datetime-local"
                 value={gastoForm.fechaHora ?? nowLocalInput()}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, fechaHora: e.target.value }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700 sm:col-span-2">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300 sm:col-span-2">
               <span className="font-semibold">Descripción</span>
               <textarea
                 value={gastoForm.descripcion}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, descripcion: e.target.value }))}
                 rows={3}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
             </label>
 
-            <label className="space-y-1 text-sm text-slate-700 sm:col-span-2">
+            <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300 sm:col-span-2">
               <span className="font-semibold">Evidencia fotográfica</span>
               <input
                 type="text"
                 value={gastoForm.evidenciaFotografica ?? ""}
                 onChange={(e) => setGastoForm((prev) => ({ ...prev, evidenciaFotografica: e.target.value }))}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="URL o ruta de la imagen"
               />
             </label>
           </div>
-
           <div className="mt-4 flex gap-3">
-            <button type="button" onClick={() => void guardarGasto()} className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            <button type="button" onClick={() => void guardarGasto()} className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition-colors font-semibold shadow-md shadow-blue-500/10">
               Guardar gasto
             </button>
-            <button type="button" onClick={() => setShowGastoForm(false)} className="rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50">
+            <button type="button" onClick={() => setShowGastoForm(false)} className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-semibold">
               Cancelar
             </button>
           </div>
@@ -456,7 +455,7 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
       )}
 
       <div className="space-y-4">
-        {viaticos.length === 0 && <p className="text-slate-500">No hay viáticos registrados.</p>}
+        {viaticos.length === 0 && <p className="text-slate-500 dark:text-slate-400">No hay viáticos registrados.</p>}
 
         {viaticos.map((viatico) => {
           const aprobado = gastoAprobado(viatico.id);
@@ -467,89 +466,109 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
           const listaGastos = gastosByViatico[viatico.id] ?? [];
 
           return (
-            <div key={viatico.id} className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div key={viatico.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 shadow-sm backdrop-blur-sm">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm text-slate-500">Conductor</p>
-                  <p className="font-semibold text-slate-900">{conductor ? `${conductor.nombre} ${conductor.apellido}` : `Conductor #${viatico.conductorId}`}</p>
-                  <p className="text-sm text-slate-600">Orden {orden?.codigo ?? viatico.ordenDeDespachoId}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Conductor</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{conductor ? `${conductor.nombre} ${conductor.apellido}` : `Conductor #${viatico.conductorId}`}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Orden {orden?.codigo ?? viatico.ordenDeDespachoId}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${viatico.estado === "APROBADO" ? "bg-blue-100 text-blue-800" : viatico.estado === "LIQUIDADO" || viatico.estado === "PAGADO" ? "bg-green-100 text-green-800" : "bg-slate-100 text-slate-700"}`}>
+                  <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                    viatico.estado === "APROBADO" 
+                      ? "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10" 
+                      : viatico.estado === "LIQUIDADO" || viatico.estado === "PAGADO" 
+                        ? "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10" 
+                        : "bg-slate-50 text-slate-700 dark:bg-slate-900/40 dark:text-slate-400 border border-slate-200/30 dark:border-slate-800/10"
+                  }`}>
                     {viatico.estado}
                   </span>
-                  <button type="button" onClick={() => startEdit(viatico)} className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  <button 
+                    type="button" 
+                    onClick={() => startEdit(viatico)} 
+                    className="rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  >
                     Editar
                   </button>
                 </div>
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-lg bg-slate-50 p-3">
-                  <p className="text-sm text-slate-500">Asignado</p>
-                  <p className="font-semibold text-slate-900">{money(Number(viatico.monto))}</p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/50 p-3">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Asignado</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{money(Number(viatico.monto))}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-3">
-                  <p className="text-sm text-slate-500">Aprobado</p>
-                  <p className="font-semibold text-blue-600">{money(aprobado)}</p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/50 p-3">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Aprobado</p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{money(aprobado)}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-3">
-                  <p className="text-sm text-slate-500">Saldo</p>
-                  <p className={`font-semibold ${saldo <= 0 ? "text-red-600" : uso >= 90 ? "text-orange-600" : "text-green-600"}`}>{money(saldo)}</p>
+                <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/50 p-3">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Saldo</p>
+                  <p className={`font-semibold ${saldo <= 0 ? "text-red-600 dark:text-red-400" : uso >= 90 ? "text-orange-600 dark:text-orange-400" : "text-green-600 dark:text-emerald-400"}`}>{money(saldo)}</p>
                 </div>
               </div>
 
               <div className="mt-4">
-                <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
+                <div className="mb-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span>Consumo del viático</span>
                   <span>{uso.toFixed(0)}%</span>
                 </div>
-                <div className="h-2 rounded-full bg-slate-200">
+                <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-900">
                   <div className={`h-2 rounded-full ${uso >= 90 ? "bg-red-600" : uso >= 75 ? "bg-orange-500" : "bg-blue-600"}`} style={{ width: `${Math.min(uso, 100)}%` }} />
                 </div>
               </div>
 
               {uso >= 90 && (
-                <div className="mt-4 flex items-center gap-2 rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
-                  <AlertTriangle className="h-4 w-4" />
+                <div className="mt-4 flex items-center gap-2 rounded-lg border border-orange-200/30 dark:border-orange-500/10 bg-orange-50 dark:bg-orange-950/20 p-3 text-sm text-orange-850 dark:text-orange-400">
+                  <AlertTriangle className="h-4 w-4 text-orange-600" />
                   El conductor superó el 90% del viático asignado.
                 </div>
               )}
 
               <div className="mt-5 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-slate-900">Gastos registrados</h3>
-                <button type="button" onClick={() => {
-                  resetGastoForm(viatico.id);
-                  setShowGastoForm(true);
-                }} className="rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Gastos registrados</h3>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    resetGastoForm(viatico.id);
+                    setShowGastoForm(true);
+                  }} 
+                  className="rounded-lg border border-blue-300/30 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 text-xs font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                >
                   Agregar gasto
                 </button>
               </div>
 
               <div className="mt-3 space-y-2">
                 {listaGastos.length === 0 ? (
-                  <p className="text-sm text-slate-500">Aún no hay gastos para este viático.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Aún no hay gastos para este viático.</p>
                 ) : (
                   listaGastos.map((gasto) => (
-                    <div key={gasto.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <div key={gasto.id} className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 p-3">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{gasto.categoria} · {money(Number(gasto.monto))}</p>
-                          <p className="text-xs text-slate-600">{gasto.descripcion}</p>
-                          <p className="mt-1 text-xs text-slate-500">{gasto.fechaHora ? new Date(gasto.fechaHora).toLocaleString("es-CO") : new Date(gasto.createdAt).toLocaleString("es-CO")}</p>
-                          {gasto.evidenciaFotografica && <p className="mt-1 text-xs text-blue-700">Evidencia: {gasto.evidenciaFotografica}</p>}
-                          {gasto.comentariosAdmin && <p className="mt-1 text-xs text-slate-600">Comentarios: {gasto.comentariosAdmin}</p>}
+                          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{gasto.categoria} · {money(Number(gasto.monto))}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-300">{gasto.descripcion}</p>
+                          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{gasto.fechaHora ? new Date(gasto.fechaHora).toLocaleString("es-CO") : new Date(gasto.createdAt).toLocaleString("es-CO")}</p>
+                          {gasto.evidenciaFotografica && <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">Evidencia: {gasto.evidenciaFotografica}</p>}
+                          {gasto.comentariosAdmin && <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">Comentarios: {gasto.comentariosAdmin}</p>}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${gasto.estado === "APROBADO" ? "bg-green-100 text-green-800" : gasto.estado === "RECHAZADO" ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"}`}>
+                          <span className={`rounded-full px-2 py-1 text-[11px] font-semibold ${
+                            gasto.estado === "APROBADO" 
+                              ? "bg-green-50 text-green-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-green-200/30 dark:border-emerald-500/10" 
+                              : gasto.estado === "RECHAZADO" 
+                                ? "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/30 dark:border-red-500/10" 
+                                : "bg-yellow-50 text-yellow-700 dark:bg-amber-950/30 dark:text-amber-400 border border-yellow-200/30 dark:border-amber-500/10"
+                          }`}>
                             {gasto.estado}
                           </span>
                           {gasto.estado === "PENDIENTE" && (
                             <>
-                              <button type="button" onClick={() => void cambiarEstadoGasto(gasto.id, "aprobar")} className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700">
+                              <button type="button" onClick={() => void cambiarEstadoGasto(gasto.id, "aprobar")} className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-500 transition-colors">
                                 Aprobar
                               </button>
-                              <button type="button" onClick={() => void cambiarEstadoGasto(gasto.id, "rechazar")} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">
+                              <button type="button" onClick={() => void cambiarEstadoGasto(gasto.id, "rechazar")} className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500 transition-colors">
                                 Rechazar
                               </button>
                             </>
@@ -561,9 +580,9 @@ export function ViaticosListView({ conductores, ordenes }: ViaticosListViewProps
                 )}
               </div>
 
-              <div className="mt-4 rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700">
-                <div className="flex items-center gap-2 font-semibold text-slate-900">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+              <div className="mt-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-3 text-sm text-slate-750 dark:text-slate-300">
+                <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-100">
+                  <CheckCircle className="h-4 w-4 text-green-600 dark:text-emerald-450" />
                   Liquidación
                 </div>
                 <p className="mt-2">Monto asignado: {money(Number(viatico.monto))}</p>

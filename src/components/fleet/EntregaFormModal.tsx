@@ -168,40 +168,40 @@ export function EntregaFormModal({ abierto, orden, onClose, onSubmit }: EntregaF
   return (
     <Modal abierto={abierto} titulo="Registrar Entrega" onCerrar={onClose}>
       <form className="space-y-4" onSubmit={handleSubmit(submit)}>
-        {error && <div className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+        {error && <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
 
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-900">Orden seleccionada</p>
-          <p className="text-sm text-slate-600">{orden ? `${orden.codigo} - ${orden.origen} → ${orden.destino}` : "Sin orden seleccionada"}</p>
+        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4">
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Orden seleccionada</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">{orden ? `${orden.codigo} - ${orden.origen} → ${orden.destino}` : "Sin orden seleccionada"}</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Fecha de entrega</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Fecha de entrega</label>
           <input
             type="date"
             {...register("fechaEntrega")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
-          {errors.fechaEntrega && <p className="text-sm text-red-600">{errors.fechaEntrega.message}</p>}
+          {errors.fechaEntrega && <p className="text-sm text-red-600 dark:text-red-400">{errors.fechaEntrega.message}</p>}
         </div>
 
         {/* Canvas de firma digital */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
               <PenLine className="h-4 w-4" />
               Firma digital del receptor
             </label>
             <button
               type="button"
               onClick={limpiarCanvas}
-              className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-600 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-450 transition-colors"
             >
               <Trash2 className="h-3 w-3" />
               Limpiar
             </button>
           </div>
-          <div className={`rounded-xl border-2 overflow-hidden ${firmaError ? "border-red-400" : firmaVacia ? "border-dashed border-slate-300" : "border-blue-400"}`}>
+          <div className={`rounded-xl border-2 overflow-hidden ${firmaError ? "border-red-400" : firmaVacia ? "border-dashed border-slate-300 dark:border-slate-700" : "border-blue-400"}`}>
             <canvas
               ref={canvasRef}
               width={480}
@@ -218,48 +218,48 @@ export function EntregaFormModal({ abierto, orden, onClose, onSubmit }: EntregaF
             />
           </div>
           {firmaVacia && !firmaError && (
-            <p className="mt-1 text-xs text-slate-400">Dibuja la firma del receptor en el recuadro de arriba</p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Dibuja la firma del receptor en el recuadro de arriba</p>
           )}
-          {firmaError && <p className="mt-1 text-sm text-red-600">{firmaError}</p>}
-          {!firmaVacia && <p className="mt-1 text-xs text-green-600">✓ Firma capturada</p>}
+          {firmaError && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{firmaError}</p>}
+          {!firmaVacia && <p className="mt-1 text-xs text-green-600 dark:text-green-400">✓ Firma capturada</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Fotografía / evidencia</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Fotografía / evidencia</label>
           <input
             type="text"
             {...register("fotografia")}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="URL o ruta de imagen"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">Observaciones</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Observaciones</label>
           <textarea
             {...register("observaciones")}
             rows={3}
-            className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Comentarios opcionales"
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-slate-700">Latitud</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Latitud</label>
             <input
               type="number" step="any"
               {...register("latitud", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Opcional"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700">Longitud</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Longitud</label>
             <input
               type="number" step="any"
               {...register("longitud", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="mt-1 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               placeholder="Opcional"
             />
           </div>
@@ -267,11 +267,11 @@ export function EntregaFormModal({ abierto, orden, onClose, onSubmit }: EntregaF
 
         <div className="flex justify-end gap-3 pt-2">
           <button type="button" onClick={onClose} disabled={loading}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            className="rounded-xl border border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
             Cancelar
           </button>
           <button type="submit" disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
             <CheckCircle className="h-4 w-4" />
             {loading ? "Registrando..." : "Registrar entrega"}
           </button>

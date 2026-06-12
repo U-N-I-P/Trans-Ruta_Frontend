@@ -239,10 +239,14 @@ export function CreateOrderModal({
     <Modal abierto={abierto} titulo={ordenInicial ? "Editar Orden de Despacho" : "Crear Orden de Despacho"} onCerrar={onCerrar}>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Vehiculo</span>
-            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("vehiculoId")}>
-              <option value="">Seleccione...</option>
+            <select
+              disabled={readOnly}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
+              {...register("vehiculoId")}
+            >
+              <option value="" className="text-slate-500 dark:text-slate-400">Seleccione...</option>
               {vehiculosFormulario.map((vehiculo) => (
                 <option key={vehiculo.id} value={String(vehiculo.id)}>
                   {vehiculo.placa} - {formatearTipoVehiculo(vehiculo.tipo)} ({vehiculo.capacidadCarga} kg)
@@ -250,13 +254,17 @@ export function CreateOrderModal({
                 </option>
               ))}
             </select>
-            {errors.vehiculoId && <p className="text-xs text-red-600">{errors.vehiculoId.message}</p>}
+            {errors.vehiculoId && <p className="text-xs text-red-600 dark:text-red-400">{errors.vehiculoId.message}</p>}
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Conductor</span>
-            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("conductorId")}>
-              <option value="">Seleccione...</option>
+            <select
+              disabled={readOnly}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
+              {...register("conductorId")}
+            >
+              <option value="" className="text-slate-500 dark:text-slate-400">Seleccione...</option>
               {conductoresFormulario.map((conductor) => (
                 <option key={conductor.id} value={String(conductor.id)}>
                   {conductor.nombre} {conductor.apellido} - Lic. {conductor.numeroLicencia}
@@ -264,75 +272,84 @@ export function CreateOrderModal({
                 </option>
               ))}
             </select>
-            {errors.conductorId && <p className="text-xs text-red-600">{errors.conductorId.message}</p>}
+            {errors.conductorId && <p className="text-xs text-red-600 dark:text-red-400">{errors.conductorId.message}</p>}
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Cliente</span>
-            <select disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" {...register("clienteId")}>
-              <option value="">Seleccione...</option>
+            <select
+              disabled={readOnly}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
+              {...register("clienteId")}
+            >
+              <option value="" className="text-slate-500 dark:text-slate-400">Seleccione...</option>
               {clientes.map((cliente) => (
                 <option key={cliente.id} value={String(cliente.id)}>
                   {cliente.nombre}
                 </option>
               ))}
             </select>
-            {errors.clienteId && <p className="text-xs text-red-600">{errors.clienteId.message}</p>}
+            {errors.clienteId && <p className="text-xs text-red-600 dark:text-red-400">{errors.clienteId.message}</p>}
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Origen</span>
             <input
               disabled={readOnly}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
               placeholder="Ciudad o centro logistico"
               {...register("origen")}
             />
-            {errors.origen && <p className="text-xs text-red-600">{errors.origen.message}</p>}
+            {errors.origen && <p className="text-xs text-red-600 dark:text-red-400">{errors.origen.message}</p>}
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Destino</span>
             <input
               disabled={readOnly}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
               placeholder="Ciudad o punto de entrega"
               {...register("destino")}
             />
-            {errors.destino && <p className="text-xs text-red-600">{errors.destino.message}</p>}
+            {errors.destino && <p className="text-xs text-red-600 dark:text-red-400">{errors.destino.message}</p>}
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700 md:col-span-2">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300 md:col-span-2">
             <span className="font-semibold">Descripcion de la carga</span>
             <textarea
               disabled={readOnly}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
               rows={3}
               placeholder="Descripcion opcional de la carga"
               {...register("descripcionCarga")}
             />
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Fecha de salida</span>
-            <input disabled={readOnly} className="w-full rounded-xl border border-slate-300 px-3 py-2" type="date" {...register("fechaSalida")} />
+            <input
+              disabled={readOnly}
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
+              type="date"
+              {...register("fechaSalida")}
+            />
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Fecha estimada de entrega</span>
             <input
               disabled={readOnly}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
               type="date"
               {...register("fechaEntregaEstimada")}
             />
           </label>
 
-          <label className="space-y-1 text-sm text-slate-700">
+          <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
             <span className="font-semibold">Viático asignado (COP)</span>
             <input
               disabled={readOnly}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2"
+              className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
               type="number"
               min="0"
               step="1000"
@@ -342,30 +359,32 @@ export function CreateOrderModal({
           </label>
         </div>
 
-        <label className="space-y-1 text-sm text-slate-700">
+        <label className="space-y-1 text-sm text-slate-700 dark:text-slate-300 block">
           <span className="font-semibold">Peso Carga (kg)</span>
           <input
             disabled={readOnly}
             type="number"
-            className="w-full rounded-xl border border-slate-300 px-3 py-2"
+            className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 px-3 py-2"
             {...register("pesoCarga")}
           />
           {vehiculoSeleccionado && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Capacidad maxima del vehiculo: {vehiculoSeleccionado.capacidadCarga} kg
             </p>
           )}
-          {errors.pesoCarga && <p className="text-xs text-red-600">{errors.pesoCarga.message}</p>}
+          {errors.pesoCarga && <p className="text-xs text-red-600 dark:text-red-400">{errors.pesoCarga.message}</p>}
         </label>
 
-        <section className="rounded-xl border border-slate-200 p-4">
+        <section className="rounded-xl border border-slate-200 dark:border-slate-800 p-4">
           <div className="mb-3 flex items-center justify-between">
-            <p className="font-semibold text-slate-800">Placeholder react-leaflet</p>
+            <p className="font-semibold text-slate-800 dark:text-slate-200">Ubicaciones del Despacho (Mapa)</p>
             <div className="flex gap-2 text-xs">
               <button
                 type="button"
-                className={`rounded-lg px-3 py-1.5 ${
-                  modoMapa === "origen" ? "bg-logistics-800 text-white" : "bg-slate-100 text-slate-600"
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  modoMapa === "origen"
+                    ? "bg-logistics-800 text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
                 onClick={() => setModoMapa("origen")}
               >
@@ -373,8 +392,10 @@ export function CreateOrderModal({
               </button>
               <button
                 type="button"
-                className={`rounded-lg px-3 py-1.5 ${
-                  modoMapa === "destino" ? "bg-logistics-800 text-white" : "bg-slate-100 text-slate-600"
+                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                  modoMapa === "destino"
+                    ? "bg-logistics-800 text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                 }`}
                 onClick={() => setModoMapa("destino")}
               >
@@ -382,11 +403,11 @@ export function CreateOrderModal({
               </button>
             </div>
           </div>
-          <div className="flex h-56 w-full rounded-xl border border-slate-200 overflow-hidden relative z-0 mt-2">
-            <MapContainer 
-              center={[4.7110, -74.0721]} 
-              zoom={10} 
-              scrollWheelZoom={true} 
+          <div className="flex h-56 w-full rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden relative z-0 mt-2">
+            <MapContainer
+              center={[4.7110, -74.0721]}
+              zoom={10}
+              scrollWheelZoom={true}
               style={{ height: '100%', width: '100%' }}
             >
               <TileLayer
@@ -394,7 +415,7 @@ export function CreateOrderModal({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               {!readOnly && <MapClickHandler onMapClick={manejarClickMapa} />}
-              
+
               {coordenadaOrigen && (
                 <Marker position={[coordenadaOrigen.lat, coordenadaOrigen.lng]} />
               )}
@@ -403,7 +424,7 @@ export function CreateOrderModal({
               )}
             </MapContainer>
           </div>
-          <div className="mt-2 grid gap-2 text-xs text-slate-600 md:grid-cols-2">
+          <div className="mt-2 grid gap-2 text-xs text-slate-600 dark:text-slate-400 md:grid-cols-2">
             <p>
               Origen: {coordenadaOrigen ? `${coordenadaOrigen.lat}, ${coordenadaOrigen.lng}` : "No definido"}
             </p>
@@ -413,12 +434,12 @@ export function CreateOrderModal({
           </div>
         </section>
 
-        {errorSubmit && <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{errorSubmit}</p>}
+        {errorSubmit && <p className="rounded-xl bg-red-50 dark:bg-red-950/30 px-3 py-2 text-sm text-red-700 dark:text-red-400">{errorSubmit}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
-            className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600"
+            className="rounded-xl border border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             onClick={onCerrar}
             disabled={isSubmitting}
           >

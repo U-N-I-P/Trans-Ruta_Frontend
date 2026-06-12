@@ -76,12 +76,14 @@ export function DocumentVehicularListView() {
 
   if (loading) {
     return (
-      <div className="text-center py-8 text-gray-500">Cargando documentos vehiculares...</div>
+      <div className="flex h-96 items-center justify-center">
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando documentos vehiculares...</p>
+      </div>
     );
   }
 
   const columnas = [
-    { id: "placa", encabezado: "Vehículo", celda: (doc: DocumentoVehicular) => doc.vehiculo?.placa ?? "-" },
+    { id: "placa", encabezado: "Vehículo", celda: (doc: DocumentoVehicular) => <span className="font-semibold text-slate-900 dark:text-slate-100">{doc.vehiculo?.placa ?? "-"}</span> },
     { id: "tipo", encabezado: "Tipo", celda: (doc: DocumentoVehicular) => doc.tipo },
     { id: "numero", encabezado: "Número", celda: (doc: DocumentoVehicular) => doc.numero },
     {
@@ -92,24 +94,28 @@ export function DocumentVehicularListView() {
     {
       id: "adjunto",
       encabezado: "Adjunto",
-      celda: (doc: DocumentoVehicular) => (doc.archivoAdjunto ? <a href={doc.archivoAdjunto} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">Ver</a> : "-")
+      celda: (doc: DocumentoVehicular) => (doc.archivoAdjunto ? <a href={doc.archivoAdjunto} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Ver</a> : "-")
     },
     {
       id: "acciones",
       encabezado: "Acciones",
       celda: (doc: DocumentoVehicular) => (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={() => handleEditarDocumento(doc)}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-blue-600 hover:bg-blue-50"
+            className="rounded-lg bg-blue-600/10 border border-blue-500/20 px-2.5 py-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400 transition hover:bg-blue-600/20"
+            title="Editar"
           >
-            <Edit2 size={16} />
+            <Edit2 className="h-3.5 w-3.5" />
           </button>
           <button
+            type="button"
             onClick={() => handleEliminarDocumento(doc)}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-red-600 hover:bg-red-50"
+            className="rounded-lg bg-red-600/10 border border-red-500/20 px-2.5 py-1.5 text-xs font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-600/20"
+            title="Eliminar"
           >
-            <Trash2 size={16} />
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       )
@@ -118,45 +124,53 @@ export function DocumentVehicularListView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Documentación Vehicular</h2>
-          <p className="text-sm text-slate-600">Administra los documentos obligatorios y revisa alertas de vencimiento.</p>
+      {/* Header Panel */}
+      <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Documentación Vehicular</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 font-medium">Administra los documentos obligatorios y revisa alertas de vencimiento.</p>
+          </div>
+          <button
+            onClick={handleCrearDocumento}
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+          >
+            <Plus size={18} />
+            Nuevo Documento
+          </button>
         </div>
-        <button
-          onClick={handleCrearDocumento}
-          className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={18} />
-          Nuevo Documento
-        </button>
       </div>
 
-      {error && <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="rounded-xl border border-red-500/20 bg-red-950/30 p-4 text-xs text-red-400">
+          {error}
+        </div>
+      )}
 
+      {/* Alertas */}
       {alertas.length > 0 && (
-        <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+        <div className="rounded-2xl border border-amber-250 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-950/20 p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle size={20} className="text-orange-700" />
+            <AlertTriangle size={20} className="text-amber-700 dark:text-amber-400" />
             <div>
-              <h3 className="font-semibold text-orange-900">Alertas de documentos por vencer</h3>
-              <p className="text-sm text-orange-800">{alertas.length} documento(s) tienen vencimiento en los próximos 30 días.</p>
+              <h3 className="font-semibold text-amber-900 dark:text-amber-200">Alertas de documentos por vencer</h3>
+              <p className="text-sm text-amber-800 dark:text-amber-400">{alertas.length} documento(s) tienen vencimiento en los próximos 30 días.</p>
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {alertas.map((alerta) => (
-              <div key={alerta.id} className="rounded-2xl border border-orange-200 bg-white p-4">
-                <p className="text-sm font-semibold text-slate-900">{alerta.placa}</p>
-                <p className="text-sm text-slate-600">{alerta.tipo}</p>
-                <p className="text-sm text-slate-600">Vence: {new Date(alerta.fechaVencimiento).toLocaleDateString("es-CO")}</p>
-                <p className="text-sm text-slate-600">Faltan: {alerta.diasFaltantes} días</p>
+              <div key={alerta.id} className="rounded-2xl border border-amber-200/20 dark:border-slate-800 bg-white/90 dark:bg-slate-800/80 p-4 shadow-sm">
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{alerta.placa}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{alerta.tipo}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Vence: {new Date(alerta.fechaVencimiento).toLocaleDateString("es-CO")}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Faltan: {alerta.diasFaltantes} días</p>
                 <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                  className={`inline-flex mt-2 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                     alerta.nivelAlerta === "CRITICO"
-                      ? "bg-red-100 text-red-800"
+                      ? "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 border border-red-200/30 dark:border-red-500/10"
                       : alerta.nivelAlerta === "ALERTA"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-blue-100 text-blue-800"
+                      ? "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200/30 dark:border-amber-500/10"
+                      : "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400 border border-blue-200/30 dark:border-blue-500/10"
                   }`}
                 >
                   {alerta.nivelAlerta}
@@ -167,7 +181,10 @@ export function DocumentVehicularListView() {
         </div>
       )}
 
-      <Table columnas={columnas} datos={documentos} claveFila={(doc) => String(doc.id)} estadoVacio="No hay documentos registrados" />
+      {/* Tabla Container */}
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm">
+        <Table columnas={columnas} datos={documentos} claveFila={(doc) => String(doc.id)} estadoVacio="No hay documentos registrados" />
+      </div>
 
       {showFormModal && (
         <DocumentVehicularFormModal
@@ -191,20 +208,20 @@ export function DocumentVehicularListView() {
           }}
         >
           <div className="space-y-4">
-            <p>¿Confirma eliminar el documento {documentoEliminar.numero} del vehículo {documentoEliminar.vehiculo?.placa}?</p>
+            <p className="text-slate-600 dark:text-slate-300">¿Confirma eliminar el documento <strong>{documentoEliminar.numero}</strong> del vehículo <strong>{documentoEliminar.vehiculo?.placa}</strong>?</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDocumentoEliminar(null);
                 }}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleConfirmarEliminar}
-                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
               >
                 Eliminar
               </button>

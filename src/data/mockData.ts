@@ -3,7 +3,6 @@ import {
   NotificacionIncidente,
   OrdenDespacho,
   Repuesto,
-  SolicitudCompra,
   Vehiculo
 } from "../types/domain";
 
@@ -629,7 +628,7 @@ export const repuestosMock: Repuesto[] = [
   { id: 8, nombre: "Amortiguador", referencia: "AMO-FRONT", stockActual: 4, stockMinimo: 6, unidadMedida: "unidad", precio: 195.00, createdAt: "2026-04-18T08:00:00Z", updatedAt: "2026-04-18T08:00:00Z" }
 ];
 
-export const solicitudesCompraMock: SolicitudCompra[] = [
+export const solicitudesCompraMock: any[] = [
   {
     id: 1,
     fecha: "2026-05-20T08:00:00.000Z",
