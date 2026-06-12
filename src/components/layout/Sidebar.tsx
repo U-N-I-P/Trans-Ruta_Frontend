@@ -61,7 +61,7 @@ export function Sidebar({
             <div className="bg-blue-600 rounded-lg p-2 shrink-0 shadow-lg shadow-blue-500/20">
               <Truck size={24} className="text-white" />
             </div>
-            <div className="flex-1 opacity-0 transition-opacity duration-300 group-hover:opacity-100 overflow-hidden whitespace-nowrap">
+            <div className={`flex-1 transition-opacity duration-300 overflow-hidden whitespace-nowrap ${movilAbierto ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
               <p className="font-['Sora'] text-lg font-bold tracking-wide">Trans-Ruta</p>
               <p className="text-[10px] text-blue-300 font-medium uppercase tracking-wider">Centro de Control</p>
             </div>
@@ -71,147 +71,167 @@ export function Sidebar({
         {/* Navigation Modules */}
         <nav className="flex-1 space-y-1.5 px-3 pb-6">
           {/* OPERACIÓN */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">OPERACIÓN</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>OPERACIÓN</p>
           <SidebarItem
             icono={ClipboardList}
             etiqueta="Panel de Control"
             activo={vistaActiva === "panel"}
             onClick={() => onCambiarVista("panel")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={MapPin}
             etiqueta="GPS Rastreo"
             activo={vistaActiva === "gps"}
             onClick={() => onCambiarVista("gps")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Zap}
             etiqueta="Asignación"
             activo={vistaActiva === "asignacion"}
             onClick={() => onCambiarVista("asignacion")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Clock}
             etiqueta="Control Operativo"
             activo={vistaActiva === "operativo"}
             onClick={() => onCambiarVista("operativo")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={CheckCircle}
             etiqueta="Entregas"
             activo={vistaActiva === "entregas"}
             onClick={() => onCambiarVista("entregas")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={AlertCircle}
             etiqueta="Incidentes"
             activo={vistaActiva === "incidentes"}
             onClick={() => onCambiarVista("incidentes")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={FileText}
             etiqueta="Manifiestos"
             activo={vistaActiva === "manifiestos"}
             onClick={() => onCambiarVista("manifiestos")}
+            expanded={movilAbierto}
           />
 
           {/* FLOTA */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">FLOTA</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>FLOTA</p>
           <SidebarItem
             icono={PackageSearch}
             etiqueta="Gestión Flota"
             activo={vistaActiva === "flota"}
             onClick={() => onCambiarVista("flota")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Truck}
             etiqueta="Vehículos"
             activo={vistaActiva === "vehiculos"}
             onClick={() => onCambiarVista("vehiculos")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Users}
             etiqueta="Conductores"
             activo={vistaActiva === "conductores"}
             onClick={() => onCambiarVista("conductores")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={FileText}
             etiqueta="Documentos"
             activo={vistaActiva === "documentos"}
             onClick={() => onCambiarVista("documentos")}
+            expanded={movilAbierto}
           />
 
           {/* MANTENIMIENTO */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">MANTENIMIENTO</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>MANTENIMIENTO</p>
           <SidebarItem
             icono={Wrench}
             etiqueta="Mantenimiento"
             activo={vistaActiva === "mantenimiento"}
             onClick={() => onCambiarVista("mantenimiento")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Package}
             etiqueta="Inventario"
             activo={vistaActiva === "inventario"}
             onClick={() => onCambiarVista("inventario")}
+            expanded={movilAbierto}
           />
 
           {/* FINANZAS */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">FINANZAS</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>FINANZAS</p>
           <SidebarItem
             icono={DollarSign}
             etiqueta="Viáticos"
             activo={vistaActiva === "viaticos"}
             onClick={() => onCambiarVista("viaticos")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Truck}
             etiqueta="Combustible"
             activo={vistaActiva === "combustible"}
             onClick={() => onCambiarVista("combustible")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={ShoppingCart}
             etiqueta="Compras"
             activo={vistaActiva === "compras"}
             onClick={() => onCambiarVista("compras")}
+            expanded={movilAbierto}
           />
 
           {/* REPORTES */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">REPORTES</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>REPORTES</p>
           <SidebarItem
             icono={BarChart3}
             etiqueta="Reportes"
             activo={vistaActiva === "reportes"}
             onClick={() => onCambiarVista("reportes")}
+            expanded={movilAbierto}
           />
 
           {/* ADMINISTRACIÓN */}
-          <div className="h-[1px] bg-slate-800/60 my-2 mx-1 group-hover:hidden" />
-          <p className="text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 hidden group-hover:block transition-all duration-300">ADMINISTRACIÓN</p>
+          <div className={`h-[1px] bg-slate-800/60 my-2 mx-1 ${movilAbierto ? "hidden" : "group-hover:hidden"}`} />
+          <p className={`text-[10px] font-bold tracking-wider text-slate-500 uppercase px-3 mt-4 mb-2 transition-all duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>ADMINISTRACIÓN</p>
           <SidebarItem
             icono={Phone}
             etiqueta="Clientes"
             activo={vistaActiva === "clientes"}
             onClick={() => onCambiarVista("clientes")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Award}
             etiqueta="Evaluación"
             activo={vistaActiva === "evaluacion"}
             onClick={() => onCambiarVista("evaluacion")}
+            expanded={movilAbierto}
           />
           <SidebarItem
             icono={Lock}
             etiqueta="Auditoría"
             activo={vistaActiva === "auditoria"}
             onClick={() => onCambiarVista("auditoria")}
+            expanded={movilAbierto}
           />
         </nav>
 
@@ -224,7 +244,7 @@ export function Sidebar({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <p className="text-[10px] font-medium text-slate-400 group-hover:block hidden transition-opacity duration-300">
+              <p className={`text-[10px] font-medium text-slate-400 transition-opacity duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>
                 Sistema Operativo
               </p>
             </div>
@@ -233,13 +253,13 @@ export function Sidebar({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
               </span>
-              <p className="text-[10px] font-medium text-slate-400 group-hover:block hidden transition-opacity duration-300">
+              <p className={`text-[10px] font-medium text-slate-400 transition-opacity duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>
                 GPS Conectado
               </p>
             </div>
             <div className="flex items-center gap-2">
               <ShieldCheck size={8} className="text-blue-500" />
-              <p className="text-[9px] font-medium text-slate-500 group-hover:block hidden transition-opacity duration-300">
+              <p className={`text-[9px] font-medium text-slate-500 transition-opacity duration-300 ${movilAbierto ? "block" : "hidden group-hover:block"}`}>
                 Sincronizado: 100%
               </p>
             </div>
@@ -251,7 +271,7 @@ export function Sidebar({
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/35 text-xs font-semibold text-blue-300 border border-blue-500/20" title={usuario.nombre}>
                 {getInitials(usuario.nombre)}
               </div>
-              <div className="flex-1 overflow-hidden group-hover:block hidden">
+              <div className={`flex-1 overflow-hidden ${movilAbierto ? "block" : "hidden group-hover:block"}`}>
                 <p className="truncate text-xs font-semibold text-slate-200">{usuario.nombre}</p>
                 <p className="truncate text-[9px] text-slate-500 uppercase tracking-wider font-bold">{usuario.rol}</p>
               </div>

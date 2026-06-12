@@ -5,9 +5,10 @@ interface SidebarItemProps {
   etiqueta: string;
   activo?: boolean;
   onClick: () => void;
+  expanded?: boolean;
 }
 
-export function SidebarItem({ icono: Icono, etiqueta, activo, onClick }: SidebarItemProps) {
+export function SidebarItem({ icono: Icono, etiqueta, activo, onClick, expanded }: SidebarItemProps) {
   return (
     <button
       className={`group/item relative flex w-full items-center gap-4 rounded-xl px-3 py-3 text-sm font-semibold transition-all duration-300 overflow-hidden ${
@@ -28,7 +29,7 @@ export function SidebarItem({ icono: Icono, etiqueta, activo, onClick }: Sidebar
         <Icono size={20} strokeWidth={activo ? 2.5 : 2} />
       </div>
       
-      <span className="opacity-0 transition-opacity duration-300 group-hover:opacity-100 whitespace-nowrap tracking-wide">
+      <span className={`transition-opacity duration-300 whitespace-nowrap tracking-wide ${expanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
         {etiqueta}
       </span>
     </button>
