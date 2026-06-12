@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X } from "lucide-react";
+import axios from "axios";
 import { Conductor, ConductorInput } from "../../types/domain";
 import { crearConductor, actualizarConductor } from "../../services/conductor.service";
 
@@ -78,7 +79,23 @@ export function ConductorFormModal({ conductor, onClose, onSuccess }: ConductorF
       reset();
       onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al guardar conductor");
+      if (axios.isAxiosError(err)) {
+        const responseData = err.response?.data as
+          | { message?: string; errors?: { field: string; message: string }[] }
+          | undefined;
+
+        if (responseData?.errors?.length) {
+          setError(responseData.errors.map((e) => `${e.field}: ${e.message}`).join(" | "));
+        } else if (responseData?.message) {
+          setError(responseData.message);
+        } else {
+          setError(err.message);
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Error al guardar conductor");
+      }
     } finally {
       setLoading(false);
     }
