@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ClipboardList, PackageSearch, Truck, Users, FileText, AlertCircle, DollarSign, BarChart3, Lock, Zap, Wrench, CheckCircle, Award, MapPin, ShoppingCart, Clock, Package, Phone, ShieldCheck } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
+import { obtenerVistasPermitidas } from "../../services/rbac";
 
 export type VistaPrincipal = "panel" | "flota" | "vehiculos" | "conductores" | "documentos" | "mantenimiento" | "entregas" | "ordenes" | "incidentes" | "viaticos" | "combustible" | "asignacion" | "evaluacion" | "compras" | "gps" | "manifiestos" | "operativo" | "inventario" | "clientes" | "reportes" | "auditoria";
 
@@ -18,36 +19,6 @@ interface UserData {
   correo: string;
   rol: string;
 }
-
-const VISTAS_POR_ROL: Record<string, string[]> = {
-  ADMINISTRADOR: [
-    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
-    "flota", "vehiculos", "conductores", "documentos",
-    "mantenimiento", "inventario",
-    "viaticos", "combustible", "compras",
-    "reportes", "clientes", "evaluacion", "auditoria"
-  ],
-  DESPACHADOR: [
-    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
-    "flota", "vehiculos", "conductores", "documentos",
-    "reportes", "clientes", "evaluacion"
-  ],
-  CONDUCTOR: [
-    "entregas", "incidentes", "viaticos", "combustible"
-  ],
-  JEFE_TALLER: [
-    "mantenimiento", "inventario", "vehiculos", "documentos", "combustible", "compras", "incidentes"
-  ],
-  GESTOR_INVENTARIO: [
-    "inventario", "compras"
-  ],
-  AUDITOR: [
-    "auditoria", "panel", "gps", "manifiestos", "incidentes", "viaticos", "combustible", "reportes"
-  ],
-  CLIENTE: [
-    "clientes"
-  ]
-};
 
 export function Sidebar({
   colapsado: _colapsado,
@@ -71,8 +42,8 @@ export function Sidebar({
   }, []);
 
   const rol = usuario?.rol || "ADMINISTRADOR";
-  const vistasPermitidas = VISTAS_POR_ROL[rol] || VISTAS_POR_ROL["ADMINISTRADOR"];
-  const esPermitido = (vista: string) => vistasPermitidas.includes(vista);
+  const vistasPermitidas = obtenerVistasPermitidas(rol);
+  const esPermitido = (vista: string) => vistasPermitidas.includes(vista as VistaPrincipal);
 
   const tieneOperacion = ["panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos"].some(esPermitido);
   const tieneFlota = ["flota", "vehiculos", "conductores", "documentos"].some(esPermitido);

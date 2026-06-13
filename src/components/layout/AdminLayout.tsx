@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { obtenerRolUsuario, recursosPanelPorRol, vistaInicialPorRol, vistaPermitidaParaRol } from "../../services/rbac";
 import { DashboardView } from "../dashboard/DashboardView";
 import { FleetInventoryView } from "../fleet/FleetInventoryView";
 import { VehicleListView } from "../fleet/VehicleListView";
@@ -87,60 +88,21 @@ function adaptarNotificacionesParaTopbar(notificaciones: Notificacion[]): Notifi
   }));
 }
 
-const VISTAS_POR_ROL: Record<string, VistaPrincipal[]> = {
-  ADMINISTRADOR: [
-    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
-    "flota", "vehiculos", "conductores", "documentos",
-    "mantenimiento", "inventario",
-    "viaticos", "combustible", "compras",
-    "reportes", "clientes", "evaluacion", "auditoria"
-  ],
-  DESPACHADOR: [
-    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
-    "flota", "vehiculos", "conductores", "documentos",
-    "reportes", "clientes", "evaluacion"
-  ],
-  CONDUCTOR: [
-    "entregas", "incidentes", "viaticos", "combustible"
-  ],
-  JEFE_TALLER: [
-    "mantenimiento", "inventario", "vehiculos", "documentos", "combustible", "compras", "incidentes"
-  ],
-  GESTOR_INVENTARIO: [
-    "inventario", "compras"
-  ],
-  AUDITOR: [
-    "auditoria", "panel", "gps", "manifiestos", "incidentes", "viaticos", "combustible", "reportes"
-  ],
-  CLIENTE: [
-    "clientes"
-  ]
-};
-
 export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [colapsado, setColapsado] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
   const STORAGE_KEY = "transruta:vistaActiva";
 
   const [vistaActiva, setVistaActiva] = useState<VistaPrincipal>(() => {
-    let userRol = "ADMINISTRADOR";
-    try {
-      const raw = localStorage.getItem("trans_ruta_usuario");
-      if (raw) {
-        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
-      }
-    } catch {}
-
-    const vistasPermitidas = VISTAS_POR_ROL[userRol] || VISTAS_POR_ROL["ADMINISTRADOR"];
-
+    const rol = obtenerRolUsuario();
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved && vistasPermitidas.includes(saved as VistaPrincipal)) {
-        return saved as VistaPrincipal;
+      if (saved) {
+        return vistaPermitidaParaRol(rol, saved as VistaPrincipal);
       }
     } catch {}
 
-    return vistasPermitidas[0] || "panel";
+    return vistaInicialPorRol(rol);
   });
 
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
@@ -165,26 +127,18 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
     setIsLoading(true);
     setError(null);
 
-    let userRol = "ADMINISTRADOR";
-    try {
-      const raw = localStorage.getItem("trans_ruta_usuario");
-      console.log("DEBUG: raw user storage:", raw);
-      if (raw) {
-        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
-      }
-    } catch (e) {
-      console.error("DEBUG: failed to parse user storage:", e);
-    }
-    console.log("DEBUG: resolved role:", userRol);
+    const rol = obtenerRolUsuario();
+    const recursos = recursosPanelPorRol(rol);
+    console.log("DEBUG: resolved role:", rol, "recursos:", recursos);
 
-    const canFetchVehiculos = ["ADMINISTRADOR", "DESPACHADOR", "JEFE_TALLER"].includes(userRol);
-    const canFetchConductores = ["ADMINISTRADOR", "DESPACHADOR"].includes(userRol);
-    const canFetchClientes = ["ADMINISTRADOR", "DESPACHADOR", "CLIENTE"].includes(userRol);
-    const canFetchOrdenes = ["ADMINISTRADOR", "DESPACHADOR", "CONDUCTOR", "AUDITOR"].includes(userRol);
-    const canFetchNotificaciones = ["ADMINISTRADOR", "CLIENTE"].includes(userRol);
-    const canFetchViaticos = ["ADMINISTRADOR", "DESPACHADOR", "CONDUCTOR"].includes(userRol);
-    const canFetchRepuestos = ["ADMINISTRADOR", "JEFE_TALLER", "GESTOR_INVENTARIO"].includes(userRol);
-    const canFetchSolicitudes = ["ADMINISTRADOR", "GESTOR_INVENTARIO", "JEFE_TALLER"].includes(userRol);
+    const canFetchVehiculos = recursos.includes("vehiculos");
+    const canFetchConductores = recursos.includes("conductores");
+    const canFetchClientes = recursos.includes("clientes");
+    const canFetchOrdenes = recursos.includes("ordenes-despacho");
+    const canFetchNotificaciones = recursos.includes("notificaciones");
+    const canFetchViaticos = recursos.includes("viaticos");
+    const canFetchRepuestos = recursos.includes("repuestos");
+    const canFetchSolicitudes = recursos.includes("solicitudes-compra");
 
     try {
       const results = await Promise.allSettled([
@@ -332,16 +286,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   };
 
   const handleCambiarVista = (vista: VistaPrincipal) => {
-    let userRol = "ADMINISTRADOR";
-    try {
-      const raw = localStorage.getItem("trans_ruta_usuario");
-      if (raw) {
-        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
-      }
-    } catch {}
-
-    const vistasPermitidas = VISTAS_POR_ROL[userRol] || VISTAS_POR_ROL["ADMINISTRADOR"];
-    if (!vistasPermitidas.includes(vista)) {
+    const rol = obtenerRolUsuario();
+    if (vistaPermitidaParaRol(rol, vista) !== vista) {
       return;
     }
 
