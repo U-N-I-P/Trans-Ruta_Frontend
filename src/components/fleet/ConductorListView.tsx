@@ -8,9 +8,10 @@ import { ConductorFormModal } from "./ConductorFormModal";
 interface ConductorListViewProps {
   onActualizar?: () => void;
   busquedaExterna?: string;
+  busquedaGlobal?: string;
 }
 
-export function ConductorListView({ onActualizar, busquedaExterna }: ConductorListViewProps) {
+export function ConductorListView({ onActualizar, busquedaExterna, busquedaGlobal = "" }: ConductorListViewProps) {
   const [conductores, setConductores] = useState<Conductor[]>([]);
   const [licenciasPorVencer, setLicenciasPorVencer] = useState<Conductor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,12 +23,13 @@ export function ConductorListView({ onActualizar, busquedaExterna }: ConductorLi
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
-    if (busquedaExterna !== undefined) {
-      setBusqueda(busquedaExterna);
+    const ext = busquedaExterna ?? busquedaGlobal;
+    if (ext !== undefined) {
+      setBusqueda(ext);
     }
-  }, [busquedaExterna]);
+  }, [busquedaExterna, busquedaGlobal]);
 
-  const busquedaActiva = busquedaExterna ?? busqueda;
+  const busquedaActiva = busquedaExterna ?? (busquedaGlobal || busqueda);
 
   const cargarDatos = async () => {
     try {
@@ -88,18 +90,6 @@ export function ConductorListView({ onActualizar, busquedaExterna }: ConductorLi
 
   const getNombreCompleto = (conductor: Conductor) => `${conductor.nombre} ${conductor.apellido}`;
 
-  const conductoresFiltrados = useMemo(() => {
-    const termino = busquedaActiva.trim().toLowerCase();
-    if (!termino) return conductores;
-
-    return conductores.filter((conductor) =>
-      getNombreCompleto(conductor).toLowerCase().includes(termino) ||
-      conductor.cedula.toLowerCase().includes(termino) ||
-      conductor.numeroLicencia.toLowerCase().includes(termino) ||
-      conductor.categoriaLicencia.toLowerCase().includes(termino)
-    );
-  }, [conductores, busquedaActiva]);
-
   const getLicenciaEstado = (conductor: Conductor) => {
     if (conductor.licenciaVencida) {
       return { color: "text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/10", bg: "bg-red-50 dark:bg-red-950/20", label: "Vencida" };
@@ -113,8 +103,24 @@ export function ConductorListView({ onActualizar, busquedaExterna }: ConductorLi
     if (conductor.diasParaVencimiento <= 30) {
       return { color: "text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/10", bg: "bg-blue-50 dark:bg-blue-950/20", label: "Próxima" };
     }
-    return { color: "text-green-700 dark:text-emerald-400 border border-green-200 dark:border-emerald-500/10", bg: "bg-green-50 dark:bg-emerald-950/20", label: "Vigente" };
+    return { color: "text-green-700 dark:text-emerald-400 border border-green-200 dark:emerald-500/10", bg: "bg-green-50 dark:bg-emerald-950/20", label: "Vigente" };
   };
+
+  const conductoresFiltrados = useMemo(() => {
+    const termino = busquedaActiva.trim().toLowerCase();
+    if (termino.length === 0) return conductores;
+    return conductores.filter((conductor) => {
+      const nombreCompleto = `${conductor.nombre} ${conductor.apellido}`.toLowerCase();
+      return (
+        conductor.nombre.toLowerCase().includes(termino) ||
+        conductor.apellido.toLowerCase().includes(termino) ||
+        nombreCompleto.includes(termino) ||
+        conductor.cedula.toLowerCase().includes(termino) ||
+        conductor.numeroLicencia.toLowerCase().includes(termino) ||
+        conductor.categoriaLicencia.toLowerCase().includes(termino)
+      );
+    });
+  }, [conductores, busquedaActiva]);
 
   if (loading) {
     return (

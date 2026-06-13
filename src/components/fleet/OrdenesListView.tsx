@@ -24,9 +24,10 @@ interface OrdenesListViewProps {
   viaticos: Viatico[];
   onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
   onActualizar: () => Promise<void>;
+  busquedaGlobal?: string;
 }
 
-export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, viaticos, onCrearOrden, onActualizar }: OrdenesListViewProps) {
+export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, viaticos, onCrearOrden, onActualizar, busquedaGlobal = "" }: OrdenesListViewProps) {
   const [abrirModalNuevaOrden, setAbrirModalNuevaOrden] = useState(false);
   const [ordenEnEdicion, setOrdenEnEdicion] = useState<any | null>(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
@@ -44,6 +45,22 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, via
         fecha: o.createdAt || new Date().toISOString()
       })) || [],
     [ordenes]
+  );
+
+  const ordenesListFiltradas = useMemo<Orden[]>(
+    () => {
+      const termino = busquedaGlobal.trim().toLowerCase();
+      if (termino.length === 0) return ordenesList;
+      return ordenesList.filter((orden) => {
+        return (
+          orden.codigo.toLowerCase().includes(termino) ||
+          orden.cliente.toLowerCase().includes(termino) ||
+          orden.origen.toLowerCase().includes(termino) ||
+          orden.destino.toLowerCase().includes(termino)
+        );
+      });
+    },
+    [ordenesList, busquedaGlobal]
   );
 
   const manejarEliminar = async (id: number) => {
@@ -175,8 +192,8 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, via
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-            {ordenesList.length > 0 ? (
-              ordenesList.map((orden) => (
+            {ordenesListFiltradas.length > 0 ? (
+              ordenesListFiltradas.map((orden) => (
                 <tr key={orden.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                   <td className="px-6 py-3 font-medium text-slate-900 dark:text-slate-100">{orden.codigo}</td>
                   <td className="px-6 py-3">{orden.cliente}</td>
@@ -220,7 +237,9 @@ export function OrdenesListView({ ordenes, vehiculos, conductores, clientes, via
             ) : (
               <tr>
                 <td colSpan={7} className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
-                  No hay órdenes registradas
+                  {busquedaGlobal.trim().length > 0
+                    ? "No se encontraron órdenes que coincidan con la búsqueda."
+                    : "No hay órdenes registradas"}
                 </td>
               </tr>
             )}
