@@ -25,12 +25,12 @@ const VISTAS_POR_ROL: Record<string, string[]> = {
     "flota", "vehiculos", "conductores", "documentos",
     "mantenimiento", "inventario",
     "viaticos", "combustible", "compras",
-    "reportes", "clientes", "evaluacion", "auditoria"
+    "reportes", "clientes", "evaluacion", "auditoria", "equipos"
   ],
   DESPACHADOR: [
     "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
     "flota", "vehiculos", "conductores", "documentos",
-    "reportes", "clientes", "evaluacion"
+    "reportes", "clientes", "evaluacion", "equipos"
   ],
   CONDUCTOR: [
     "entregas", "incidentes", "viaticos", "combustible"
