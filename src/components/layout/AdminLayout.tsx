@@ -87,47 +87,60 @@ function adaptarNotificacionesParaTopbar(notificaciones: Notificacion[]): Notifi
   }));
 }
 
+const VISTAS_POR_ROL: Record<string, VistaPrincipal[]> = {
+  ADMINISTRADOR: [
+    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
+    "flota", "vehiculos", "conductores", "documentos",
+    "mantenimiento", "inventario",
+    "viaticos", "combustible", "compras",
+    "reportes", "clientes", "evaluacion", "auditoria"
+  ],
+  DESPACHADOR: [
+    "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
+    "flota", "vehiculos", "conductores", "documentos",
+    "reportes", "clientes", "evaluacion"
+  ],
+  CONDUCTOR: [
+    "entregas", "incidentes", "viaticos", "combustible"
+  ],
+  JEFE_TALLER: [
+    "mantenimiento", "inventario", "vehiculos", "documentos", "combustible", "compras", "incidentes"
+  ],
+  GESTOR_INVENTARIO: [
+    "inventario", "compras"
+  ],
+  AUDITOR: [
+    "auditoria", "panel", "gps", "manifiestos", "incidentes", "viaticos", "combustible", "reportes"
+  ],
+  CLIENTE: [
+    "clientes"
+  ]
+};
+
 export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
   const [colapsado, setColapsado] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
   const STORAGE_KEY = "transruta:vistaActiva";
 
-  const validarVista = (v: string | null): VistaPrincipal => {
-    const opciones: VistaPrincipal[] = [
-      "panel",
-      "flota",
-      "vehiculos",
-      "conductores",
-      "documentos",
-      "mantenimiento",
-      "entregas",
-      "ordenes",
-      "incidentes",
-      "viaticos",
-      "combustible",
-      "asignacion",
-      "evaluacion",
-      "compras",
-      "gps",
-      "manifiestos",
-      "operativo",
-      "inventario",
-      "clientes",
-      "reportes",
-      "auditoria"
-    ];
-
-    if (!v) return "panel";
-    return opciones.includes(v as VistaPrincipal) ? (v as VistaPrincipal) : "panel";
-  };
-
   const [vistaActiva, setVistaActiva] = useState<VistaPrincipal>(() => {
+    let userRol = "ADMINISTRADOR";
+    try {
+      const raw = localStorage.getItem("trans_ruta_usuario");
+      if (raw) {
+        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
+      }
+    } catch {}
+
+    const vistasPermitidas = VISTAS_POR_ROL[userRol] || VISTAS_POR_ROL["ADMINISTRADOR"];
+
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return validarVista(saved);
-    } catch (err) {
-      return "panel";
-    }
+      if (saved && vistasPermitidas.includes(saved as VistaPrincipal)) {
+        return saved as VistaPrincipal;
+      }
+    } catch {}
+
+    return vistasPermitidas[0] || "panel";
   });
 
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
@@ -152,16 +165,37 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
     setIsLoading(true);
     setError(null);
 
+    let userRol = "ADMINISTRADOR";
+    try {
+      const raw = localStorage.getItem("trans_ruta_usuario");
+      console.log("DEBUG: raw user storage:", raw);
+      if (raw) {
+        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
+      }
+    } catch (e) {
+      console.error("DEBUG: failed to parse user storage:", e);
+    }
+    console.log("DEBUG: resolved role:", userRol);
+
+    const canFetchVehiculos = ["ADMINISTRADOR", "DESPACHADOR", "JEFE_TALLER"].includes(userRol);
+    const canFetchConductores = ["ADMINISTRADOR", "DESPACHADOR"].includes(userRol);
+    const canFetchClientes = ["ADMINISTRADOR", "DESPACHADOR", "CLIENTE"].includes(userRol);
+    const canFetchOrdenes = ["ADMINISTRADOR", "DESPACHADOR", "CONDUCTOR", "AUDITOR"].includes(userRol);
+    const canFetchNotificaciones = ["ADMINISTRADOR", "CLIENTE"].includes(userRol);
+    const canFetchViaticos = ["ADMINISTRADOR", "DESPACHADOR", "CONDUCTOR"].includes(userRol);
+    const canFetchRepuestos = ["ADMINISTRADOR", "JEFE_TALLER", "GESTOR_INVENTARIO"].includes(userRol);
+    const canFetchSolicitudes = ["ADMINISTRADOR", "GESTOR_INVENTARIO", "JEFE_TALLER"].includes(userRol);
+
     try {
       const results = await Promise.allSettled([
-        withTimeout(obtenerVehiculos(), "vehiculos"),
-        withTimeout(obtenerConductores(), "conductores"),
-        withTimeout(obtenerClientes(), "clientes"),
-        withTimeout(obtenerOrdenesDespacho(), "ordenes-despacho"),
-        withTimeout(obtenerNotificaciones(), "notificaciones"),
-        withTimeout(obtenerViaticos(), "viaticos"),
-        withTimeout(obtenerRepuestos(), "repuestos"),
-        withTimeout(obtenerSolicitudesCompra(), "solicitudes-compra")
+        canFetchVehiculos ? withTimeout(obtenerVehiculos(), "vehiculos") : Promise.resolve([]),
+        canFetchConductores ? withTimeout(obtenerConductores(), "conductores") : Promise.resolve([]),
+        canFetchClientes ? withTimeout(obtenerClientes(), "clientes") : Promise.resolve([]),
+        canFetchOrdenes ? withTimeout(obtenerOrdenesDespacho(), "ordenes-despacho") : Promise.resolve([]),
+        canFetchNotificaciones ? withTimeout(obtenerNotificaciones(), "notificaciones") : Promise.resolve([]),
+        canFetchViaticos ? withTimeout(obtenerViaticos(), "viaticos") : Promise.resolve([]),
+        canFetchRepuestos ? withTimeout(obtenerRepuestos(), "repuestos") : Promise.resolve([]),
+        canFetchSolicitudes ? withTimeout(obtenerSolicitudesCompra(), "solicitudes-compra") : Promise.resolve([])
       ]);
 
       const fallos: string[] = [];
@@ -170,56 +204,56 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
         setVehiculos(results[0].value);
       } else {
         setVehiculos([]);
-        fallos.push("vehiculos");
+        if (canFetchVehiculos) fallos.push("vehiculos");
       }
 
       if (results[1].status === "fulfilled") {
         setConductores(results[1].value);
       } else {
         setConductores([]);
-        fallos.push("conductores");
+        if (canFetchConductores) fallos.push("conductores");
       }
 
       if (results[2].status === "fulfilled") {
         setClientes(results[2].value);
       } else {
         setClientes([]);
-        fallos.push("clientes");
+        if (canFetchClientes) fallos.push("clientes");
       }
 
       if (results[3].status === "fulfilled") {
         setOrdenes(results[3].value);
       } else {
         setOrdenes([]);
-        fallos.push("ordenes-despacho");
+        if (canFetchOrdenes) fallos.push("ordenes-despacho");
       }
 
       if (results[4].status === "fulfilled") {
         setNotificacionesBackend(results[4].value);
       } else {
         setNotificacionesBackend([]);
-        fallos.push("notificaciones");
+        if (canFetchNotificaciones) fallos.push("notificaciones");
       }
 
       if (results[5].status === "fulfilled") {
         setViaticos(results[5].value);
       } else {
         setViaticos([]);
-        fallos.push("viaticos");
+        if (canFetchViaticos) fallos.push("viaticos");
       }
 
       if (results[6].status === "fulfilled") {
         setRepuestos(results[6].value);
       } else {
         setRepuestos([]);
-        fallos.push("repuestos");
+        if (canFetchRepuestos) fallos.push("repuestos");
       }
 
       if (results[7].status === "fulfilled") {
         setSolicitudesCompra(results[7].value);
       } else {
         setSolicitudesCompra([]);
-        fallos.push("solicitudes-compra");
+        if (canFetchSolicitudes) fallos.push("solicitudes-compra");
       }
 
       if (fallos.length > 0) {
@@ -297,23 +331,38 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
     return orden;
   };
 
+  const handleCambiarVista = (vista: VistaPrincipal) => {
+    let userRol = "ADMINISTRADOR";
+    try {
+      const raw = localStorage.getItem("trans_ruta_usuario");
+      if (raw) {
+        userRol = JSON.parse(raw).rol || "ADMINISTRADOR";
+      }
+    } catch {}
+
+    const vistasPermitidas = VISTAS_POR_ROL[userRol] || VISTAS_POR_ROL["ADMINISTRADOR"];
+    if (!vistasPermitidas.includes(vista)) {
+      return;
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEY, vista);
+    } catch (err) {
+      // ignore
+    }
+    setVistaActiva(vista);
+    setMovilAbierto(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-blue-100/80 via-blue-50/50 to-indigo-100/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-tr from-blue-200/70 via-blue-100/50 to-indigo-200/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
       <Sidebar
         colapsado={colapsado}
         movilAbierto={movilAbierto}
         vistaActiva={vistaActiva}
         onCerrarMovil={() => setMovilAbierto(false)}
         onAlternarColapsado={() => setColapsado((prev) => !prev)}
-        onCambiarVista={(vista) => {
-          try {
-            localStorage.setItem(STORAGE_KEY, vista);
-          } catch (err) {
-            // ignore
-          }
-          setVistaActiva(vista);
-          setMovilAbierto(false);
-        }}
+        onCambiarVista={handleCambiarVista}
       />
 
       <main className={`transition-all duration-300 ${margenContenido} max-w-full overflow-x-hidden`}>
@@ -323,6 +372,10 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
           onCerrarSesion={onCerrarSesion}
           busquedaGlobal={busquedaGlobal}
           onBusquedaGlobalChange={setBusquedaGlobal}
+          vehiculos={vehiculos}
+          conductores={conductores}
+          ordenes={ordenes}
+          onCambiarVista={handleCambiarVista}
         />
         <div className="p-4 lg:p-8">
           {error ? (
@@ -351,13 +404,14 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
               busquedaExterna={busquedaGlobal}
+              onBusquedaExternaChange={setBusquedaGlobal}
             />
           ) : vistaActiva === "vehiculos" ? (
-            <VehicleListView onActualizar={cargarDatos} />
+            <VehicleListView onActualizar={cargarDatos} busquedaGlobal={busquedaGlobal} />
           ) : vistaActiva === "conductores" ? (
-            <ConductorListView onActualizar={cargarDatos} />
+            <ConductorListView onActualizar={cargarDatos} busquedaGlobal={busquedaGlobal} />
           ) : vistaActiva === "documentos" ? (
-            <DocumentVehicularListView />
+            <DocumentVehicularListView busquedaGlobal={busquedaGlobal} />
           ) : vistaActiva === "ordenes" ? (
             <OrdenesListView
               ordenes={ordenes}
@@ -367,11 +421,12 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               viaticos={viaticos}
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
+              busquedaGlobal={busquedaGlobal}
             />
           ) : vistaActiva === "mantenimiento" ? (
             <MantenimientoListView vehiculos={vehiculos} />
           ) : vistaActiva === "entregas" ? (
-            <EntregasListView ordenes={ordenes} onActualizar={cargarDatos} />
+            <EntregasListView ordenes={ordenes} onActualizar={cargarDatos} busquedaGlobal={busquedaGlobal} />
           ) : vistaActiva === "combustible" ? (
             <CombustibleListView vehiculos={vehiculos} ordenes={ordenes} />
           ) : vistaActiva === "viaticos" ? (
@@ -410,6 +465,7 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               onCrearOrden={crearOrden}
               onActualizar={cargarDatos}
               busquedaExterna={busquedaGlobal}
+              onBusquedaExternaChange={setBusquedaGlobal}
             />
           )}
         </div>

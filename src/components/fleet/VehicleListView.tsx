@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trash2, Edit2, Plus } from "lucide-react";
 import { Vehiculo } from "../../types/domain";
 import { obtenerVehiculos, eliminarVehiculo } from "../../services/vehiculo.service";
@@ -7,9 +7,10 @@ import { VehicleFormModal } from "./VehicleFormModal";
 
 interface VehicleListViewProps {
   onActualizar?: () => void;
+  busquedaGlobal?: string;
 }
 
-export function VehicleListView({ onActualizar }: VehicleListViewProps) {
+export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleListViewProps) {
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +91,19 @@ export function VehicleListView({ onActualizar }: VehicleListViewProps) {
     return tipos[tipo] || tipo;
   };
 
+  const vehiculosFiltrados = useMemo(() => {
+    const termino = busquedaGlobal.trim().toLowerCase();
+    if (termino.length === 0) return vehiculos;
+    return vehiculos.filter((vehiculo) => {
+      return (
+        vehiculo.placa.toLowerCase().includes(termino) ||
+        vehiculo.tipo.toLowerCase().includes(termino) ||
+        vehiculo.estado.toLowerCase().includes(termino) ||
+        getTipoVehiculo(vehiculo.tipo).toLowerCase().includes(termino)
+      );
+    });
+  }, [vehiculos, busquedaGlobal]);
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -125,7 +139,7 @@ export function VehicleListView({ onActualizar }: VehicleListViewProps) {
       )}
 
       <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
-        {vehiculos.length > 0 ? (
+        {vehiculosFiltrados.length > 0 ? (
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
               <tr>
@@ -137,7 +151,7 @@ export function VehicleListView({ onActualizar }: VehicleListViewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {vehiculos.map((vehiculo) => (
+              {vehiculosFiltrados.map((vehiculo) => (
                 <tr key={vehiculo.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                   <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-slate-100">{vehiculo.placa}</td>
                   <td className="px-6 py-4 text-sm">{getTipoVehiculo(vehiculo.tipo)}</td>
@@ -173,7 +187,9 @@ export function VehicleListView({ onActualizar }: VehicleListViewProps) {
           </table>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
-            No hay vehículos registrados. ¡Crea el primero!
+            {busquedaGlobal.trim().length > 0
+              ? "No se encontraron vehículos que coincidan con la búsqueda."
+              : "No hay vehículos registrados. ¡Crea el primero!"}
           </div>
         )}
       </div>

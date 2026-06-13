@@ -11,10 +11,12 @@ interface SidebarItemProps {
 export function SidebarItem({ icono: Icono, etiqueta, activo, onClick, expanded }: SidebarItemProps) {
   return (
     <button
-      className={`group/item relative flex w-full items-center gap-4 rounded-xl px-3 py-3 text-sm font-semibold transition-all duration-300 overflow-hidden ${
+      className={`group/item relative flex w-full items-center rounded-xl px-3 py-3 text-sm font-semibold transition-all duration-300 overflow-hidden ${
         activo
           ? "bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.15)]"
           : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100"
+      } ${
+        expanded ? "justify-start" : "justify-center lg:group-hover:justify-start"
       }`}
       onClick={onClick}
       type="button"
@@ -29,7 +31,11 @@ export function SidebarItem({ icono: Icono, etiqueta, activo, onClick, expanded 
         <Icono size={20} strokeWidth={activo ? 2.5 : 2} />
       </div>
       
-      <span className={`transition-opacity duration-300 whitespace-nowrap tracking-wide ${expanded ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+      <span className={`transition-all duration-300 whitespace-nowrap tracking-wide ${
+        expanded 
+          ? "opacity-100 w-auto ml-4" 
+          : "w-0 opacity-0 lg:group-hover:w-auto lg:group-hover:opacity-100 lg:group-hover:ml-4"
+      }`}>
         {etiqueta}
       </span>
     </button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trash2, Edit2, Plus, AlertTriangle } from "lucide-react";
 import { Conductor } from "../../types/domain";
 import { obtenerConductores, eliminarConductor, obtenerLicenciasPorVencer } from "../../services/conductor.service";
@@ -7,9 +7,10 @@ import { ConductorFormModal } from "./ConductorFormModal";
 
 interface ConductorListViewProps {
   onActualizar?: () => void;
+  busquedaGlobal?: string;
 }
 
-export function ConductorListView({ onActualizar }: ConductorListViewProps) {
+export function ConductorListView({ onActualizar, busquedaGlobal = "" }: ConductorListViewProps) {
   const [conductores, setConductores] = useState<Conductor[]>([]);
   const [licenciasPorVencer, setLicenciasPorVencer] = useState<Conductor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,8 +92,24 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
     if (conductor.diasParaVencimiento <= 30) {
       return { color: "text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/10", bg: "bg-blue-50 dark:bg-blue-950/20", label: "Próxima" };
     }
-    return { color: "text-green-700 dark:text-emerald-400 border border-green-200 dark:border-emerald-500/10", bg: "bg-green-50 dark:bg-emerald-950/20", label: "Vigente" };
+    return { color: "text-green-700 dark:text-emerald-400 border border-green-200 dark:emerald-500/10", bg: "bg-green-50 dark:bg-emerald-950/20", label: "Vigente" };
   };
+
+  const conductoresFiltrados = useMemo(() => {
+    const termino = busquedaGlobal.trim().toLowerCase();
+    if (termino.length === 0) return conductores;
+    return conductores.filter((conductor) => {
+      const nombreCompleto = `${conductor.nombre} ${conductor.apellido}`.toLowerCase();
+      return (
+        conductor.nombre.toLowerCase().includes(termino) ||
+        conductor.apellido.toLowerCase().includes(termino) ||
+        nombreCompleto.includes(termino) ||
+        conductor.cedula.toLowerCase().includes(termino) ||
+        conductor.numeroLicencia.toLowerCase().includes(termino) ||
+        conductor.categoriaLicencia.toLowerCase().includes(termino)
+      );
+    });
+  }, [conductores, busquedaGlobal]);
 
   if (loading) {
     return (
@@ -152,7 +169,7 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
 
       {/* Tabla */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
-        {conductores.length > 0 ? (
+        {conductoresFiltrados.length > 0 ? (
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
               <tr>
@@ -167,7 +184,7 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {conductores.map((conductor) => {
+              {conductoresFiltrados.map((conductor) => {
                 const licenciaEstado = getLicenciaEstado(conductor);
                 return (
                   <tr key={conductor.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
@@ -214,7 +231,9 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
           </table>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
-            No hay conductores registrados. ¡Crea el primero!
+            {busquedaGlobal.trim().length > 0
+              ? "No se encontraron conductores que coincidan con la búsqueda."
+              : "No hay conductores registrados. ¡Crea el primero!"}
           </div>
         )}
       </div>
