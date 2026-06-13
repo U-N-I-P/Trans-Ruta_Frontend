@@ -9,6 +9,7 @@ import { ViaticosListView } from "../fleet/ViaticosListView";
 import { IncidentesListView } from "../fleet/IncidentesListView";
 import { ReportesListView } from "../fleet/ReportesListView";
 import { AuditoriaListView } from "../fleet/AuditoriaListView";
+import { EquiposView } from "../teams/EquiposView";
 import { MantenimientoListView } from "../fleet/MantenimientoListView";
 import { EntregasListView } from "../fleet/EntregasListView";
 import { AsignacionInteligenteView } from "../fleet/AsignacionInteligenteView";
@@ -114,7 +115,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
       "inventario",
       "clientes",
       "reportes",
-      "auditoria"
+      "auditoria",
+      "equipos"
     ];
 
     if (!v) return "panel";
@@ -398,6 +400,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
             <ReportesListView />
           ) : vistaActiva === "auditoria" ? (
             <AuditoriaListView />
+          ) : vistaActiva === "equipos" ? (
+            <EquiposView />
           ) : vistaActiva === "flota" ? (
             <FleetInventoryView vehiculos={vehiculos} repuestos={repuestos} />
           ) : (
