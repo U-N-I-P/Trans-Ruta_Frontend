@@ -9,6 +9,7 @@ import { ViaticosListView } from "../fleet/ViaticosListView";
 import { IncidentesListView } from "../fleet/IncidentesListView";
 import { ReportesListView } from "../fleet/ReportesListView";
 import { AuditoriaListView } from "../fleet/AuditoriaListView";
+import { EquiposView } from "../teams/EquiposView";
 import { MantenimientoListView } from "../fleet/MantenimientoListView";
 import { EntregasListView } from "../fleet/EntregasListView";
 import { AsignacionInteligenteView } from "../fleet/AsignacionInteligenteView";
@@ -93,12 +94,12 @@ const VISTAS_POR_ROL: Record<string, VistaPrincipal[]> = {
     "flota", "vehiculos", "conductores", "documentos",
     "mantenimiento", "inventario",
     "viaticos", "combustible", "compras",
-    "reportes", "clientes", "evaluacion", "auditoria"
+    "reportes", "clientes", "evaluacion", "auditoria", "equipos"
   ],
   DESPACHADOR: [
     "panel", "gps", "asignacion", "operativo", "entregas", "incidentes", "manifiestos",
     "flota", "vehiculos", "conductores", "documentos",
-    "reportes", "clientes", "evaluacion"
+    "reportes", "clientes", "evaluacion", "equipos"
   ],
   CONDUCTOR: [
     "entregas", "incidentes", "viaticos", "combustible"
@@ -453,6 +454,8 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
             <ReportesListView />
           ) : vistaActiva === "auditoria" ? (
             <AuditoriaListView />
+          ) : vistaActiva === "equipos" ? (
+            <EquiposView />
           ) : vistaActiva === "flota" ? (
             <FleetInventoryView vehiculos={vehiculos} repuestos={repuestos} />
           ) : (

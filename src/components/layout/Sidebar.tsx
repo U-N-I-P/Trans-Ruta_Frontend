@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { ClipboardList, PackageSearch, Truck, Users, FileText, AlertCircle, DollarSign, BarChart3, Lock, Zap, Wrench, CheckCircle, Award, MapPin, ShoppingCart, Clock, Package, Phone, ShieldCheck } from "lucide-react";
+import { ClipboardList, PackageSearch, Truck, Users, UserPlus, FileText, AlertCircle, DollarSign, BarChart3, Lock, Zap, Wrench, CheckCircle, Award, MapPin, ShoppingCart, Clock, Package, Phone, ShieldCheck } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 
-export type VistaPrincipal = "panel" | "flota" | "vehiculos" | "conductores" | "documentos" | "mantenimiento" | "entregas" | "ordenes" | "incidentes" | "viaticos" | "combustible" | "asignacion" | "evaluacion" | "compras" | "gps" | "manifiestos" | "operativo" | "inventario" | "clientes" | "reportes" | "auditoria";
+export type VistaPrincipal = "panel" | "flota" | "vehiculos" | "conductores" | "documentos" | "mantenimiento" | "entregas" | "ordenes" | "incidentes" | "viaticos" | "combustible" | "asignacion" | "evaluacion" | "compras" | "gps" | "manifiestos" | "operativo" | "inventario" | "clientes" | "reportes" | "auditoria" | "equipos";
 
 interface SidebarProps {
   colapsado: boolean;
@@ -339,6 +339,15 @@ export function Sidebar({
                   etiqueta="Auditoría"
                   activo={vistaActiva === "auditoria"}
                   onClick={() => onCambiarVista("auditoria")}
+                  expanded={movilAbierto}
+                />
+              )}
+              {esPermitido("equipos") && (
+                <SidebarItem
+                  icono={UserPlus}
+                  etiqueta="Equipos"
+                  activo={vistaActiva === "equipos"}
+                  onClick={() => onCambiarVista("equipos")}
                   expanded={movilAbierto}
                 />
               )}
