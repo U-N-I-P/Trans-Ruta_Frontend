@@ -22,6 +22,7 @@ interface DashboardViewProps {
   solicitudesCompra: SolicitudCompra[];
   onCrearOrden: (payload: NuevaOrdenInput) => Promise<OrdenDespacho>;
   busquedaExterna?: string;
+  onBusquedaExternaChange?: (valor: string) => void;
 }
 
 interface SimulatedVehicle extends Vehiculo {
@@ -77,7 +78,8 @@ export function DashboardView({
   solicitudesCompra,
   onCrearOrden,
   onActualizar,
-  busquedaExterna
+  busquedaExterna,
+  onBusquedaExternaChange
 }: DashboardViewProps & { onActualizar?: () => Promise<void> }) {
   const [filtroEstado, setFiltroEstado] = useState<string>("Todos");
   const [busqueda, setBusqueda] = useState("");
@@ -196,8 +198,13 @@ export function DashboardView({
       }
     });
 
-    return alerts.slice(0, 5); // Tomar las 5 más importantes
-  }, [vehiculos, simulatedVehicles, solicitudesCompra]);
+    const termino = busquedaActiva.trim().toLowerCase();
+    const alertsFiltradas = termino.length === 0
+      ? alerts
+      : alerts.filter(a => a.mensaje.toLowerCase().includes(termino));
+
+    return alertsFiltradas.slice(0, 5); // Tomar las 5 más importantes
+  }, [vehiculos, simulatedVehicles, solicitudesCompra, busquedaActiva]);
 
   // Cronología operacional (Timeline)
   const cronologiaEventos = useMemo(() => {
@@ -242,8 +249,17 @@ export function DashboardView({
       });
     }
 
-    return timeline.slice(0, 4);
-  }, [ordenes]);
+    const termino = busquedaActiva.trim().toLowerCase();
+    const timelineFiltrado = termino.length === 0
+      ? timeline
+      : timeline.filter(
+          (evento) =>
+            evento.titulo.toLowerCase().includes(termino) ||
+            evento.descripcion.toLowerCase().includes(termino)
+        );
+
+    return timelineFiltrado.slice(0, 4);
+  }, [ordenes, busquedaActiva]);
 
   const ordenesFiltradas = useMemo(() => {
     const termino = busquedaActiva.trim().toLowerCase();
@@ -444,7 +460,11 @@ export function DashboardView({
             <input
               type="search"
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setBusqueda(val);
+                onBusquedaExternaChange?.(val);
+              }}
               placeholder="Buscar placa, conductor o código..."
               className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/50 px-3.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 outline-none focus:border-blue-500"
             />

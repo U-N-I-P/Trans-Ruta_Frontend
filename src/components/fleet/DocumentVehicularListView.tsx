@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Edit2, Trash2, AlertTriangle } from "lucide-react";
 import { DocumentVehicularFormModal } from "./DocumentVehicularFormModal";
 import { obtenerDocumentosVehiculares, eliminarDocumentoVehicular, obtenerAlertasDocumentosVehiculares } from "../../services/documentoVehicular.service";
@@ -7,7 +7,11 @@ import { Table } from "../ui/Table";
 import { DocumentoVehicular, DocumentoVehicularAlerta, Vehiculo } from "../../types/domain";
 import { Modal } from "../ui/Modal";
 
-export function DocumentVehicularListView() {
+interface DocumentVehicularListViewProps {
+  busquedaGlobal?: string;
+}
+
+export function DocumentVehicularListView({ busquedaGlobal = "" }: DocumentVehicularListViewProps) {
   const [documentos, setDocumentos] = useState<DocumentoVehicular[]>([]);
   const [alertas, setAlertas] = useState<DocumentoVehicularAlerta[]>([]);
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
@@ -17,6 +21,29 @@ export function DocumentVehicularListView() {
   const [documentoEditar, setDocumentoEditar] = useState<DocumentoVehicular | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [documentoEliminar, setDocumentoEliminar] = useState<DocumentoVehicular | null>(null);
+
+  const documentosFiltrados = useMemo(() => {
+    const termino = busquedaGlobal.trim().toLowerCase();
+    if (termino.length === 0) return documentos;
+    return documentos.filter((doc) => {
+      return (
+        (doc.vehiculo?.placa ?? "").toLowerCase().includes(termino) ||
+        doc.tipo.toLowerCase().includes(termino) ||
+        doc.numero.toLowerCase().includes(termino)
+      );
+    });
+  }, [documentos, busquedaGlobal]);
+
+  const alertasFiltradas = useMemo(() => {
+    const termino = busquedaGlobal.trim().toLowerCase();
+    if (termino.length === 0) return alertas;
+    return alertas.filter((alerta) => {
+      return (
+        alerta.placa.toLowerCase().includes(termino) ||
+        alerta.tipo.toLowerCase().includes(termino)
+      );
+    });
+  }, [alertas, busquedaGlobal]);
 
   const cargarDatos = async () => {
     try {
@@ -148,17 +175,17 @@ export function DocumentVehicularListView() {
       )}
 
       {/* Alertas */}
-      {alertas.length > 0 && (
+      {alertasFiltradas.length > 0 && (
         <div className="rounded-2xl border border-amber-250 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-950/20 p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle size={20} className="text-amber-700 dark:text-amber-400" />
             <div>
               <h3 className="font-semibold text-amber-900 dark:text-amber-200">Alertas de documentos por vencer</h3>
-              <p className="text-sm text-amber-800 dark:text-amber-400">{alertas.length} documento(s) tienen vencimiento en los próximos 30 días.</p>
+              <p className="text-sm text-amber-800 dark:text-amber-400">{alertasFiltradas.length} documento(s) tienen vencimiento en los próximos 30 días.</p>
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {alertas.map((alerta) => (
+            {alertasFiltradas.map((alerta) => (
               <div key={alerta.id} className="rounded-2xl border border-amber-200/20 dark:border-slate-800 bg-white/90 dark:bg-slate-800/80 p-4 shadow-sm">
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{alerta.placa}</p>
                 <p className="text-sm text-slate-600 dark:text-slate-300">{alerta.tipo}</p>
@@ -183,7 +210,16 @@ export function DocumentVehicularListView() {
 
       {/* Tabla Container */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm">
-        <Table columnas={columnas} datos={documentos} claveFila={(doc) => String(doc.id)} estadoVacio="No hay documentos registrados" />
+        <Table
+          columnas={columnas}
+          datos={documentosFiltrados}
+          claveFila={(doc) => String(doc.id)}
+          estadoVacio={
+            busquedaGlobal.trim().length > 0
+              ? "No se encontraron documentos que coincidan con la búsqueda."
+              : "No hay documentos registrados"
+          }
+        />
       </div>
 
       {showFormModal && (

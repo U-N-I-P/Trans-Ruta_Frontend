@@ -8,9 +8,10 @@ import { VehicleFormModal } from "./VehicleFormModal";
 interface VehicleListViewProps {
   onActualizar?: () => void;
   busquedaExterna?: string;
+  busquedaGlobal?: string;
 }
 
-export function VehicleListView({ onActualizar, busquedaExterna }: VehicleListViewProps) {
+export function VehicleListView({ onActualizar, busquedaExterna, busquedaGlobal = "" }: VehicleListViewProps) {
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,12 +22,13 @@ export function VehicleListView({ onActualizar, busquedaExterna }: VehicleListVi
   const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
-    if (busquedaExterna !== undefined) {
-      setBusqueda(busquedaExterna);
+    const ext = busquedaExterna ?? busquedaGlobal;
+    if (ext !== undefined) {
+      setBusqueda(ext);
     }
-  }, [busquedaExterna]);
+  }, [busquedaExterna, busquedaGlobal]);
 
-  const busquedaActiva = busquedaExterna ?? busqueda;
+  const busquedaActiva = busquedaExterna ?? (busquedaGlobal || busqueda);
 
   const cargarVehiculos = async () => {
     try {
@@ -102,13 +104,15 @@ export function VehicleListView({ onActualizar, busquedaExterna }: VehicleListVi
 
   const vehiculosFiltrados = useMemo(() => {
     const termino = busquedaActiva.trim().toLowerCase();
-    if (!termino) return vehiculos;
-
-    return vehiculos.filter((vehiculo) =>
-      vehiculo.placa.toLowerCase().includes(termino) ||
-      getTipoVehiculo(vehiculo.tipo).toLowerCase().includes(termino) ||
-      vehiculo.estado.toLowerCase().includes(termino)
-    );
+    if (termino.length === 0) return vehiculos;
+    return vehiculos.filter((vehiculo) => {
+      return (
+        vehiculo.placa.toLowerCase().includes(termino) ||
+        vehiculo.tipo.toLowerCase().includes(termino) ||
+        vehiculo.estado.toLowerCase().includes(termino) ||
+        getTipoVehiculo(vehiculo.tipo).toLowerCase().includes(termino)
+      );
+    });
   }, [vehiculos, busquedaActiva]);
 
   if (loading) {
@@ -162,7 +166,7 @@ export function VehicleListView({ onActualizar, busquedaExterna }: VehicleListVi
       )}
 
       {/* Tabla */}
-      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
         {vehiculosFiltrados.length > 0 ? (
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
