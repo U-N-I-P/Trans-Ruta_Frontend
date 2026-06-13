@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Trash2, Edit2, Plus, AlertTriangle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Trash2, Edit2, Plus, AlertTriangle, Search } from "lucide-react";
 import { Conductor } from "../../types/domain";
 import { obtenerConductores, eliminarConductor, obtenerLicenciasPorVencer } from "../../services/conductor.service";
 import { Modal } from "../ui/Modal";
@@ -7,9 +7,10 @@ import { ConductorFormModal } from "./ConductorFormModal";
 
 interface ConductorListViewProps {
   onActualizar?: () => void;
+  busquedaExterna?: string;
 }
 
-export function ConductorListView({ onActualizar }: ConductorListViewProps) {
+export function ConductorListView({ onActualizar, busquedaExterna }: ConductorListViewProps) {
   const [conductores, setConductores] = useState<Conductor[]>([]);
   const [licenciasPorVencer, setLicenciasPorVencer] = useState<Conductor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +19,15 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
   const [conductorEditar, setConductorEditar] = useState<Conductor | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [conductorEliminar, setConductorEliminar] = useState<Conductor | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+
+  useEffect(() => {
+    if (busquedaExterna !== undefined) {
+      setBusqueda(busquedaExterna);
+    }
+  }, [busquedaExterna]);
+
+  const busquedaActiva = busquedaExterna ?? busqueda;
 
   const cargarDatos = async () => {
     try {
@@ -78,6 +88,18 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
 
   const getNombreCompleto = (conductor: Conductor) => `${conductor.nombre} ${conductor.apellido}`;
 
+  const conductoresFiltrados = useMemo(() => {
+    const termino = busquedaActiva.trim().toLowerCase();
+    if (!termino) return conductores;
+
+    return conductores.filter((conductor) =>
+      getNombreCompleto(conductor).toLowerCase().includes(termino) ||
+      conductor.cedula.toLowerCase().includes(termino) ||
+      conductor.numeroLicencia.toLowerCase().includes(termino) ||
+      conductor.categoriaLicencia.toLowerCase().includes(termino)
+    );
+  }, [conductores, busquedaActiva]);
+
   const getLicenciaEstado = (conductor: Conductor) => {
     if (conductor.licenciaVencida) {
       return { color: "text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/10", bg: "bg-red-50 dark:bg-red-950/20", label: "Vencida" };
@@ -128,18 +150,34 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
 
       {/* Header */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Gestión de Conductores</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Total: {conductores.length} conductores registrados en el sistema</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {busquedaActiva.trim()
+                ? `Mostrando ${conductoresFiltrados.length} de ${conductores.length} conductores`
+                : `Total: ${conductores.length} conductores registrados en el sistema`}
+            </p>
           </div>
-          <button
-            onClick={handleCrearConductor}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
-          >
-            <Plus size={18} />
-            Nuevo Conductor
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 px-3 py-2">
+              <Search size={16} className="text-slate-400" />
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por nombre, cédula o licencia..."
+                className="w-48 border-none bg-transparent text-sm text-slate-700 outline-none dark:text-slate-300"
+              />
+            </div>
+            <button
+              onClick={handleCrearConductor}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+            >
+              <Plus size={18} />
+              Nuevo Conductor
+            </button>
+          </div>
         </div>
       </div>
 
@@ -152,7 +190,7 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
 
       {/* Tabla */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
-        {conductores.length > 0 ? (
+        {conductoresFiltrados.length > 0 ? (
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
               <tr>
@@ -167,7 +205,7 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              {conductores.map((conductor) => {
+              {conductoresFiltrados.map((conductor) => {
                 const licenciaEstado = getLicenciaEstado(conductor);
                 return (
                   <tr key={conductor.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
@@ -214,7 +252,9 @@ export function ConductorListView({ onActualizar }: ConductorListViewProps) {
           </table>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
-            No hay conductores registrados. ¡Crea el primero!
+            {conductores.length === 0
+              ? "No hay conductores registrados. ¡Crea el primero!"
+              : "No hay conductores que coincidan con la búsqueda."}
           </div>
         )}
       </div>
