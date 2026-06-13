@@ -40,4 +40,12 @@ export async function reporteCumplimientoEntregas() {
   return resp.data;
 }
 
-export default { listarReportes, obtenerReporte, generarReporte, reporteCombustible, reporteRutasRentables, reporteCumplimientoEntregas };
+export async function exportarReporte(id: number, formato: "pdf" | "csv" = "pdf") {
+  const resp = await api.get(`/reportes/${id}/exportar`, {
+    params: { formato },
+    responseType: "blob"
+  });
+  return resp.data as Blob;
+}
+
+export default { listarReportes, obtenerReporte, generarReporte, reporteCombustible, reporteRutasRentables, reporteCumplimientoEntregas, exportarReporte };

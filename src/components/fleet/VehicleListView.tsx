@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Trash2, Edit2, Plus } from "lucide-react";
+import { Trash2, Edit2, Plus, Search } from "lucide-react";
 import { Vehiculo } from "../../types/domain";
 import { obtenerVehiculos, eliminarVehiculo } from "../../services/vehiculo.service";
 import { Modal } from "../ui/Modal";
@@ -7,10 +7,11 @@ import { VehicleFormModal } from "./VehicleFormModal";
 
 interface VehicleListViewProps {
   onActualizar?: () => void;
+  busquedaExterna?: string;
   busquedaGlobal?: string;
 }
 
-export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleListViewProps) {
+export function VehicleListView({ onActualizar, busquedaExterna, busquedaGlobal = "" }: VehicleListViewProps) {
   const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +19,16 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
   const [vehiculoEditar, setVehiculoEditar] = useState<Vehiculo | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [vehiculoEliminar, setVehiculoEliminar] = useState<Vehiculo | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+
+  useEffect(() => {
+    const ext = busquedaExterna ?? busquedaGlobal;
+    if (ext !== undefined) {
+      setBusqueda(ext);
+    }
+  }, [busquedaExterna, busquedaGlobal]);
+
+  const busquedaActiva = busquedaExterna ?? (busquedaGlobal || busqueda);
 
   const cargarVehiculos = async () => {
     try {
@@ -92,7 +103,7 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
   };
 
   const vehiculosFiltrados = useMemo(() => {
-    const termino = busquedaGlobal.trim().toLowerCase();
+    const termino = busquedaActiva.trim().toLowerCase();
     if (termino.length === 0) return vehiculos;
     return vehiculos.filter((vehiculo) => {
       return (
@@ -102,7 +113,7 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
         getTipoVehiculo(vehiculo.tipo).toLowerCase().includes(termino)
       );
     });
-  }, [vehiculos, busquedaGlobal]);
+  }, [vehiculos, busquedaActiva]);
 
   if (loading) {
     return (
@@ -116,18 +127,34 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
     <div className="space-y-6">
       {/* Header */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Gestión de Vehículos</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Total: {vehiculos.length} vehículos registrados en la flota</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {busquedaActiva.trim()
+                ? `Mostrando ${vehiculosFiltrados.length} de ${vehiculos.length} vehículos`
+                : `Total: ${vehiculos.length} vehículos registrados en la flota`}
+            </p>
           </div>
-          <button
-            onClick={handleCrearVehiculo}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
-          >
-            <Plus size={18} />
-            Nuevo Vehículo
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 px-3 py-2">
+              <Search size={16} className="text-slate-400" />
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por placa, tipo o estado..."
+                className="w-48 border-none bg-transparent text-sm text-slate-700 outline-none dark:text-slate-300"
+              />
+            </div>
+            <button
+              onClick={handleCrearVehiculo}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+            >
+              <Plus size={18} />
+              Nuevo Vehículo
+            </button>
+          </div>
         </div>
       </div>
 
@@ -138,6 +165,7 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
         </div>
       )}
 
+      {/* Tabla */}
       <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 shadow-panel backdrop-blur-sm overflow-x-auto">
         {vehiculosFiltrados.length > 0 ? (
           <table className="w-full text-left">
@@ -187,9 +215,9 @@ export function VehicleListView({ onActualizar, busquedaGlobal = "" }: VehicleLi
           </table>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
-            {busquedaGlobal.trim().length > 0
-              ? "No se encontraron vehículos que coincidan con la búsqueda."
-              : "No hay vehículos registrados. ¡Crea el primero!"}
+            {vehiculos.length === 0
+              ? "No hay vehículos registrados. ¡Crea el primero!"
+              : "No hay vehículos que coincidan con la búsqueda."}
           </div>
         )}
       </div>

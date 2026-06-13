@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Trash2, Edit2, Plus, AlertTriangle } from "lucide-react";
+import { Trash2, Edit2, Plus, AlertTriangle, Search } from "lucide-react";
 import { Conductor } from "../../types/domain";
 import { obtenerConductores, eliminarConductor, obtenerLicenciasPorVencer } from "../../services/conductor.service";
 import { Modal } from "../ui/Modal";
@@ -7,10 +7,11 @@ import { ConductorFormModal } from "./ConductorFormModal";
 
 interface ConductorListViewProps {
   onActualizar?: () => void;
+  busquedaExterna?: string;
   busquedaGlobal?: string;
 }
 
-export function ConductorListView({ onActualizar, busquedaGlobal = "" }: ConductorListViewProps) {
+export function ConductorListView({ onActualizar, busquedaExterna, busquedaGlobal = "" }: ConductorListViewProps) {
   const [conductores, setConductores] = useState<Conductor[]>([]);
   const [licenciasPorVencer, setLicenciasPorVencer] = useState<Conductor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,16 @@ export function ConductorListView({ onActualizar, busquedaGlobal = "" }: Conduct
   const [conductorEditar, setConductorEditar] = useState<Conductor | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [conductorEliminar, setConductorEliminar] = useState<Conductor | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+
+  useEffect(() => {
+    const ext = busquedaExterna ?? busquedaGlobal;
+    if (ext !== undefined) {
+      setBusqueda(ext);
+    }
+  }, [busquedaExterna, busquedaGlobal]);
+
+  const busquedaActiva = busquedaExterna ?? (busquedaGlobal || busqueda);
 
   const cargarDatos = async () => {
     try {
@@ -96,7 +107,7 @@ export function ConductorListView({ onActualizar, busquedaGlobal = "" }: Conduct
   };
 
   const conductoresFiltrados = useMemo(() => {
-    const termino = busquedaGlobal.trim().toLowerCase();
+    const termino = busquedaActiva.trim().toLowerCase();
     if (termino.length === 0) return conductores;
     return conductores.filter((conductor) => {
       const nombreCompleto = `${conductor.nombre} ${conductor.apellido}`.toLowerCase();
@@ -109,7 +120,7 @@ export function ConductorListView({ onActualizar, busquedaGlobal = "" }: Conduct
         conductor.categoriaLicencia.toLowerCase().includes(termino)
       );
     });
-  }, [conductores, busquedaGlobal]);
+  }, [conductores, busquedaActiva]);
 
   if (loading) {
     return (
@@ -145,18 +156,34 @@ export function ConductorListView({ onActualizar, busquedaGlobal = "" }: Conduct
 
       {/* Header */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/80 p-6 text-slate-900 dark:text-slate-100 shadow-sm backdrop-blur-sm">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-['Sora'] text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl">Gestión de Conductores</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Total: {conductores.length} conductores registrados en el sistema</p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {busquedaActiva.trim()
+                ? `Mostrando ${conductoresFiltrados.length} de ${conductores.length} conductores`
+                : `Total: ${conductores.length} conductores registrados en el sistema`}
+            </p>
           </div>
-          <button
-            onClick={handleCrearConductor}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
-          >
-            <Plus size={18} />
-            Nuevo Conductor
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/40 px-3 py-2">
+              <Search size={16} className="text-slate-400" />
+              <input
+                type="search"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                placeholder="Buscar por nombre, cédula o licencia..."
+                className="w-48 border-none bg-transparent text-sm text-slate-700 outline-none dark:text-slate-300"
+              />
+            </div>
+            <button
+              onClick={handleCrearConductor}
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-all shadow-md shadow-blue-500/10"
+            >
+              <Plus size={18} />
+              Nuevo Conductor
+            </button>
+          </div>
         </div>
       </div>
 
@@ -231,9 +258,9 @@ export function ConductorListView({ onActualizar, busquedaGlobal = "" }: Conduct
           </table>
         ) : (
           <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
-            {busquedaGlobal.trim().length > 0
-              ? "No se encontraron conductores que coincidan con la búsqueda."
-              : "No hay conductores registrados. ¡Crea el primero!"}
+            {conductores.length === 0
+              ? "No hay conductores registrados. ¡Crea el primero!"
+              : "No hay conductores que coincidan con la búsqueda."}
           </div>
         )}
       </div>
