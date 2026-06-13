@@ -353,9 +353,9 @@ export function AdminLayout({ onCerrarSesion }: AdminLayoutProps) {
               busquedaExterna={busquedaGlobal}
             />
           ) : vistaActiva === "vehiculos" ? (
-            <VehicleListView onActualizar={cargarDatos} />
+            <VehicleListView onActualizar={cargarDatos} busquedaExterna={busquedaGlobal} />
           ) : vistaActiva === "conductores" ? (
-            <ConductorListView onActualizar={cargarDatos} />
+            <ConductorListView onActualizar={cargarDatos} busquedaExterna={busquedaGlobal} />
           ) : vistaActiva === "documentos" ? (
             <DocumentVehicularListView />
           ) : vistaActiva === "ordenes" ? (
